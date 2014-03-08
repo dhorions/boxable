@@ -1,0 +1,12 @@
+*.pdf
+build/*
+dist/*
+*.class
+lib/*
+nbproject/*
+build.xml
+manifest.mf
+# Package Files #
+*.jar
+*.war
+*.ear
