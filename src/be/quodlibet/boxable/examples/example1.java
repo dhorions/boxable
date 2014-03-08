@@ -49,7 +49,7 @@ public class example1
             cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
             row.addCell(cell);
             table.drawRow(row);
-            //Fact header row
+            //Create Fact header row
             pdfRow factHeaderrow = new pdfRow(15f);
             cell = new pdfCell((tableWidth/3) * 2 ,"Fact");
             cell.setFont(PDType1Font.HELVETICA);cell.setFontSize(6);
@@ -61,7 +61,7 @@ public class example1
             factHeaderrow.addCell(cell);
             table.drawRow(factHeaderrow);
 
-            //Add multiple rows
+            //Add multiple rows with random facts about Belgium
             for(String[] fact : facts)
             {
                 row = new pdfRow(10f);
@@ -86,7 +86,7 @@ public class example1
                     page = addNewPage(doc);
                     pageContentStream = new PDPageContentStream(doc, page);
                     table = new pdfTable( (top - (1* 20f)),Margin, page,  pageContentStream);
-                    //redraw all headers
+                    //redraw all headers on each page
                     table.drawRow(headerrow);
                     table.drawRow(factHeaderrow);
                 }
@@ -139,8 +139,7 @@ public class example1
         facts.add(new String[]{"Rock Werchter is the Best Festival in the World","festivals","music","world champions"});
 
         //Make the table a bit bigger
-        facts.addAll(facts);
-        facts.addAll(facts);
+        facts.addAll(facts);facts.addAll(facts);facts.addAll(facts);
 
 
         return facts;
