@@ -3,11 +3,18 @@ boxable
 
 Create tables in pdf documents using PDFBox
 
+    http://pdfbox.apache.org/
+
+
+- Example pdf can be found at http://goo.gl/a7QvRM
+
+- Example code can be found at https://github.com/dhorions/boxable/blob/master/src/be/quodlibet/boxable/examples/example1.java
 
 
 
 
 
+=======
 
 Copyright [2014] [Quodlibet.be]
 
