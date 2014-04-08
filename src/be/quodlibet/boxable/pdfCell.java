@@ -20,6 +20,7 @@ public class pdfCell {
     {
         this.width = width;
         this.text = text;
+
     }
 
     public Color getTextColor()
@@ -81,5 +82,11 @@ public class pdfCell {
     public void setFontSize(float fontSize)
     {
         this.fontSize = fontSize;
-    }  
+    }
+
+    public pdfParagraph getParagraph()
+    {
+         return new pdfParagraph( text,  font,  (int)fontSize,  (int)width);
+    }
+
 }

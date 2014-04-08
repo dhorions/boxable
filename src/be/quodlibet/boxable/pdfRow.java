@@ -5,11 +5,13 @@
 package be.quodlibet.boxable;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 
 public class pdfRow {
-
+    PDOutlineItem bookmark;
     List<pdfCell> cells;
     float height;
     public pdfRow(List<pdfCell> cells, float height)
@@ -26,9 +28,21 @@ public class pdfRow {
         if (cells == null) cells = new ArrayList();
         cells.add(cell);
     }
-    public float getHeight()
+    public float getHeight() throws IOException
+    {
+        //return height;
+        float maxheight = new Float(0);
+        for( pdfCell cell : this.cells)
+        {
+            float cellHeight =  ( cell.getParagraph().getLines().size() * this.height);
+            if(cellHeight  > maxheight) maxheight = cellHeight;
+        }
+        return maxheight;
+    }
+    public float getLineHeight() throws IOException
     {
         return height;
+       
     }
 
     public void setHeight(float height)
@@ -56,6 +70,16 @@ public class pdfRow {
             totalWidth += cell.getWidth();
         }
         return totalWidth;
+    }
+
+    public PDOutlineItem getBookmark()
+    {
+        return bookmark;
+    }
+
+    public void setBookmark(PDOutlineItem bookmark)
+    {
+        this.bookmark = bookmark;
     }
 
 

@@ -12,38 +12,30 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 public class pdfParagraph {
-/** position X */
-    private float x;
 
-    /** position Y */
-    private float y;
 
-    /** width of this paragraph */
+    
     private int width = 500;
 
-    /** text to write */
+    
     private String text;
-
-    /** font to use */
     private PDFont font = PDType1Font.HELVETICA;
-
-    /** font size to use */
     private int fontSize = 10;
 
     private int color = 0;
 
-    public pdfParagraph(float x, float y, String text) {
-        this.x = x;
-        this.y = y;
+    public pdfParagraph( String text, PDFont font, int fontSize, int width)
+    {
         this.text = text;
+        this.font = font;
+        this.fontSize = fontSize;
+        this.width = width;
     }
 
-    /**
-     * Break the text in lines
-     * @return
-     */
-    public List<String> getLines() throws IOException {
-        List<String> result = new ArrayList();//Lists.newArrayList();
+
+    public List<String> getLines() throws IOException
+    {
+        List<String> result = new ArrayList();
 
         String[] split = text.split("(?<=\\W)");
         int[] possibleWrapPoints = new int[split.length];
@@ -92,14 +84,6 @@ public class pdfParagraph {
 
     public int getColor() {
         return color;
-    }
-
-    public float getX() {
-        return x;
-    }
-
-    public float getY() {
-        return y;
     }
 
     public int getWidth() {
