@@ -6,14 +6,22 @@ package be.quodlibet.boxable;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageXYZDestination;
+import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDocumentOutline;
+import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 
 public class pdfTable {
     private float nextYpos;
     private float margin;
     private PDPage page;
     private PDPageContentStream contentStream;
+    private PDDocumentOutline outline;
+    private List<PDOutlineItem> bookmarks;
     private static final float VerticalCellMargin   = 2f;
     private static final float HorizontalCellMargin = 2f;
     public pdfTable(float yPos,float margin,PDPage page, PDPageContentStream contentStream)
@@ -26,9 +34,21 @@ public class pdfTable {
 
     public  void drawRow(pdfRow row) throws IOException
     {
+        Boolean bookmark = false;
          //draw the horizontal line
         float nexty = nextYpos ;
         contentStream.drawLine(margin,nexty,margin+row.getWidth(),nexty);
+
+        //draw the bookmark
+        if(row.getBookmark()!= null)
+        {
+            bookmark = true;
+            PDPageXYZDestination bookmarkDestination = new PDPageXYZDestination();
+            bookmarkDestination.setPage(page);
+            bookmarkDestination.setTop((int)nextYpos);
+            row.getBookmark().setDestination(bookmarkDestination);
+            this.addBookmark(row.getBookmark());
+        }
 
         //draw the vertical lines
         float nextx = margin;
@@ -40,6 +60,7 @@ public class pdfTable {
                 contentStream.setNonStrokingColor( cell.getFillColor() );
                 //y start is bottom pos
                 contentStream.fillRect( nextx,nexty-row.getHeight(), cell.getWidth(), row.getHeight() - 1f );
+                
                 contentStream.closeSubPath();
             }
 
@@ -56,7 +77,7 @@ public class pdfTable {
 
         //now add the cell content
         nextx = margin + HorizontalCellMargin;
-        nexty = nextYpos  - ( row.getHeight() - VerticalCellMargin );
+        nexty = nextYpos  - ( row.getLineHeight()  - VerticalCellMargin );
         for (pdfCell cell : row.getCells())
         {
             contentStream.setFont(cell.getFont(),cell.getFontSize());
@@ -70,7 +91,18 @@ public class pdfTable {
             }
             contentStream.beginText();
             contentStream.moveTextPositionByAmount(nextx,nexty);
-            contentStream.drawString(cell.getText());
+            List<String> lines = cell.getParagraph().getLines();
+            int numLines = cell.getParagraph().getLines().size();
+            contentStream.appendRawCommands(cell.getParagraph().getFontHeight() + " TL\n");
+            for (String line : cell.getParagraph().getLines() )
+            {
+                
+                //out.drawString(i.next().trim());
+                contentStream.drawString(line.trim());
+                if (numLines > 0) contentStream.appendRawCommands("T*\n");
+                numLines--;
+            }
+            //contentStream.drawString(cell.getText());
             contentStream.endText();
             contentStream.closeSubPath();
             nextx += cell.getWidth() + HorizontalCellMargin;
@@ -102,5 +134,18 @@ public class pdfTable {
     {
         return nextYpos;
     }
+    private void addBookmark(PDOutlineItem bookmark)
+    {
+        if(bookmarks == null) bookmarks = new ArrayList();
+        bookmarks.add(bookmark);
+    }
+
+    public List<PDOutlineItem> getBookmarks()
+    {
+        return bookmarks;
+    }
+
+
+
 
 }
