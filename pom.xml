@@ -44,6 +44,7 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <allowUntracked>true</allowUntracked>
                     <allowSnapshots>true</allowSnapshots>
+                    <noDeploy>true</noDeploy>
                 </configuration>
             </plugin>
         </plugins>
