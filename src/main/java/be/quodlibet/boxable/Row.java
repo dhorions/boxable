@@ -5,25 +5,26 @@
 package be.quodlibet.boxable;
 
 
+import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 
-public class pdfRow {
+public class Row {
     PDOutlineItem bookmark;
-    List<pdfCell> cells;
+    List<Cell> cells;
     float height;
-    public pdfRow(List<pdfCell> cells, float height)
+    public Row(List<Cell> cells, float height)
     {
         this.cells = cells;
         this.height = height;
     }
-    public pdfRow( float height)
+    public Row(float height)
     {
       this.height = height;
     }
-    public void addCell(pdfCell cell)
+    public void addCell(Cell cell)
     {
         if (cells == null) cells = new ArrayList();
         cells.add(cell);
@@ -32,7 +33,7 @@ public class pdfRow {
     {
         //return height;
         float maxheight = new Float(0);
-        for( pdfCell cell : this.cells)
+        for( Cell cell : this.cells)
         {
             float cellHeight =  ( cell.getParagraph().getLines().size() * this.height);
             if(cellHeight  > maxheight) maxheight = cellHeight;
@@ -50,7 +51,7 @@ public class pdfRow {
         this.height = height;
     }
 
-    public List<pdfCell> getCells()
+    public List<Cell> getCells()
     {
         return cells;
     }
@@ -58,14 +59,14 @@ public class pdfRow {
     {
         return cells.size();
     }
-    public void setCells(List<pdfCell> cells)
+    public void setCells(List<Cell> cells)
     {
         this.cells = cells;
     }
     public float getWidth()
     {
         float totalWidth = 0;
-        for(pdfCell cell : cells)
+        for(Cell cell : cells)
         {
             totalWidth += cell.getWidth();
         }

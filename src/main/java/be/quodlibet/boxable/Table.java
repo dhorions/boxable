@@ -4,18 +4,18 @@
  */
 package be.quodlibet.boxable;
 
-import java.awt.Color;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageXYZDestination;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDocumentOutline;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 
-public class pdfTable {
+import java.awt.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Table {
     private float nextYpos;
     private float margin;
     private PDPage page;
@@ -24,7 +24,7 @@ public class pdfTable {
     private List<PDOutlineItem> bookmarks;
     private static final float VerticalCellMargin   = 2f;
     private static final float HorizontalCellMargin = 2f;
-    public pdfTable(float yPos,float margin,PDPage page, PDPageContentStream contentStream)
+    public Table(float yPos, float margin, PDPage page, PDPageContentStream contentStream)
     {
         this.nextYpos = yPos;
         this.margin = margin;
@@ -32,7 +32,7 @@ public class pdfTable {
         this.contentStream = contentStream;
     }
 
-    public  void drawRow(pdfRow row) throws IOException
+    public  void drawRow(Row row) throws IOException
     {
         Boolean bookmark = false;
          //draw the horizontal line
@@ -52,7 +52,7 @@ public class pdfTable {
 
         //draw the vertical lines
         float nextx = margin;
-        for (pdfCell cell : row.getCells())
+        for (Cell cell : row.getCells())
         {
             //Fill Cell Color
             if(cell.getFillColor() != null)
@@ -78,7 +78,7 @@ public class pdfTable {
         //now add the cell content
         nextx = margin + HorizontalCellMargin;
         nexty = nextYpos  - ( row.getLineHeight()  - VerticalCellMargin );
-        for (pdfCell cell : row.getCells())
+        for (Cell cell : row.getCells())
         {
             contentStream.setFont(cell.getFont(),cell.getFontSize());
             if(cell.getTextColor() != null)

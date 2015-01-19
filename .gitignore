@@ -10,3 +10,6 @@ manifest.mf
 *.jar
 *.war
 *.ear
+
+.idea
+target

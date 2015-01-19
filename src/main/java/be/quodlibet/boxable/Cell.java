@@ -4,11 +4,12 @@
  */
 package be.quodlibet.boxable;
 
-import java.awt.Color;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
-public class pdfCell {
+import java.awt.*;
+
+public class Cell {
     float width;
     String text;
     private PDFont font = PDType1Font.HELVETICA;
@@ -16,8 +17,7 @@ public class pdfCell {
     private Color fillColor;
     private Color textColor;
 
-    public pdfCell(float width, String text)
-    {
+    public Cell(float width, String text) {
         this.width = width;
         this.text = text;
 
@@ -84,9 +84,9 @@ public class pdfCell {
         this.fontSize = fontSize;
     }
 
-    public pdfParagraph getParagraph()
+    public Paragraph getParagraph()
     {
-         return new pdfParagraph( text,  font,  (int)fontSize,  (int)width);
+         return new Paragraph( text,  font,  (int)fontSize,  (int)width);
     }
 
 }

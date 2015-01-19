@@ -5,13 +5,14 @@
 package be.quodlibet.boxable;
 
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
-public class pdfParagraph {
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Paragraph {
 
 
     
@@ -24,7 +25,7 @@ public class pdfParagraph {
 
     private int color = 0;
 
-    public pdfParagraph( String text, PDFont font, int fontSize, int width)
+    public Paragraph(String text, PDFont font, int fontSize, int width)
     {
         this.text = text;
         this.font = font;
@@ -66,18 +67,18 @@ public class pdfParagraph {
         return font.getFontDescriptor().getFontBoundingBox().getWidth() / 1000 * fontSize;
     }
 
-    public pdfParagraph withWidth(int width) {
+    public Paragraph withWidth(int width) {
         this.width = width;
         return this;
     }
 
-    public pdfParagraph withFont(PDFont font, int fontSize) {
+    public Paragraph withFont(PDFont font, int fontSize) {
         this.font = font;
         this.fontSize = fontSize;
         return this;
     }
 
-    public pdfParagraph withColor(int color) {
+    public Paragraph withColor(int color) {
         this.color = color;
         return this;
     }
