@@ -21,10 +21,10 @@ import java.util.List;
 
 
 public class TableTest {
-    
+
     @Test
     public void Sample1 () throws IOException, COSVisitorException {
-    
+
         //Set margins
         float Margin = 10;
         List<String[]> facts = getFacts();
@@ -40,13 +40,13 @@ public class TableTest {
         Table table = new Table((top - (1 * 20f)), Margin, page, pageContentStream);
 
         //Create Header row
-        Row headerrow = new Row(15f);
+        Row headerRow = new Row(15f);
         Cell cell = new Cell(tableWidth, "Awesome Facts About Belgium");
         cell.setFont(PDType1Font.HELVETICA_BOLD);
         cell.setFillColor(Color.BLACK);
         cell.setTextColor(Color.WHITE);
-        headerrow.addCell(cell);
-        table.drawRow(headerrow);
+        headerRow.addCell(cell);
+        table.drawRow(headerRow);
 
         //Create 2 column row
         Row row = new Row(15f);
@@ -104,7 +104,7 @@ public class TableTest {
                 table = new Table((top - (1 * 20f)), Margin, page, pageContentStream);
 
                 //redraw all headers on each page
-                table.drawRow(headerrow);
+                table.drawRow(headerRow);
                 table.drawRow(factHeaderrow);
             }
 
@@ -123,7 +123,7 @@ public class TableTest {
    
 
     private static List<String[]> getFacts() {
-        List<String[]> facts = new ArrayList();
+        List<String[]> facts = new ArrayList<String[]>();
         facts.add(new String[]{"Oil Painting was invented by the Belgian van Eyck brothers", "art", "inventions", "science"});
         facts.add(new String[]{"The Belgian Adolphe Sax invented the Saxophone", "inventions", "music", ""});
         facts.add(new String[]{"11 sites in Belgium are on the UNESCO World Heritage List", "art", "history", ""});
@@ -170,7 +170,7 @@ public class TableTest {
         List<String[]> facts = getFacts();
 
         //A list of bookmarks of all the tables
-        List<PDOutlineItem> bookmarks = new ArrayList();
+        List<PDOutlineItem> bookmarks = new ArrayList<PDOutlineItem>();
 
         //Initialize Document
         PDDocument doc = new PDDocument();
@@ -183,12 +183,12 @@ public class TableTest {
         Table table  = new Table( (top - (1* 20f)),Margin, page,  pageContentStream);
 
         //Create Header row
-        Row headerrow = new Row(15f);
+        Row headerRow = new Row(15f);
         Cell cell = new Cell(tableWidth,"Awesome Facts About Belgium");
         cell.setFont(PDType1Font.HELVETICA_BOLD);
         cell.setFillColor(Color.BLACK);cell.setTextColor(Color.WHITE);
-        headerrow.addCell(cell);
-        table.drawRow(headerrow);
+        headerRow.addCell(cell);
+        table.drawRow(headerRow);
 
         //Create 2 column row
         Row row = new Row(15f);
@@ -253,7 +253,7 @@ public class TableTest {
                 table = new Table( (top - (1* 20f)),Margin, page,  pageContentStream);
 
                 //redraw all headers on each page
-                table.drawRow(headerrow);
+                table.drawRow(headerRow);
                 table.drawRow(factHeaderrow);
             }
 
