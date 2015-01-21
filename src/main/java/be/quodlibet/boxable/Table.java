@@ -20,7 +20,6 @@ public class Table {
     private float margin;
     private PDPage page;
     private PDPageContentStream contentStream;
-    private PDDocumentOutline outline;
     private List<PDOutlineItem> bookmarks;
     private static final float VerticalCellMargin   = 2f;
     private static final float HorizontalCellMargin = 2f;
