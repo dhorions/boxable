@@ -32,34 +32,32 @@ public class TableTest {
         //Initialize Document
         PDDocument doc = new PDDocument();
         PDPage page = addNewPage(doc);
-        PDPageContentStream pageContentStream = new PDPageContentStream(doc, page);
 
         //Initialize table
         float tableWidth = page.findMediaBox().getWidth() - (2 * Margin);
-        float top = page.findMediaBox().getHeight() - (2 * Margin);
-        Table table = new Table((top - (1 * 20f)), Margin, page, pageContentStream);
+        Table table  = new Table( Margin, doc, page);
 
         //Create Header row
-        Row headerRow = new Row(15f);
+        Row headerRow = table.createRow(15f);
         Cell cell = new Cell(tableWidth, "Awesome Facts About Belgium");
         cell.setFont(PDType1Font.HELVETICA_BOLD);
         cell.setFillColor(Color.BLACK);
         cell.setTextColor(Color.WHITE);
         headerRow.addCell(cell);
-        table.drawRow(headerRow);
+
+        table.setHeader(headerRow);
 
         //Create 2 column row
-        Row row = new Row(15f);
+        Row row = table.createRow(15f);
         cell = new Cell((tableWidth / 4) * 3, "Source:");
         cell.setFont(PDType1Font.HELVETICA);
         row.addCell(cell);
         cell = new Cell((tableWidth / 4), "http://www.factsofbelgium.com/");
         cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
         row.addCell(cell);
-        table.drawRow(row);
 
         //Create Fact header row
-        Row factHeaderrow = new Row(15f);
+        Row factHeaderrow = table.createRow(15f);
         cell = new Cell((tableWidth / 3) * 2, "Fact");
         cell.setFont(PDType1Font.HELVETICA);
         cell.setFontSize(6);
@@ -70,12 +68,11 @@ public class TableTest {
         cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
         cell.setFontSize(6);
         factHeaderrow.addCell(cell);
-        table.drawRow(factHeaderrow);
 
         //Add multiple rows with random facts about Belgium
         for (String[] fact : facts) {
 
-            row = new Row(10f);
+            row = table.createRow(10f);
             cell = new Cell((tableWidth / 3) * 2, fact[0]);
             cell.setFont(PDType1Font.HELVETICA);
             cell.setFontSize(6);
@@ -91,28 +88,12 @@ public class TableTest {
                 if (fact[i].contains("champion")) cell.setTextColor(Color.GREEN);
                 row.addCell(cell);
             }
-            table.drawRow(row);
-
-            //Start a new page if needed
-            if (table.isEndOfPage()) {
-
-                pageContentStream.close();
-
-                //Start new table on new page
-                page = addNewPage(doc);
-                pageContentStream = new PDPageContentStream(doc, page);
-                table = new Table((top - (1 * 20f)), Margin, page, pageContentStream);
-
-                //redraw all headers on each page
-                table.drawRow(headerRow);
-                table.drawRow(factHeaderrow);
-            }
-
         }
+
+        table.draw();
         table.endTable(tableWidth);
 
         //Close Stream and save pdf
-        pageContentStream.close();
 
         File file = new File("target/BoxableSample1.pdf");
         Files.createParentDirs(file);
@@ -179,29 +160,30 @@ public class TableTest {
 
         //Initialize table
         float tableWidth = page.findMediaBox().getWidth()-(2*Margin);
-        float top = page.findMediaBox().getHeight()-(2*Margin);
-        Table table  = new Table( (top - (1* 20f)),Margin, page,  pageContentStream);
+
+        Table table  = new Table( Margin, doc, page);
+        
 
         //Create Header row
-        Row headerRow = new Row(15f);
+        Row headerRow = table.createRow(15f);
         Cell cell = new Cell(tableWidth,"Awesome Facts About Belgium");
         cell.setFont(PDType1Font.HELVETICA_BOLD);
         cell.setFillColor(Color.BLACK);cell.setTextColor(Color.WHITE);
         headerRow.addCell(cell);
-        table.drawRow(headerRow);
+
+        table.setHeader(headerRow);
 
         //Create 2 column row
-        Row row = new Row(15f);
+        Row row = table.createRow(15f);
         cell = new Cell((tableWidth/4) * 3 ,"Source:");
         cell.setFont(PDType1Font.HELVETICA);
         row.addCell(cell);
         cell = new Cell((tableWidth/4),"http://www.factsofbelgium.com/");
         cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
         row.addCell(cell);
-        table.drawRow(row);
 
         //Create Fact header row
-        Row factHeaderrow = new Row(15f);
+        Row factHeaderrow = table.createRow(15f);
         cell = new Cell((tableWidth/3) * 2 ,"Fact");
         cell.setFont(PDType1Font.HELVETICA);cell.setFontSize(6);
         cell.setFillColor(Color.LIGHT_GRAY);
@@ -210,13 +192,12 @@ public class TableTest {
         cell.setFillColor(Color.LIGHT_GRAY);
         cell.setFont(PDType1Font.HELVETICA_OBLIQUE);cell.setFontSize(6);
         factHeaderrow.addCell(cell);
-        table.drawRow(factHeaderrow);
 
         //Add multiple rows with random facts about Belgium
         int bookmarkid = 0;
         for(String[] fact : facts) {
 
-            row = new Row(10f);
+            row = table.createRow(10f);
             cell = new Cell((tableWidth/3)*2 ,fact[0]+ " " + fact[0]+ " " + fact[0]);
             cell.setFont(PDType1Font.HELVETICA);cell.setFontSize(6);
             row.addCell(cell);
@@ -236,28 +217,8 @@ public class TableTest {
                 row.addCell(cell);
 
             }
-            
-            table.drawRow(row);
-            
-            //Start a new page if needed
-            if(table.isEndOfPage() ) {
-                
-                pageContentStream.close();
-                
-                //Start new table on new page
-                page = addNewPage(doc);
-                pageContentStream = new PDPageContentStream(doc, page);
-                
-                //Get all bookmarks of previous table
-                bookmarks.addAll(table.getBookmarks());
-                table = new Table( (top - (1* 20f)),Margin, page,  pageContentStream);
-
-                //redraw all headers on each page
-                table.drawRow(headerRow);
-                table.drawRow(factHeaderrow);
-            }
-
         }
+        table.draw();
         table.endTable(tableWidth);
 
         //Get all bookmarks of previous table
