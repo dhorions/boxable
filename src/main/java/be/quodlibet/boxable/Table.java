@@ -129,6 +129,9 @@ public class Table {
 
             Cell cell = cellIterator.next();
 
+            if (cell.getFont() == null){
+                throw new IllegalArgumentException("Font is null on Cell="+cell.getText());
+            }
             this.contentStream.setFont(cell.getFont(), cell.getFontSize());
             this.contentStream.setNonStrokingColor(cell.getTextColor());
 
