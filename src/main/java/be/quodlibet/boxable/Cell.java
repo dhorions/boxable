@@ -25,9 +25,19 @@ public class Cell {
      * @param width in % of table width
      * @param text
      */
-    Cell(Row row,float width, String text) {
+    Cell(Row row,float width, String text,boolean isCalculated) {
         this.row = row;
-        this.width = (row.getWidth() * width)/100;
+        if (isCalculated){
+            double calclulatedWidth = ((row.getWidth() * width)/100);
+            this.width = (float) calclulatedWidth;    
+        } else {
+            this.width = width;
+        }
+        
+        
+        if (getWidth() > row.getWidth()){
+            throw new IllegalArgumentException("Cell Width="+getWidth()+" can't be bigger than row width="+row.getWidth());
+        }
         this.text = text;
     }
 
@@ -97,4 +107,7 @@ public class Cell {
         return this.row.getLastCellExtraWidth() + getWidth();
     }
 
+    public float getHeight() {
+        return row.getHeight();
+    }
 }
