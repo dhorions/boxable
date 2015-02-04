@@ -7,7 +7,6 @@ import com.google.common.io.Files;
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDocumentOutline;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
@@ -38,7 +37,8 @@ public class TableTest {
         
         //Initialize table
         float tableWidth = page.findMediaBox().getWidth() - (2 * margin);
-        Table table  = new Table(top,tableWidth, margin, doc, page);
+        boolean drawContent = false;
+        Table table  = new Table(top,tableWidth, margin, doc, page, true, drawContent);
 
         //Create Header row
         Row headerRow = table.createRow(15f);
@@ -93,10 +93,10 @@ public class TableTest {
         table.draw();
 
         //Close Stream and save pdf
-
         File file = new File("target/BoxableSample1.pdf");
         Files.createParentDirs(file);
         doc.save(file);
+        doc.close();
 
     }
 
@@ -155,12 +155,13 @@ public class TableTest {
         //Initialize Document
         PDDocument doc = new PDDocument();
         PDPage page = addNewPage(doc);
-        PDPageContentStream pageContentStream = new PDPageContentStream(doc, page);
 
         //Initialize table
         float tableWidth = page.findMediaBox().getWidth()-(2*margin);
         float top = page.findMediaBox().getHeight() - (2 * margin);
-        Table table  = new Table(top,tableWidth, margin, doc, page);
+        boolean drawContent = true;
+        boolean drawLines = true;
+        Table table  = new Table(top,tableWidth, margin, doc, page, drawLines, drawContent);
         
 
         //Create Header row
@@ -218,9 +219,6 @@ public class TableTest {
         //Get all bookmarks of previous table
         bookmarks.addAll(table.getBookmarks());
 
-        //Close Stream and save pdf
-        pageContentStream.close();
-
         //Create document outline
         PDDocumentOutline outline =  new PDDocumentOutline();
 
@@ -234,6 +232,7 @@ public class TableTest {
         File file = new File("target/BoxableSample2.pdf");
         Files.createParentDirs(file);
         doc.save(file);
+        doc.close();
 
     }
 
