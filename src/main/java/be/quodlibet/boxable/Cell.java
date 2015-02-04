@@ -17,7 +17,7 @@ public class Cell {
     private PDFont font = PDType1Font.HELVETICA;
     private float fontSize = 8;
     private Color fillColor;
-    private Color textColor;
+    private Color textColor = Color.BLACK;
     private final Row row;
 
     /**
