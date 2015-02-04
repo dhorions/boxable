@@ -33,19 +33,19 @@ public class Table {
     private float yPos;
     private float width;
 
-    public Table(float top,float width,float margin, PDDocument document, PDPage currentPage) throws IOException {
+    public Table(float top, float width, float margin, PDDocument document, PDPage currentPage) throws IOException {
         this.document = document;
         this.currentPage = currentPage;
-        this.contentStream = new PDPageContentStream(document, currentPage);
+        this.contentStream = new PDPageContentStream(document, currentPage, true, true);
 
         //Initialize table
         this.top = top;
-                
+
         initializeTable();
         this.margin = margin;
         this.width = width;
     }
-    
+
     private void initializeTable() {
         this.tableWidth = this.currentPage.findMediaBox().getWidth() - (2 * this.margin);
         this.yPos = top - (1 * 20f);
@@ -58,13 +58,13 @@ public class Table {
 
 
     public Row createRow(float height) {
-        Row row = new Row(this,height);
+        Row row = new Row(this, height);
         this.rows.add(row);
         return row;
     }
-    
-    public Row createRow(List<Cell> cells,float height) {
-        Row row = new Row(this,cells,height);
+
+    public Row createRow(List<Cell> cells, float height) {
+        Row row = new Row(this, cells, height);
         this.rows.add(row);
         return row;
     }
@@ -73,9 +73,9 @@ public class Table {
         for (Row row : rows) {
             drawRow(row);
         }
-        
+
         endTable(tableWidth);
-        
+
         return nextYpos;
     }
 
@@ -99,49 +99,38 @@ public class Table {
 
         //draw the vertical lines
         float nextX = margin;
-        Iterator<Cell> cellIterator = row.getCells().iterator();
-        while (cellIterator.hasNext()) {
-
-            Cell cell = cellIterator.next();
-
-            //Fill Cell Color
-            if (cell.getFillColor() != null) {
-                this.contentStream.setNonStrokingColor(cell.getFillColor());
-                //y start is bottom pos
-                if (cellIterator.hasNext()){
-                    this.contentStream.fillRect(nextX, nexty - row.getHeight(), cell.getWidth(), row.getHeight() - 1f);    
-                } else {
-
-                    this.contentStream.fillRect(nextX, nexty - row.getHeight(), cell.getExtraWidth(), row.getHeight() - 1f);
-                }
-                
-                this.contentStream.closeSubPath();
-            }
-
-            this.contentStream.setNonStrokingColor(Color.BLACK);
-            this.contentStream.drawLine(nextX, nexty, nextX, nexty - row.getHeight());
-            this.contentStream.closeSubPath();
-
-            nextX += cell.getWidth();
-        }
-        //draw the line at the right of the table
-        this.contentStream.setNonStrokingColor(Color.BLACK);
-        this.contentStream.drawLine(endOfLineX, nexty, endOfLineX, nexty - row.getHeight());
-        this.contentStream.closeSubPath();
+        drawVerticalLines(row, nexty, endOfLineX, nextX);
 
         //now add the cell content
         nextX = margin + HorizontalCellMargin;
         nexty = nextYpos - (row.getLineHeight() - VerticalCellMargin);
 
-        for (Cell cell : row.getCells()) {
+        drawCellContent(row, nexty, nextX);
+
+        if (isEndOfPage()) {
+
+            //Draw line at bottom of table
+            endTable(row.getWidth());
+
+            //Start new table on new currentPage
+            this.currentPage = addNewPage();
+            this.contentStream = new PDPageContentStream(this.document, currentPage, true, true);
+            initializeTable();
+
+            //redraw all headers on each currentPage
+            drawRow(header);
+        }
+    }
+
+    private void drawCellContent(Row row, float nexty, float nextX) throws IOException {
+
+        Iterator<Cell> cellIterator = row.getCells().iterator();
+        while (cellIterator.hasNext()) {
+
+            Cell cell = cellIterator.next();
 
             this.contentStream.setFont(cell.getFont(), cell.getFontSize());
-            if (cell.getTextColor() != null) {
-
-                this.contentStream.setNonStrokingColor(cell.getTextColor());
-            } else {
-                this.contentStream.setNonStrokingColor(Color.BLACK);
-            }
+            this.contentStream.setNonStrokingColor(cell.getTextColor());
 
             this.contentStream.beginText();
             this.contentStream.moveTextPositionByAmount(nextX, nexty);
@@ -164,20 +153,38 @@ public class Table {
         }
         //Set Y position for next row
         nextYpos = nextYpos - row.getHeight();
+    }
 
-        if (isEndOfPage()) {
+    private void drawVerticalLines(Row row, float nexty, float endOfLineX, float nextX) throws IOException {
+        Iterator<Cell> cellIterator = row.getCells().iterator();
+        while (cellIterator.hasNext()) {
 
-            //Draw line at bottom of table
-            endTable(row.getWidth());
+            Cell cell = cellIterator.next();
 
-            //Start new table on new currentPage
-            this.currentPage = addNewPage();
-            this.contentStream = new PDPageContentStream(this.document, currentPage);
-            initializeTable();
+            //Fill Cell Color
+            if (cell.getFillColor() != null) {
+                this.contentStream.setNonStrokingColor(cell.getFillColor());
+                //y start is bottom pos
+                if (cellIterator.hasNext()) {
+                    this.contentStream.fillRect(nextX, nexty - row.getHeight(), cell.getWidth(), row.getHeight() - 1f);
+                } else {
 
-            //redraw all headers on each currentPage
-            drawRow(header);
+                    this.contentStream.fillRect(nextX, nexty - row.getHeight(), cell.getExtraWidth(), row.getHeight() - 1f);
+                }
+
+                this.contentStream.closeSubPath();
+            }
+
+            this.contentStream.setNonStrokingColor(Color.BLACK);
+            this.contentStream.drawLine(nextX, nexty, nextX, nexty - row.getHeight());
+            this.contentStream.closeSubPath();
+
+            nextX += cell.getWidth();
         }
+        //draw the line at the right of the table
+        this.contentStream.setNonStrokingColor(Color.BLACK);
+        this.contentStream.drawLine(endOfLineX, nexty, endOfLineX, nexty - row.getHeight());
+        this.contentStream.closeSubPath();
     }
 
     private PDPage addNewPage() {
@@ -194,10 +201,10 @@ public class Table {
         this.contentStream.close();
     }
 
-    public PDPage getCurrentPage(){
+    public PDPage getCurrentPage() {
         return this.currentPage;
     }
-    
+
     public boolean isEndOfPage() {
         //If we are closer than 75 from bottom of currentPage, consider this the end of the currentPage
         //If you add rows that are higher then 75, this needs to be checked manually using getNextYPos
@@ -224,7 +231,7 @@ public class Table {
     }
 
     public Row getHeader() {
-        if (header == null){
+        if (header == null) {
             throw new IllegalArgumentException("Header Row not set on table");
         }
         return header;
