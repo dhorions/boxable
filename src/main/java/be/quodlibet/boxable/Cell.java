@@ -66,8 +66,10 @@ public class Cell {
         this.text = text;
     }
 
-    public PDFont getFont()
-    {
+    public PDFont getFont() {
+        if (font == null){
+            throw new IllegalArgumentException("Font not set.");
+        }
         return font;
     }
 
