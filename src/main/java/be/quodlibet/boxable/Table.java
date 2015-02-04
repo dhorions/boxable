@@ -224,6 +224,9 @@ public class Table {
     }
 
     public Row getHeader() {
+        if (header == null){
+            throw new IllegalArgumentException("Header Row not set on table");
+        }
         return header;
     }
 }
