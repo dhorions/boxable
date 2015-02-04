@@ -18,45 +18,50 @@ public class Row {
     List<Cell> cells;
     float height;
 
-    Row(Table table,List<Cell> cells, float height) {
+    Row(Table table, List<Cell> cells, float height) {
         this.table = table;
         this.cells = cells;
         this.height = height;
     }
 
-    Row(Table table,float height) {
+    Row(Table table, float height) {
         this.table = table;
         this.cells = new ArrayList<Cell>();
         this.height = height;
     }
 
     public Cell createCell(float width, String value) {
-        Cell cell = new Cell(this,width, value);
+        Cell cell = new Cell(this, width, value,true);
         cells.add(cell);
         return cell;
     }
 
     /**
-     * Creates a cell with the same width as the corresponding header cell 
+     * Creates a cell with the same width as the corresponding header cell
+     *
      * @param value
      * @return
      */
     public Cell createCell(String value) {
-        
+
         float headerCellWidth = table.getHeader().getCells().get(cells.size()).getWidth();
 
-        Cell cell = new Cell(this,headerCellWidth, value);
+        Cell cell = new Cell(this, headerCellWidth, value,false);
         cells.add(cell);
         return cell;
     }
 
-    public float getHeight() throws IOException {
-        //return height;
+    public float getHeight() {
+        
         float maxheight = new Float(0);
 
         for (Cell cell : this.cells) {
-            float cellHeight = (cell.getParagraph().getLines().size() * this.height);
-            if (cellHeight > maxheight) maxheight = cellHeight;
+            float cellHeight = 0;
+            cellHeight = (cell.getParagraph().getLines().size() * this.height);
+
+            if (cellHeight > maxheight){
+                maxheight = cellHeight;
+            }
         }
         return maxheight;
     }
@@ -83,7 +88,7 @@ public class Row {
     }
 
     public float getWidth() {
-       return table.getWidth();
+        return table.getWidth();
     }
 
     public PDOutlineItem getBookmark() {
@@ -97,10 +102,14 @@ public class Row {
 
     protected float getLastCellExtraWidth() {
         float cellWidth = 0;
-        for (Cell cell : cells){
-            cellWidth+= cell.getWidth();
+        for (Cell cell : cells) {
+            cellWidth += cell.getWidth();
         }
         float lastCellExtraWidth = this.getWidth() - cellWidth;
         return lastCellExtraWidth;
+    }
+
+    public float xEnd() {
+        return table.getMargin() + getWidth();
     }
 }
