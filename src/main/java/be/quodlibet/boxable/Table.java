@@ -13,6 +13,7 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Table {
@@ -30,40 +31,52 @@ public class Table {
     private float tableWidth;
     private float top;
     private float yPos;
+    private float width;
 
-    public Table(float margin, PDDocument document, PDPage currentPage) throws IOException {
+    public Table(float top,float width,float margin, PDDocument document, PDPage currentPage) throws IOException {
         this.document = document;
         this.currentPage = currentPage;
         this.contentStream = new PDPageContentStream(document, currentPage);
 
         //Initialize table
+        this.top = top;
+                
         initializeTable();
         this.margin = margin;
+        this.width = width;
     }
-
+    
     private void initializeTable() {
         this.tableWidth = this.currentPage.findMediaBox().getWidth() - (2 * this.margin);
-        this.top = this.currentPage.findMediaBox().getHeight() - (2 * this.margin);
         this.yPos = top - (1 * 20f);
         this.nextYpos = yPos;
     }
 
+    public float getWidth() {
+        return width;
+    }
+
+
     public Row createRow(float height) {
-        Row row = new Row(height);
+        Row row = new Row(this,height);
         this.rows.add(row);
         return row;
     }
     
     public Row createRow(List<Cell> cells,float height) {
-        Row row = new Row(cells,height);
+        Row row = new Row(this,cells,height);
         this.rows.add(row);
         return row;
     }
 
-    public void draw() throws IOException {
+    public float draw() throws IOException {
         for (Row row : rows) {
             drawRow(row);
         }
+        
+        endTable(tableWidth);
+        
+        return nextYpos;
     }
 
     private void drawRow(Row row) throws IOException {
@@ -71,7 +84,8 @@ public class Table {
 
         //draw the horizontal line
         float nexty = nextYpos;
-        this.contentStream.drawLine(margin, nexty, margin + row.getWidth(), nexty);
+        float endOfLineX = margin + row.getWidth();
+        this.contentStream.drawLine(margin, nexty, endOfLineX, nexty);
 
         //draw the bookmark
         if (row.getBookmark() != null) {
@@ -84,30 +98,39 @@ public class Table {
         }
 
         //draw the vertical lines
-        float nextx = margin;
-        for (Cell cell : row.getCells()) {
+        float nextX = margin;
+        Iterator<Cell> cellIterator = row.getCells().iterator();
+        while (cellIterator.hasNext()) {
+
+            Cell cell = cellIterator.next();
 
             //Fill Cell Color
             if (cell.getFillColor() != null) {
                 this.contentStream.setNonStrokingColor(cell.getFillColor());
                 //y start is bottom pos
-                this.contentStream.fillRect(nextx, nexty - row.getHeight(), cell.getWidth(), row.getHeight() - 1f);
+                if (cellIterator.hasNext()){
+                    this.contentStream.fillRect(nextX, nexty - row.getHeight(), cell.getWidth(), row.getHeight() - 1f);    
+                } else {
+
+                    this.contentStream.fillRect(nextX, nexty - row.getHeight(), cell.getExtraWidth(), row.getHeight() - 1f);
+                }
+                
                 this.contentStream.closeSubPath();
             }
 
             this.contentStream.setNonStrokingColor(Color.BLACK);
-            this.contentStream.drawLine(nextx, nexty, nextx, nexty - row.getHeight());
+            this.contentStream.drawLine(nextX, nexty, nextX, nexty - row.getHeight());
             this.contentStream.closeSubPath();
 
-            nextx += cell.getWidth();
+            nextX += cell.getWidth();
         }
         //draw the line at the right of the table
         this.contentStream.setNonStrokingColor(Color.BLACK);
-        this.contentStream.drawLine(nextx, nexty, nextx, nexty - row.getHeight());
+        this.contentStream.drawLine(endOfLineX, nexty, endOfLineX, nexty - row.getHeight());
         this.contentStream.closeSubPath();
 
         //now add the cell content
-        nextx = margin + HorizontalCellMargin;
+        nextX = margin + HorizontalCellMargin;
         nexty = nextYpos - (row.getLineHeight() - VerticalCellMargin);
 
         for (Cell cell : row.getCells()) {
@@ -121,7 +144,7 @@ public class Table {
             }
 
             this.contentStream.beginText();
-            this.contentStream.moveTextPositionByAmount(nextx, nexty);
+            this.contentStream.moveTextPositionByAmount(nextX, nexty);
             List<String> lines = cell.getParagraph().getLines();
             int numLines = cell.getParagraph().getLines().size();
             this.contentStream.appendRawCommands(cell.getParagraph().getFontHeight() + " TL\n");
@@ -137,7 +160,7 @@ public class Table {
             //this.contentStream.drawString(cell.getText());
             this.contentStream.endText();
             this.contentStream.closeSubPath();
-            nextx += cell.getWidth() + HorizontalCellMargin;
+            nextX += cell.getWidth() + HorizontalCellMargin;
         }
         //Set Y position for next row
         nextYpos = nextYpos - row.getHeight();
@@ -164,13 +187,17 @@ public class Table {
     }
 
 
-    public void endTable(float width) throws IOException {
+    private void endTable(float width) throws IOException {
         //Draw line at bottom
         this.contentStream.drawLine(this.margin, this.nextYpos, this.margin + width, this.nextYpos);
         this.contentStream.closeSubPath();
         this.contentStream.close();
     }
 
+    public PDPage getCurrentPage(){
+        return this.currentPage;
+    }
+    
     public boolean isEndOfPage() {
         //If we are closer than 75 from bottom of currentPage, consider this the end of the currentPage
         //If you add rows that are higher then 75, this needs to be checked manually using getNextYPos

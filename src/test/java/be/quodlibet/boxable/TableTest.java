@@ -26,72 +26,71 @@ public class TableTest {
     public void Sample1 () throws IOException, COSVisitorException {
 
         //Set margins
-        float Margin = 10;
+        float margin = 10;
+
+        
         List<String[]> facts = getFacts();
 
         //Initialize Document
         PDDocument doc = new PDDocument();
         PDPage page = addNewPage(doc);
-
+        float top = page.findMediaBox().getHeight() - (2 * margin);
+        
         //Initialize table
-        float tableWidth = page.findMediaBox().getWidth() - (2 * Margin);
-        Table table  = new Table( Margin, doc, page);
+        float tableWidth = page.findMediaBox().getWidth() - (2 * margin);
+        Table table  = new Table(top,tableWidth, margin, doc, page);
 
         //Create Header row
         Row headerRow = table.createRow(15f);
-        Cell cell = new Cell(tableWidth, "Awesome Facts About Belgium");
+        Cell cell = headerRow.createCell(100, "Awesome Facts About Belgium");
         cell.setFont(PDType1Font.HELVETICA_BOLD);
         cell.setFillColor(Color.BLACK);
         cell.setTextColor(Color.WHITE);
-        headerRow.addCell(cell);
+        
 
         table.setHeader(headerRow);
 
         //Create 2 column row
         Row row = table.createRow(15f);
-        cell = new Cell((tableWidth / 4) * 3, "Source:");
+        cell = row.createCell(30,"Source:");
         cell.setFont(PDType1Font.HELVETICA);
-        row.addCell(cell);
-        cell = new Cell((tableWidth / 4), "http://www.factsofbelgium.com/");
+        
+        cell = row.createCell(70, "http://www.factsofbelgium.com/");
         cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
-        row.addCell(cell);
 
         //Create Fact header row
         Row factHeaderrow = table.createRow(15f);
-        cell = new Cell((tableWidth / 3) * 2, "Fact");
+        
+        cell = factHeaderrow.createCell((100 / 3) * 2, "Fact");
         cell.setFont(PDType1Font.HELVETICA);
         cell.setFontSize(6);
         cell.setFillColor(Color.LIGHT_GRAY);
-        factHeaderrow.addCell(cell);
-        cell = new Cell((tableWidth / 3), "Tags");
+        
+        cell = factHeaderrow.createCell((100 / 3), "Tags");
         cell.setFillColor(Color.LIGHT_GRAY);
         cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
         cell.setFontSize(6);
-        factHeaderrow.addCell(cell);
 
         //Add multiple rows with random facts about Belgium
         for (String[] fact : facts) {
 
             row = table.createRow(10f);
-            cell = new Cell((tableWidth / 3) * 2, fact[0]);
+            cell = row.createCell((100 / 3) * 2, fact[0]);
             cell.setFont(PDType1Font.HELVETICA);
             cell.setFontSize(6);
-            row.addCell(cell);
 
             for (int i = 1; i < fact.length; i++) {
 
-                cell = new Cell(((tableWidth / 9)), fact[i]);
+                cell = row.createCell((100 / 9), fact[i]);
                 cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
                 cell.setFontSize(6);
                 //Set colors
                 if (fact[i].contains("beer")) cell.setFillColor(Color.yellow);
                 if (fact[i].contains("champion")) cell.setTextColor(Color.GREEN);
-                row.addCell(cell);
             }
         }
 
         table.draw();
-        table.endTable(tableWidth);
 
         //Close Stream and save pdf
 
@@ -146,7 +145,7 @@ public class TableTest {
     public void SampleTest2() throws IOException, COSVisitorException {
 
         //Set margins
-        float Margin = 10;
+        float margin = 10;
 
         List<String[]> facts = getFacts();
 
@@ -159,67 +158,62 @@ public class TableTest {
         PDPageContentStream pageContentStream = new PDPageContentStream(doc, page);
 
         //Initialize table
-        float tableWidth = page.findMediaBox().getWidth()-(2*Margin);
-
-        Table table  = new Table( Margin, doc, page);
+        float tableWidth = page.findMediaBox().getWidth()-(2*margin);
+        float top = page.findMediaBox().getHeight() - (2 * margin);
+        Table table  = new Table(top,tableWidth, margin, doc, page);
         
 
         //Create Header row
         Row headerRow = table.createRow(15f);
-        Cell cell = new Cell(tableWidth,"Awesome Facts About Belgium");
+        Cell cell = headerRow.createCell(100,"Awesome Facts About Belgium");
         cell.setFont(PDType1Font.HELVETICA_BOLD);
         cell.setFillColor(Color.BLACK);cell.setTextColor(Color.WHITE);
-        headerRow.addCell(cell);
 
         table.setHeader(headerRow);
 
         //Create 2 column row
         Row row = table.createRow(15f);
-        cell = new Cell((tableWidth/4) * 3 ,"Source:");
+        cell = row.createCell(75,"Source:");
         cell.setFont(PDType1Font.HELVETICA);
-        row.addCell(cell);
-        cell = new Cell((tableWidth/4),"http://www.factsofbelgium.com/");
+        
+        cell = row.createCell(25,"http://www.factsofbelgium.com/");
         cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
-        row.addCell(cell);
 
         //Create Fact header row
         Row factHeaderrow = table.createRow(15f);
-        cell = new Cell((tableWidth/3) * 2 ,"Fact");
-        cell.setFont(PDType1Font.HELVETICA);cell.setFontSize(6);
+        cell = factHeaderrow.createCell((100/3) * 2 ,"Fact");
+        cell.setFont(PDType1Font.HELVETICA);
+        cell.setFontSize(6);
         cell.setFillColor(Color.LIGHT_GRAY);
-        factHeaderrow.addCell(cell);
-        cell = new Cell((tableWidth/3),"Tags");
+
+        cell = factHeaderrow.createCell((100/3),"Tags");
         cell.setFillColor(Color.LIGHT_GRAY);
         cell.setFont(PDType1Font.HELVETICA_OBLIQUE);cell.setFontSize(6);
-        factHeaderrow.addCell(cell);
 
         //Add multiple rows with random facts about Belgium
         int bookmarkid = 0;
         for(String[] fact : facts) {
 
             row = table.createRow(10f);
-            cell = new Cell((tableWidth/3)*2 ,fact[0]+ " " + fact[0]+ " " + fact[0]);
+            cell = row.createCell((100/3)*2 ,fact[0]+ " " + fact[0]+ " " + fact[0]);
             cell.setFont(PDType1Font.HELVETICA);cell.setFontSize(6);
-            row.addCell(cell);
-            
+
             //Create a bookmark for each record
             PDOutlineItem outlineItem = new PDOutlineItem();
             outlineItem.setTitle((++bookmarkid ) + ") " + fact[0]);
             row.setBookmark( outlineItem);
 
             for(int i = 1; i< fact.length; i++) {
-                cell = new Cell(((tableWidth/9)) ,fact[i]);
+                cell = row.createCell((100/9) ,fact[i]);
                 cell.setFont(PDType1Font.HELVETICA_OBLIQUE);cell.setFontSize(6);
             
                 //Set colors
                 if(fact[i].contains("beer"))cell.setFillColor(Color.yellow);
                 if(fact[i].contains("champion"))cell.setTextColor(Color.GREEN);
-                row.addCell(cell);
 
             }
         }
         table.draw();
-        table.endTable(tableWidth);
 
         //Get all bookmarks of previous table
         bookmarks.addAll(table.getBookmarks());

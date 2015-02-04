@@ -12,76 +12,95 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Row {
+
+    private final Table table;
     PDOutlineItem bookmark;
     List<Cell> cells;
     float height;
-    Row(List<Cell> cells, float height) {
+
+    Row(Table table,List<Cell> cells, float height) {
+        this.table = table;
         this.cells = cells;
         this.height = height;
     }
-    
-    Row(float height) {
-      this.height = height;
+
+    Row(Table table,float height) {
+        this.table = table;
+        this.cells = new ArrayList<Cell>();
+        this.height = height;
     }
-    
-    public void addCell(Cell cell) {
-        if (cells == null) cells = new ArrayList();
+
+    public Cell createCell(float width, String value) {
+        Cell cell = new Cell(this,width, value);
         cells.add(cell);
+        return cell;
     }
-    
+
+    /**
+     * Creates a cell with the same width as the corresponding header cell 
+     * @param value
+     * @return
+     */
+    public Cell createCell(String value) {
+        
+        float headerCellWidth = table.getHeader().getCells().get(cells.size()).getWidth();
+
+        Cell cell = new Cell(this,headerCellWidth, value);
+        cells.add(cell);
+        return cell;
+    }
+
     public float getHeight() throws IOException {
         //return height;
         float maxheight = new Float(0);
-        for( Cell cell : this.cells)
-        {
-            float cellHeight =  ( cell.getParagraph().getLines().size() * this.height);
-            if(cellHeight  > maxheight) maxheight = cellHeight;
+
+        for (Cell cell : this.cells) {
+            float cellHeight = (cell.getParagraph().getLines().size() * this.height);
+            if (cellHeight > maxheight) maxheight = cellHeight;
         }
         return maxheight;
     }
-    
+
     public float getLineHeight() throws IOException {
         return height;
-       
+
     }
 
-    public void setHeight(float height)
-    {
+    public void setHeight(float height) {
         this.height = height;
     }
 
-    public List<Cell> getCells()
-    {
+    public List<Cell> getCells() {
         return cells;
     }
-    public int getColCount()
-    {
+
+    public int getColCount() {
         return cells.size();
     }
-    public void setCells(List<Cell> cells)
-    {
+
+    public void setCells(List<Cell> cells) {
         this.cells = cells;
     }
-    public float getWidth()
-    {
-        float totalWidth = 0;
-        for(Cell cell : cells)
-        {
-            totalWidth += cell.getWidth();
-        }
-        return totalWidth;
+
+    public float getWidth() {
+       return table.getWidth();
     }
 
-    public PDOutlineItem getBookmark()
-    {
+    public PDOutlineItem getBookmark() {
         return bookmark;
     }
 
-    public void setBookmark(PDOutlineItem bookmark)
-    {
+    public void setBookmark(PDOutlineItem bookmark) {
         this.bookmark = bookmark;
     }
 
 
-
+    protected float getLastCellExtraWidth() {
+        float cellWidth = 0;
+        for (Cell cell : cells){
+            cellWidth+= cell.getWidth();
+        }
+        float lastCellExtraWidth = this.getWidth() - cellWidth;
+        return lastCellExtraWidth;
+    }
 }

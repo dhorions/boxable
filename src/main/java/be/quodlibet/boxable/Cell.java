@@ -10,17 +10,25 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import java.awt.*;
 
 public class Cell {
-    float width;
-    String text;
+    
+    private float width;
+    private String text;
+    
     private PDFont font = PDType1Font.HELVETICA;
     private float fontSize = 8;
     private Color fillColor;
     private Color textColor;
+    private final Row row;
 
-    public Cell(float width, String text) {
-        this.width = width;
+    /**
+     *  
+     * @param width in % of table width
+     * @param text
+     */
+    Cell(Row row,float width, String text) {
+        this.row = row;
+        this.width = (row.getWidth() * width)/100;
         this.text = text;
-
     }
 
     public Color getTextColor()
@@ -44,14 +52,8 @@ public class Cell {
     }
 
 
-    public float getWidth()
-    {
+    public float getWidth() {
         return width;
-    }
-
-    public void setWidth(float width)
-    {
-        this.width = width;
     }
 
     public String getText()
@@ -87,6 +89,10 @@ public class Cell {
     public Paragraph getParagraph()
     {
          return new Paragraph( text,  font,  (int)fontSize,  (int)width);
+    }
+    
+    public float getExtraWidth(){
+        return this.row.getLastCellExtraWidth() + getWidth();
     }
 
 }
