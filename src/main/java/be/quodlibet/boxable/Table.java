@@ -13,6 +13,7 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPa
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.awt.*;
 import java.io.IOException;
@@ -57,18 +58,40 @@ public class Table {
         this.width = width;
     }
 
-    public void drawTitle(String title,PDFont font,int fontSize) throws IOException {
+    public void drawTitle(String title, PDFont font, int fontSize) throws IOException {
+        drawTitle(title, font, fontSize, null);
+    }
+
+    public void drawTitle(String title, PDFont font, int fontSize, TextType textType) throws IOException {
         PDPageContentStream articleTitle = new PDPageContentStream(this.document, this.currentPage, true, true);
 
         articleTitle.beginText();
-        articleTitle.setFont(font,fontSize);
-        articleTitle.moveTextPositionByAmount(margin,yStart);
+        articleTitle.setFont(font, fontSize);
+        articleTitle.moveTextPositionByAmount(getMargin(), yStart);
         articleTitle.setNonStrokingColor(Color.black);
         articleTitle.drawString(title);
         articleTitle.endText();
+
+        if (textType != null) {
+            switch (textType) {
+                case HIGHLIGHT:
+                    throw new NotImplementedException();
+                case SQUIGGLY:
+                    throw new NotImplementedException();
+                case STRIKEOUT:
+                    throw new NotImplementedException();
+                case UNDERLINE:
+                    float y = (float) (yStart - 1.5);
+                    float titleWidth = font.getStringWidth(title) / 1000 * fontSize;
+                    articleTitle.drawLine(getMargin(), y, getMargin() + titleWidth, y);
+                    break;
+                default:
+                    break;
+            }
+        }
         articleTitle.close();
 
-        yStart = (float) (yStart - (fontSize /1.5));
+        yStart = (float) (yStart - (fontSize / 1.5));
 
     }
 
@@ -121,7 +144,7 @@ public class Table {
             drawVerticalLines(row);
         }
 
-        
+
         if (drawContent) {
             drawCellContent(row);
         }
@@ -138,7 +161,11 @@ public class Table {
 
             //redraw all headers on each currentPage
             LOGGER.info("re-draw Header on new Page");
-            drawRow(header);
+            if (header != null) {
+                drawRow(header);
+            } else {
+                LOGGER.warn("No Header Row Defined.");
+            }
         }
     }
 
@@ -148,10 +175,10 @@ public class Table {
     }
 
     private void drawCellContent(Row row) throws IOException {
-        
+
         float nextX = margin + HorizontalCellMargin;
         float nextY = yStart - (row.getLineHeight() - VerticalCellMargin);
-        
+
         Iterator<Cell> cellIterator = row.getCells().iterator();
         while (cellIterator.hasNext()) {
 
@@ -193,39 +220,39 @@ public class Table {
         float xStart = margin;
 
         // Draw Row upper border
-        drawLine("Row Upper Border ",xStart, yStart, row.xEnd(), yStart);
+        drawLine("Row Upper Border ", xStart, yStart, row.xEnd(), yStart);
 
         Iterator<Cell> cellIterator = row.getCells().iterator();
         while (cellIterator.hasNext()) {
 
             Cell cell = cellIterator.next();
-            
-            fillCellColor(cell,yStart, xStart, cellIterator);
+
+            fillCellColor(cell, yStart, xStart, cellIterator);
 
             float yEnd = yStart - row.getHeight();
 
             //draw the vertical line to separate cells
-            drawLine("Cell Separator ",xStart,yStart, xStart, yEnd);
+            drawLine("Cell Separator ", xStart, yStart, xStart, yEnd);
 
             xStart += getWidth(cell, cellIterator);
         }
 
         //draw the last vertical line at the right of the table
         float yEnd = yStart - row.getHeight();
-        drawLine("Last Cell ",row.xEnd(), yStart, row.xEnd(), yEnd);
+        drawLine("Last Cell ", row.xEnd(), yStart, row.xEnd(), yEnd);
     }
 
-    private void drawLine(String type,float xStart, float yStart, float xEnd, float yEnd) throws IOException {
+    private void drawLine(String type, float xStart, float yStart, float xEnd, float yEnd) throws IOException {
 
         this.contentStream.setNonStrokingColor(Color.BLACK);
         this.contentStream.setStrokingColor(Color.BLACK);
-        
-        LOGGER.debug(type+"Line from X=" + xStart + " Y=" + yStart + " to X=" + xEnd + " Y=" + yEnd);
+
+        LOGGER.debug(type + "Line from X=" + xStart + " Y=" + yStart + " to X=" + xEnd + " Y=" + yEnd);
         this.contentStream.drawLine(xStart, yStart, xEnd, yEnd);
         this.contentStream.closeSubPath();
     }
 
-    private void fillCellColor(Cell cell,float yStart, float xStart, Iterator<Cell> cellIterator) throws IOException {
+    private void fillCellColor(Cell cell, float yStart, float xStart, Iterator<Cell> cellIterator) throws IOException {
         //Fill Cell Color
         if (cell.getFillColor() != null) {
             this.contentStream.setNonStrokingColor(cell.getFillColor());
@@ -233,7 +260,7 @@ public class Table {
             //y start is bottom pos
             yStart = yStart - cell.getHeight();
             float height = cell.getHeight() - 1f;
-            
+
             float width = getWidth(cell, cellIterator);
 
             this.contentStream.fillRect(xStart, yStart, width, height);
@@ -265,7 +292,7 @@ public class Table {
         LOGGER.info("Ending Table");
         if (drawLines) {
             //Draw line at bottom
-            drawLine("Row Bottom Border ",this.margin, this.yStart, this.margin + width, this.yStart);
+            drawLine("Row Bottom Border ", this.margin, this.yStart, this.margin + width, this.yStart);
         }
         this.contentStream.close();
     }
