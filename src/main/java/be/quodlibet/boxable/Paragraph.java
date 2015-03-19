@@ -36,8 +36,11 @@ public class Paragraph {
         List<String> result = new ArrayList();
 
         String[] split = text.split("(?<=\\W)");
+
         int[] possibleWrapPoints = new int[split.length];
+
         possibleWrapPoints[0] = split[0].length();
+
         for (int i = 1; i < split.length; i++) {
             possibleWrapPoints[i] = possibleWrapPoints[i - 1] + split[i].length();
         }
