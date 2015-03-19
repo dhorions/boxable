@@ -29,7 +29,6 @@ public abstract class Table<T extends PDPage> {
     private final static Logger LOGGER = LoggerFactory.getLogger(Table.class);
 
     private final PDDocument document;
-    private final static PDRectangle PAGE_SIZE = PDPage.PAGE_SIZE_A4;
     private float margin;
 
     private T currentPage;
