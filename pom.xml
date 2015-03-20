@@ -79,23 +79,4 @@
     <properties>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
-
-
-    <profiles>
-        <profile>
-            <id>arondor</id>
-            <distributionManagement>
-                <repository>
-                    <id>arondor-mvn-repo</id>
-                    <name>libs-release</name>
-                    <url>http://maven.arondor.int:8081/artifactory/libs-release-local</url>
-                </repository>
-                <snapshotRepository>
-                    <id>arondor-mvn-repo</id>
-                    <name>libs-snapshot</name>
-                    <url>http://maven.arondor.int:8081/artifactory/libs-snapshot-local</url>
-                </snapshotRepository>
-            </distributionManagement>
-        </profile>
-    </profiles>
 </project>
