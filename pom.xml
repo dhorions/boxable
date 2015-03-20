@@ -10,10 +10,13 @@
     </parent>
     
     <modelVersion>4.0.0</modelVersion>
-    <groupId>be.quodlibet</groupId>
+    <groupId>com.github.dgautier</groupId>
     <artifactId>boxable</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
+
+    <name>Boxable, a high-level API to creates table on top of Apache Pdfbox</name>
+    <description>Easily creates tables in pdf.</description>
 
     <dependencies>
         <dependency>
