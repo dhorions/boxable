@@ -1,10 +1,8 @@
 boxable
 =======
 
-Forked from [boxable](https://github.com/dhorions/boxable)
 
 Create tables in pdf documents using [PDFBox](http://pdfbox.apache.org)
-
 
 - Example pdf can be found at [examples](http://goo.gl/a7QvRM)
 
