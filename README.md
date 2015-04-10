@@ -8,7 +8,7 @@ Create tables in pdf documents using [PDFBox](http://pdfbox.apache.org)
 
 - Example code can be found at [SampleCode](https://github.com/dhorions/boxable/blob/master/src/test/java/be/quodlibet/boxable/TableTest.java)
 
-Special Thanks to @dgautier for his valuable contributions.
+Special Thanks to [dgautier](https://github.com/dgautier) for his valuable contributions.
 
 =======
 
