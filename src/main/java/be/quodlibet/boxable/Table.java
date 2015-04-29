@@ -28,7 +28,7 @@ public abstract class Table<T extends PDPage> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Table.class);
 
-    private final PDDocument document;
+    public  final PDDocument document;
     private float margin;
 
     private T currentPage;
