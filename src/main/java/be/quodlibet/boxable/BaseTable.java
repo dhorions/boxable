@@ -21,6 +21,8 @@ public class BaseTable extends Table<PDPage> {
 
     @Override
     protected PDPage createPage() {
-        return new PDPage();
+        PDPage nPage = new PDPage();
+		document.addPage(nPage);
+        return nPage;
     }
 }
