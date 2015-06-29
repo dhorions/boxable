@@ -6,7 +6,6 @@ package be.quodlibet.boxable;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDTrueTypeFont;
@@ -36,7 +35,7 @@ public abstract class Table<T extends PDPage> {
     private List<PDOutlineItem> bookmarks;
     private static final float VerticalCellMargin = 2f;
     private static final float HorizontalCellMargin = 2f;
-    private static final int xSpacing  = 7;
+    private static final int xSpacing  = 0;
     private Row header;
     private List<Row> rows = new ArrayList<Row>();
 
@@ -182,7 +181,7 @@ public abstract class Table<T extends PDPage> {
             this.tableContentStream = createPdPageContentStream();
 
             //redraw all headers on each currentPage
-            LOGGER.info("re-draw Header on new Page");
+//            LOGGER.info("re-draw Header on new Page");
             if (header != null) {
                 drawRow(header);
             } else {
@@ -202,7 +201,7 @@ public abstract class Table<T extends PDPage> {
     }
 
     private PDPageContentStream createPdPageContentStream() throws IOException {
-        LOGGER.info("createPdPageContentStream");
+//        LOGGER.info("createPdPageContentStream");
         return new PDPageContentStream(getDocument(), getCurrentPage(), true, true);
     }
 
@@ -211,16 +210,13 @@ public abstract class Table<T extends PDPage> {
         float nextX = margin + HorizontalCellMargin;
         float nextY = yStart - (row.getLineHeight() - VerticalCellMargin);
 
-        Iterator<Cell> cellIterator = row.getCells().iterator();
-        while (cellIterator.hasNext()) {
-
-            Cell cell = cellIterator.next();
+        for (Cell cell : row.getCells()) {
 
             if (cell.getFont() == null) {
                 throw new IllegalArgumentException("Font is null on Cell=" + cell.getText());
             }
 
-            LOGGER.info("Draw Cell=" + cell.getText());
+            //LOGGER.info("Draw Cell=" + cell.getText());
 
             this.tableContentStream.setFont(cell.getFont(), cell.getFontSize());
             this.tableContentStream.setNonStrokingColor(cell.getTextColor());
@@ -242,7 +238,7 @@ public abstract class Table<T extends PDPage> {
             //this.tableContentStream.drawString(cell.getText());
             this.tableContentStream.endText();
             this.tableContentStream.closeSubPath();
-            nextX += cell.getWidth() + HorizontalCellMargin;
+            nextX += cell.getWidth();
         }
         //Set Y position for next row
         yStart = yStart - row.getHeight();
@@ -275,7 +271,7 @@ public abstract class Table<T extends PDPage> {
         //draw the last vertical line at the right of the table
         float yEnd = yStart - row.getHeight();
 
-        drawLine("Last Cell ",xEnd , yStart, xEnd, yEnd);
+        drawLine("Last Cell ", xEnd, yStart, xEnd, yEnd);
     }
 
     private void drawLine(String type, float xStart, float yStart, float xEnd, float yEnd) throws IOException {
@@ -283,7 +279,7 @@ public abstract class Table<T extends PDPage> {
         this.tableContentStream.setNonStrokingColor(Color.BLACK);
         this.tableContentStream.setStrokingColor(Color.BLACK);
 
-        LOGGER.debug(type + "Line from X=" + xStart + " Y=" + yStart + " to X=" + xEnd + " Y=" + yEnd);
+//        LOGGER.debug(type + "Line from X=" + xStart + " Y=" + yStart + " to X=" + xEnd + " Y=" + yEnd);
         this.tableContentStream.drawLine(xStart, yStart, xEnd, yEnd);
         this.tableContentStream.closeSubPath();
     }
@@ -320,7 +316,7 @@ public abstract class Table<T extends PDPage> {
     protected abstract T createPage();
 
     private void endTable() throws IOException {
-        LOGGER.info("Ending Table");
+//        LOGGER.info("Ending Table");
         if (drawLines) {
             //Draw line at bottom
             drawLine("Row Bottom Border ", this.margin, this.yStart, this.margin + width + xSpacing, this.yStart);
@@ -337,7 +333,7 @@ public abstract class Table<T extends PDPage> {
 
         float currentY = yStart - row.getHeight();
         boolean isEndOfPage = currentY  <= (bottomMargin + 10);
-        LOGGER.info("isEndOfPage=" + isEndOfPage);
+//        LOGGER.info("isEndOfPage=" + isEndOfPage);
 
         //If we are closer than 75 from bottom of currentPage, consider this the end of the currentPage
         //If you add rows that are higher then 75, this needs to be checked manually using getNextYPos
