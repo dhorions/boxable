@@ -25,7 +25,7 @@ The project can be used as a Maven dependency by using jitpack.io.
 	    <artifactId>boxable</artifactId>
 	    <version>1.2</version>
 	</dependency>
-    </dependencies>
+</dependencies>
 ```
 
 Special Thanks to [dgautier](https://github.com/dgautier) and [ZeerDonker](https://github.com/ZeerDonker) for their valuable contributions.
