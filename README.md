@@ -8,11 +8,31 @@ Create tables in pdf documents using [PDFBox](http://pdfbox.apache.org)
 
 - Example code can be found at [SampleCode](https://github.com/dhorions/boxable/blob/master/src/test/java/be/quodlibet/boxable/TableTest.java)
 
-Special Thanks to [dgautier](https://github.com/dgautier) for his valuable contributions.
+Maven : 
+The project can be used as a Maven dependency by using jitpack.io.
+* add the repository : 
+```xml
+<repository>
+	    <id>jitpack.io</id>
+	    <url>https://jitpack.io</url>
+</repository>
+```
+* add the dependency
+```xml
+<dependencies>
+        <dependency>
+	    <groupId>com.github.dhorions</groupId>
+	    <artifactId>boxable</artifactId>
+	    <version>1.2</version>
+	</dependency>
+    </dependencies>
+```
+
+Special Thanks to [dgautier](https://github.com/dgautier) and [ZeerDonker](https://github.com/ZeerDonker) for their valuable contributions.
 
 =======
 
-Copyright [2014] [Quodlibet.be]
+Copyright [2015] [Quodlibet.be]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
