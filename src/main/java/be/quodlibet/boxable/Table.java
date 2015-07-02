@@ -4,9 +4,14 @@
  */
 package be.quodlibet.boxable;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import java.awt.Color;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDTrueTypeFont;
@@ -15,14 +20,6 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
-import java.awt.*;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class Table<T extends PDPage> {
 
@@ -36,7 +33,7 @@ public abstract class Table<T extends PDPage> {
     private List<PDOutlineItem> bookmarks;
     private static final float VerticalCellMargin = 2f;
     private static final float HorizontalCellMargin = 2f;
-    private static final int xSpacing  = 7;
+    private static final int xSpacing = 7;
     private Row header;
     private List<Row> rows = new ArrayList<Row>();
 
@@ -297,9 +294,8 @@ public abstract class Table<T extends PDPage> {
             yStart = yStart - cell.getHeight();
             float height = cell.getHeight() - 1f;
 
-            float width = getWidth(cell, cellIterator);
-
-            this.tableContentStream.fillRect(xStart, yStart, width + xSpacing, height);
+            float cellWidth = getWidth(cell, cellIterator);
+            this.tableContentStream.fillRect(xStart, yStart, cellWidth, height);
             this.tableContentStream.closeSubPath();
 
             // Reset NonStroking Color to default value
@@ -312,7 +308,7 @@ public abstract class Table<T extends PDPage> {
         if (cellIterator.hasNext()) {
             width = cell.getWidth();
         } else {
-            width = cell.getExtraWidth();
+            width = cell.getExtraWidth() + xSpacing;
         }
         return width;
     }

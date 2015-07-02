@@ -5,11 +5,10 @@
 package be.quodlibet.boxable;
 
 
-import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 
 public class Row {
 
@@ -52,7 +51,7 @@ public class Row {
     }
 
     public float getHeight() {
-        
+
         float maxheight = new Float(0);
 
         for (Cell cell : this.cells) {
@@ -105,6 +104,7 @@ public class Row {
         for (Cell cell : cells) {
             cellWidth += cell.getWidth();
         }
+
         float lastCellExtraWidth = this.getWidth() - cellWidth;
         return lastCellExtraWidth;
     }
