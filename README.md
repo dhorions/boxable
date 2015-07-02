@@ -13,18 +13,18 @@ The project can be used as a Maven dependency by using jitpack.io.
 * add the repository : 
 ```xml
 <repository>
-	    <id>jitpack.io</id>
-	    <url>https://jitpack.io</url>
+  <id>jitpack.io</id>
+  <url>https://jitpack.io</url>
 </repository>
 ```
 * add the dependency
 ```xml
 <dependencies>
-        <dependency>
-	    <groupId>com.github.dhorions</groupId>
-	    <artifactId>boxable</artifactId>
-	    <version>1.2</version>
-	</dependency>
+  <dependency>
+    <groupId>com.github.dhorions</groupId>
+    <artifactId>boxable</artifactId>
+    <version>1.2</version>
+  </dependency>
 </dependencies>
 ```
 
