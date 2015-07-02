@@ -1,9 +1,8 @@
 package be.quodlibet.boxable;
 
+import java.io.IOException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
-
-import java.io.IOException;
 
 /**
  * Created by dgautier on 3/18/2015.
@@ -20,7 +19,10 @@ public class BaseTable extends Table<PDPage> {
     }
 
     @Override
-    protected PDPage createPage() {
-        return new PDPage();
+    protected PDPage createPage()
+    {
+        PDPage newPage = new PDPage();
+        getDocument().addPage(newPage);
+        return newPage;
     }
 }
