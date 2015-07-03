@@ -38,7 +38,7 @@ public class Cell {
         if (getWidth() > row.getWidth()){
             throw new IllegalArgumentException("Cell Width="+getWidth()+" can't be bigger than row width="+row.getWidth());
         }
-        this.text = text;
+        this.text = text == null ? "" : text;
     }
 
     public Color getTextColor()
