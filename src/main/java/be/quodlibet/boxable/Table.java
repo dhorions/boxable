@@ -97,9 +97,9 @@ public abstract class Table<T extends PDPage> {
 
         articleTitle.beginText();
         articleTitle.setFont(font, fontSize);
-        articleTitle.moveTextPositionByAmount(getMargin(), yStart);
+        articleTitle.newLineAtOffset(getMargin(), yStart);
         articleTitle.setNonStrokingColor(Color.black);
-        articleTitle.drawString(title);
+        articleTitle.showText(title);
         articleTitle.endText();
 
         if (textType != null) {
@@ -111,7 +111,9 @@ public abstract class Table<T extends PDPage> {
                 case UNDERLINE:
                     float y = (float) (yStart - 1.5);
                     float titleWidth = font.getStringWidth(title) / 1000 * fontSize;
-                    articleTitle.drawLine(getMargin(), y, getMargin() + titleWidth, y);
+                    articleTitle.moveTo(getMargin(), y);
+                    articleTitle.lineTo(getMargin() + titleWidth, y);
+                    articleTitle.stroke();
                     break;
                 default:
                     break;
@@ -215,22 +217,22 @@ public abstract class Table<T extends PDPage> {
             this.tableContentStream.setNonStrokingColor(cell.getTextColor());
 
             this.tableContentStream.beginText();
-            this.tableContentStream.moveTextPositionByAmount(nextX, nextY);
+            this.tableContentStream.newLineAtOffset(nextX, nextY);
             int numLines = cell.getParagraph().getLines().size();
             this.tableContentStream.appendRawCommands(cell.getParagraph().getFontHeight() + " TL\n");
 
             for (String line : cell.getParagraph().getLines()) {
 
                 //out.drawString(i.next().trim());
-                this.tableContentStream.drawString(line.trim());
+                this.tableContentStream.showText(line.trim());
                 if (numLines > 0) this.tableContentStream.appendRawCommands("T*\n");
                 numLines--;
             }
 
             //this.tableContentStream.drawString(cell.getText());
             this.tableContentStream.endText();
-            this.tableContentStream.closeSubPath();
-            nextX += cell.getWidth();
+            this.tableContentStream.closePath();
+            nextX += cell.getWidth() + HorizontalCellMargin;
         }
         //Set Y position for next row
         yStart = yStart - row.getHeight();
@@ -272,8 +274,10 @@ public abstract class Table<T extends PDPage> {
         this.tableContentStream.setStrokingColor(Color.BLACK);
 
 //        LOGGER.debug(type + "Line from X=" + xStart + " Y=" + yStart + " to X=" + xEnd + " Y=" + yEnd);
-        this.tableContentStream.drawLine(xStart, yStart, xEnd, yEnd);
-        this.tableContentStream.closeSubPath();
+        this.tableContentStream.moveTo(xStart, yStart);
+        this.tableContentStream.lineTo(xEnd, yEnd);
+        this.tableContentStream.stroke();
+        this.tableContentStream.closePath();
     }
 
     private void fillCellColor(Cell<T> cell, float yStart, float xStart, Iterator<Cell<T>> cellIterator) throws IOException {
@@ -286,8 +290,9 @@ public abstract class Table<T extends PDPage> {
             float height = cell.getHeight() - 1f;
 
             float cellWidth = getWidth(cell, cellIterator);
-            this.tableContentStream.fillRect(xStart, yStart, cellWidth, height);
-            this.tableContentStream.closeSubPath();
+            this.tableContentStream.addRect(xStart, yStart, cellWidth, height);
+            this.tableContentStream.fill();
+            this.tableContentStream.closePath();
 
             // Reset NonStroking Color to default value
             this.tableContentStream.setNonStrokingColor(Color.BLACK);

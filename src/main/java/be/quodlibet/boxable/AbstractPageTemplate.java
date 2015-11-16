@@ -20,7 +20,7 @@ public abstract class AbstractPageTemplate extends PDPage {
     protected void addPicture(PDImageXObject ximage, float cursorX, float cursorY, int width, int height) throws IOException {
 
         PDPageContentStream contentStream = new PDPageContentStream(getDocument(), this, true, false);
-        contentStream.drawXObject(ximage, cursorX, cursorY, width, height);
+        contentStream.drawImage(ximage, cursorX, cursorY, width, height);
         contentStream.close();
     }
 
