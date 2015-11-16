@@ -4,7 +4,19 @@ apply plugin: 'maven-publish'
 
 sourceCompatibility = 1.7
 
-version = '1.2'
+/*
+ * Gets the version name from the latest Git tag
+ */
+def getVersionName = {
+	->
+	def stdout = new ByteArrayOutputStream()
+	exec {
+		commandLine 'git', 'describe', '--tags'
+		standardOutput = stdout
+	}
+	return stdout.toString().trim()
+}
+version = getVersionName()
 group = 'com.github.dgautier'
 
 buildscript {
