@@ -8,6 +8,7 @@ package be.quodlibet.boxable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 
 public class Row {

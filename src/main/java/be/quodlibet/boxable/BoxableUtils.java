@@ -1,9 +1,9 @@
 package be.quodlibet.boxable;
 
+import java.io.IOException;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.font.PDTrueTypeFont;
-
-import java.io.IOException;
 
 /**
  * Created by dgautier on 3/19/2015.

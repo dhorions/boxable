@@ -1,8 +1,8 @@
 package be.quodlibet.boxable;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-
 import java.io.IOException;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
 
 /**
  * Created by dgautier on 3/18/2015.

@@ -4,10 +4,10 @@
  */
 package be.quodlibet.boxable;
 
+import java.awt.Color;
+
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-
-import java.awt.*;
 
 public class Cell {
     
