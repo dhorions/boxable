@@ -1,0 +1,67 @@
+apply plugin: 'java'
+apply plugin: 'artifactory-publish'
+apply plugin: 'maven-publish'
+
+sourceCompatibility = 1.7
+
+version = '1.2'
+group = 'com.github.dgautier'
+
+buildscript {
+	repositories {
+		maven {
+			url 'http://service.office.szue.net/artifactory/plugins-release'
+		}
+	}
+	dependencies {
+		classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '2.2.5')
+	}
+}
+
+task sourceJar(type: Jar) {
+	from sourceSets.main.allJava
+}
+
+if (project(':').hasProperty('artifactory_user')) {
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				from components.java
+				
+				artifact sourceJar {
+					classifier "sources"
+				}
+			}
+		}
+	}
+	
+	artifactory {
+		contextUrl = "http://service.office.szue.net/artifactory"
+		publish {
+			repository {
+				repoKey = 'libs-release-local'
+				username = "${artifactory_user}"
+				password = "${artifactory_password}"
+				maven = true
+			}
+			defaults {
+				publications ('mavenJava')
+			}
+		}
+	}
+	
+	artifactoryPublish.dependsOn jar
+}
+
+repositories {
+	maven {
+		url 'http://service.office.szue.net/artifactory/libs-release'
+	}
+}
+
+dependencies {
+	compile 'org.apache.pdfbox:pdfbox:1.8.8'
+	compile 'org.slf4j:slf4j-api:1.7.10'
+	compile 'com.google.guava:guava:18.0'
+	testCompile 'junit:junit:4.12'
+}
