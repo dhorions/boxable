@@ -21,12 +21,29 @@ public class Cell<T extends PDPage> {
     private Color textColor = Color.BLACK;
     private final Row<T> row;
 
+    // default padding
+ 	private float leftPadding = 0f;
+ 	private float rightPadding = 0f;
+ 	private float topPadding = 0f;
+ 	private float bottomPadding = 0f;
+
+ 	// horizontal alignment
+ 	public enum Align {
+		LEFT, CENTER, RIGHT
+	}
+ 	
+ 	private final Align align;
+ 	public Align align() {
+ 		return align;
+ 	}
+    
+    
     /**
      *  
      * @param width in % of table width
      * @param text
      */
-    Cell(Row<T> row,float width, String text,boolean isCalculated) {
+    Cell(Row<T> row,float width, String text,boolean isCalculated, Align align) {
         this.row = row;
         if (isCalculated){
             double calclulatedWidth = ((row.getWidth() * width)/100);
@@ -40,6 +57,7 @@ public class Cell<T extends PDPage> {
             throw new IllegalArgumentException("Cell Width="+getWidth()+" can't be bigger than row width="+row.getWidth());
         }
         this.text = text == null ? "" : text;
+        this.align = align;
     }
 
     public Color getTextColor()
@@ -61,7 +79,6 @@ public class Cell<T extends PDPage> {
     {
         this.fillColor = fillColor;
     }
-
 
     public float getWidth() {
         return width;
@@ -111,4 +128,36 @@ public class Cell<T extends PDPage> {
     public float getHeight() {
         return row.getHeight();
     }
+    
+    public float getLeftPadding() {
+		return leftPadding;
+	}
+
+	public void setLeftPadding(float cellLeftPadding) {
+		this.leftPadding = cellLeftPadding;
+	}
+
+	public float getRightPadding() {
+		return rightPadding;
+	}
+
+	public void setRightPadding(float cellRightPadding) {
+		this.rightPadding = cellRightPadding;
+	}
+
+	public float getTopPadding() {
+		return topPadding;
+	}
+
+	public void setTopPadding(float cellTopPadding) {
+		this.topPadding = cellTopPadding;
+	}
+
+	public float getBottomPadding() {
+		return bottomPadding;
+	}
+
+	public void setBottomPadding(float cellBottomPadding) {
+		this.bottomPadding = cellBottomPadding;
+	}
 }

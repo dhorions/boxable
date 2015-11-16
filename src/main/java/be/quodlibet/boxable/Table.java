@@ -32,16 +32,13 @@ public abstract class Table<T extends PDPage> {
     private T currentPage;
     private PDPageContentStream tableContentStream;
     private List<PDOutlineItem> bookmarks;
-    private static final float VerticalCellMargin = 2f;
-    private static final float HorizontalCellMargin = 2f;
-    private static final int xSpacing  = 0;
+    private static final int xSpacing = 7;
     private Row<T> header;
     private List<Row<T>> rows = new ArrayList<>();
 
     private final float yStartNewPage;
     private float yStart;
     private final float bottomMargin;
-    private final float topMargin = 10;
     private final float width;
     private final boolean drawLines;
     private final boolean drawContent;
@@ -54,11 +51,10 @@ public abstract class Table<T extends PDPage> {
         this.yStartNewPage = yStartNewPage;
         this.margin = margin;
         this.width = width;
-        this.yStart = yStart + topMargin;
+        this.yStart = yStart;
         this.bottomMargin = bottomMargin;
         this.currentPage = currentPage;
         loadFonts();
-        this.yStart = yStart;
         this.tableContentStream = createPdPageContentStream();
     }
 
@@ -202,8 +198,8 @@ public abstract class Table<T extends PDPage> {
 
     private void drawCellContent(Row<T> row) throws IOException {
 
-        float nextX = margin + HorizontalCellMargin;
-        float nextY = yStart - (row.getLineHeight() - VerticalCellMargin);
+    	float nextX = margin;
+		float nextY = yStart - (row.getLineHeight() - (row.getCells().get(0).getBottomPadding() + row.getCells().get(0).getTopPadding()));
 
         for (Cell<T> cell : row.getCells()) {
 
@@ -213,6 +209,8 @@ public abstract class Table<T extends PDPage> {
 
             //LOGGER.info("Draw Cell=" + cell.getText());
 
+            nextX += cell.getLeftPadding();
+            
             this.tableContentStream.setFont(cell.getFont(), cell.getFontSize());
             this.tableContentStream.setNonStrokingColor(cell.getTextColor());
 
@@ -232,7 +230,7 @@ public abstract class Table<T extends PDPage> {
             //this.tableContentStream.drawString(cell.getText());
             this.tableContentStream.endText();
             this.tableContentStream.closePath();
-            nextX += cell.getWidth() + HorizontalCellMargin;
+            nextX = nextX - cell.getLeftPadding() + cell.getWidth();
         }
         //Set Y position for next row
         yStart = yStart - row.getHeight();
