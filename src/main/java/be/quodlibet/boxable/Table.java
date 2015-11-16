@@ -5,21 +5,22 @@
 package be.quodlibet.boxable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDTrueTypeFont;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageXYZDestination;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public abstract class Table<T extends PDPage> {
 
@@ -104,11 +105,9 @@ public abstract class Table<T extends PDPage> {
         if (textType != null) {
             switch (textType) {
                 case HIGHLIGHT:
-                    throw new NotImplementedException();
                 case SQUIGGLY:
-                    throw new NotImplementedException();
                 case STRIKEOUT:
-                    throw new NotImplementedException();
+                	throw new UnsupportedOperationException("Not implemented.");
                 case UNDERLINE:
                     float y = (float) (yStart - 1.5);
                     float titleWidth = font.getStringWidth(title) / 1000 * fontSize;

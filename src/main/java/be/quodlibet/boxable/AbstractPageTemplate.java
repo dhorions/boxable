@@ -1,14 +1,16 @@
 package be.quodlibet.boxable;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.graphics.xobject.PDJpeg;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+
+import javax.imageio.ImageIO;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImage;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 /**
  * Created by dgautier on 3/18/2015.
@@ -19,17 +21,15 @@ public abstract class AbstractPageTemplate extends PDPage {
 
     protected abstract float yStart();
 
-    protected void addPicture(PDJpeg ximage, float cursorX, float cursorY, int width, int height) throws IOException {
+    protected void addPicture(PDImageXObject ximage, float cursorX, float cursorY, int width, int height) throws IOException {
 
         PDPageContentStream contentStream = new PDPageContentStream(getDocument(), this, true, false);
         contentStream.drawXObject(ximage, cursorX, cursorY, width, height);
         contentStream.close();
     }
 
-    protected PDJpeg loadPicture(String nameJPGFile) throws IOException {
-        InputStream inputStream = loadStream(nameJPGFile);
-        BufferedImage awtImage = ImageIO.read(inputStream);
-        return new PDJpeg(getDocument(), awtImage, 1.0f);
+    protected PDImage loadPicture(String nameJPGFile) throws IOException {
+        return PDImageXObject.createFromFile(nameJPGFile, getDocument());
     }
 
     private InputStream loadStream(String fileName) {

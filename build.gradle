@@ -60,7 +60,7 @@ repositories {
 }
 
 dependencies {
-	compile 'org.apache.pdfbox:pdfbox:1.8.8'
+	compile 'org.apache.pdfbox:pdfbox:2.0.0-RC1'
 	compile 'org.slf4j:slf4j-api:1.7.10'
 	compile 'com.google.guava:guava:18.0'
 	testCompile 'junit:junit:4.12'

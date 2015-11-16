@@ -3,13 +3,12 @@
  */
 package be.quodlibet.boxable;
 
-import com.google.common.io.Files;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.pdfbox.exceptions.COSVisitorException;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
@@ -17,11 +16,13 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDocume
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 import org.junit.Test;
 
+import com.google.common.io.Files;
+
 
 public class TableTest {
 
     @Test
-    public void Sample1 () throws IOException, COSVisitorException {
+    public void Sample1 () throws IOException {
 
         //Set margins
         float margin = 10;
@@ -32,10 +33,10 @@ public class TableTest {
         //Initialize Document
         PDDocument doc = new PDDocument();
         PDPage page = addNewPage(doc);
-        float yStartNewPage = page.findMediaBox().getHeight() - (2 * margin);
+        float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
 
         //Initialize table
-        float tableWidth = page.findMediaBox().getWidth() - (2 * margin);
+        float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
         boolean drawContent = true;
         float yStart = yStartNewPage;
         float bottomMargin = 70;
@@ -147,7 +148,7 @@ public class TableTest {
 
 
     @Test
-    public void SampleTest2() throws IOException, COSVisitorException {
+    public void SampleTest2() throws IOException {
 
         //Set margins
         float margin = 10;
@@ -163,8 +164,8 @@ public class TableTest {
         PDPage page = addNewPage(doc);
 
         //Initialize table
-        float tableWidth = page.findMediaBox().getWidth()-(2*margin);
-        float yStartNewPage = page.findMediaBox().getHeight() - (2 * margin);
+        float tableWidth = page.getMediaBox().getWidth()-(2*margin);
+        float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         boolean drawContent = true;
         boolean drawLines = true;
         float yStart = yStartNewPage;
@@ -231,7 +232,7 @@ public class TableTest {
         PDDocumentOutline outline =  new PDDocumentOutline();
 
         for(PDOutlineItem bm : bookmarks) {
-            outline.appendChild(bm);
+            outline.addLast(bm);
         }
 
         doc.getDocumentCatalog().setDocumentOutline(outline);
