@@ -9,29 +9,30 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 
-public class Row {
+public class Row<T extends PDPage> {
 
-    private final Table table;
+    private final Table<T> table;
     PDOutlineItem bookmark;
-    List<Cell> cells;
+    List<Cell<T>> cells;
     float height;
 
-    Row(Table table, List<Cell> cells, float height) {
+    Row(Table<T> table, List<Cell<T>> cells, float height) {
         this.table = table;
         this.cells = cells;
         this.height = height;
     }
 
-    Row(Table table, float height) {
+    Row(Table<T> table, float height) {
         this.table = table;
-        this.cells = new ArrayList<Cell>();
+        this.cells = new ArrayList<>();
         this.height = height;
     }
 
-    public Cell createCell(float width, String value) {
-        Cell cell = new Cell(this, width, value,true);
+    public Cell<T> createCell(float width, String value) {
+        Cell<T> cell = new Cell<T>(this, width, value,true);
         cells.add(cell);
         return cell;
     }
@@ -42,11 +43,11 @@ public class Row {
      * @param value
      * @return
      */
-    public Cell createCell(String value) {
+    public Cell<T> createCell(String value) {
 
         float headerCellWidth = table.getHeader().getCells().get(cells.size()).getWidth();
 
-        Cell cell = new Cell(this, headerCellWidth, value,false);
+        Cell<T> cell = new Cell<T>(this, headerCellWidth, value,false);
         cells.add(cell);
         return cell;
     }
@@ -55,7 +56,7 @@ public class Row {
 
         float maxheight = new Float(0);
 
-        for (Cell cell : this.cells) {
+        for (Cell<T> cell : this.cells) {
             float cellHeight = 0;
             cellHeight = (cell.getParagraph().getLines().size() * this.height);
 
@@ -75,7 +76,7 @@ public class Row {
         this.height = height;
     }
 
-    public List<Cell> getCells() {
+    public List<Cell<T>> getCells() {
         return cells;
     }
 
@@ -83,7 +84,7 @@ public class Row {
         return cells.size();
     }
 
-    public void setCells(List<Cell> cells) {
+    public void setCells(List<Cell<T>> cells) {
         this.cells = cells;
     }
 
@@ -102,7 +103,7 @@ public class Row {
 
     protected float getLastCellExtraWidth() {
         float cellWidth = 0;
-        for (Cell cell : cells) {
+        for (Cell<T> cell : cells) {
             cellWidth += cell.getWidth();
         }
 

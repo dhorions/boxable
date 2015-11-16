@@ -6,10 +6,11 @@ package be.quodlibet.boxable;
 
 import java.awt.Color;
 
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
-public class Cell {
+public class Cell<T extends PDPage> {
     
     private float width;
     private String text;
@@ -18,14 +19,14 @@ public class Cell {
     private float fontSize = 8;
     private Color fillColor;
     private Color textColor = Color.BLACK;
-    private final Row row;
+    private final Row<T> row;
 
     /**
      *  
      * @param width in % of table width
      * @param text
      */
-    Cell(Row row,float width, String text,boolean isCalculated) {
+    Cell(Row<T> row,float width, String text,boolean isCalculated) {
         this.row = row;
         if (isCalculated){
             double calclulatedWidth = ((row.getWidth() * width)/100);

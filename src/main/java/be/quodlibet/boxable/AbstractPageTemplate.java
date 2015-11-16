@@ -1,7 +1,6 @@
 package be.quodlibet.boxable;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -28,11 +27,5 @@ public abstract class AbstractPageTemplate extends PDPage {
     protected PDImage loadPicture(String nameJPGFile) throws IOException {
         return PDImageXObject.createFromFile(nameJPGFile, getDocument());
     }
-
-    private InputStream loadStream(String fileName) {
-        return getClass().getClassLoader().getResourceAsStream(fileName);
-    }
-
-
 
 }

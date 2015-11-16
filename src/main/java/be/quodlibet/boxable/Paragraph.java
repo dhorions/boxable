@@ -33,7 +33,7 @@ public class Paragraph {
 
 
     public List<String> getLines() {
-        List<String> result = new ArrayList();
+        List<String> result = new ArrayList<>();
 
         String[] split = text.split("(?<=\\s|-|@|,|\\.|:|;)");
 

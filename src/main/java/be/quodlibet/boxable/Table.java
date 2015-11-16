@@ -16,7 +16,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDTrueTypeFont;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageXYZDestination;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 import org.slf4j.Logger;
@@ -35,8 +35,8 @@ public abstract class Table<T extends PDPage> {
     private static final float VerticalCellMargin = 2f;
     private static final float HorizontalCellMargin = 2f;
     private static final int xSpacing  = 0;
-    private Row header;
-    private List<Row> rows = new ArrayList<Row>();
+    private Row<T> header;
+    private List<Row<T>> rows = new ArrayList<>();
 
     private final float yStartNewPage;
     private float yStart;
@@ -80,7 +80,7 @@ public abstract class Table<T extends PDPage> {
 
     protected abstract void loadFonts() throws IOException ;
 
-    protected PDTrueTypeFont loadFont(String fontPath) throws IOException {
+    protected PDType0Font loadFont(String fontPath) throws IOException {
         return BoxableUtils.loadFont(getDocument(),fontPath);
     }
 
@@ -128,20 +128,20 @@ public abstract class Table<T extends PDPage> {
     }
 
 
-    public Row createRow(float height) {
-        Row row = new Row(this, height);
+    public Row<T> createRow(float height) {
+        Row<T> row = new Row<T>(this, height);
         this.rows.add(row);
         return row;
     }
 
-    public Row createRow(List<Cell> cells, float height) {
-        Row row = new Row(this, cells, height);
+    public Row<T> createRow(List<Cell<T>> cells, float height) {
+        Row<T> row = new Row<T>(this, cells, height);
         this.rows.add(row);
         return row;
     }
 
     public float draw() throws IOException {
-        for (Row row : rows) {
+        for (Row<T> row : rows) {
             drawRow(row);
         }
         endTable();
@@ -149,13 +149,9 @@ public abstract class Table<T extends PDPage> {
         return yStart;
     }
 
-    private void drawRow(Row row) throws IOException {
-        Boolean bookmark = false;
-
-
+    private void drawRow(Row<T> row) throws IOException {
         //draw the bookmark
         if (row.getBookmark() != null) {
-            bookmark = true;
             PDPageXYZDestination bookmarkDestination = new PDPageXYZDestination();
             bookmarkDestination.setPage(currentPage);
             bookmarkDestination.setTop((int) yStart);
@@ -202,12 +198,12 @@ public abstract class Table<T extends PDPage> {
         return new PDPageContentStream(getDocument(), getCurrentPage(), true, true);
     }
 
-    private void drawCellContent(Row row) throws IOException {
+    private void drawCellContent(Row<T> row) throws IOException {
 
         float nextX = margin + HorizontalCellMargin;
         float nextY = yStart - (row.getLineHeight() - VerticalCellMargin);
 
-        for (Cell cell : row.getCells()) {
+        for (Cell<T> cell : row.getCells()) {
 
             if (cell.getFont() == null) {
                 throw new IllegalArgumentException("Font is null on Cell=" + cell.getText());
@@ -220,7 +216,6 @@ public abstract class Table<T extends PDPage> {
 
             this.tableContentStream.beginText();
             this.tableContentStream.moveTextPositionByAmount(nextX, nextY);
-            List<String> lines = cell.getParagraph().getLines();
             int numLines = cell.getParagraph().getLines().size();
             this.tableContentStream.appendRawCommands(cell.getParagraph().getFontHeight() + " TL\n");
 
@@ -241,7 +236,7 @@ public abstract class Table<T extends PDPage> {
         yStart = yStart - row.getHeight();
     }
 
-    private void drawVerticalLines(Row row) throws IOException {
+    private void drawVerticalLines(Row<T> row) throws IOException {
         float xStart = margin;
 
         // give an extra margin to the latest cell
@@ -250,10 +245,10 @@ public abstract class Table<T extends PDPage> {
         // Draw Row upper border
         drawLine("Row Upper Border ", xStart, yStart, xEnd, yStart);
 
-        Iterator<Cell> cellIterator = row.getCells().iterator();
+        Iterator<Cell<T>> cellIterator = row.getCells().iterator();
         while (cellIterator.hasNext()) {
 
-            Cell cell = cellIterator.next();
+            Cell<T> cell = cellIterator.next();
 
             fillCellColor(cell, yStart, xStart, cellIterator);
 
@@ -281,7 +276,7 @@ public abstract class Table<T extends PDPage> {
         this.tableContentStream.closeSubPath();
     }
 
-    private void fillCellColor(Cell cell, float yStart, float xStart, Iterator<Cell> cellIterator) throws IOException {
+    private void fillCellColor(Cell<T> cell, float yStart, float xStart, Iterator<Cell<T>> cellIterator) throws IOException {
         //Fill Cell Color
         if (cell.getFillColor() != null) {
             this.tableContentStream.setNonStrokingColor(cell.getFillColor());
@@ -299,7 +294,7 @@ public abstract class Table<T extends PDPage> {
         }
     }
 
-    private float getWidth(Cell cell, Iterator<Cell> cellIterator) {
+    private float getWidth(Cell<T> cell, Iterator<Cell<T>> cellIterator) {
         float width;
         if (cellIterator.hasNext()) {
             width = cell.getWidth();
@@ -325,7 +320,7 @@ public abstract class Table<T extends PDPage> {
         return this.currentPage;
     }
 
-    public boolean isEndOfPage(Row row) {
+    public boolean isEndOfPage(Row<T> row) {
 
         float currentY = yStart - row.getHeight();
         boolean isEndOfPage = currentY  <= (bottomMargin + 10);
@@ -337,7 +332,7 @@ public abstract class Table<T extends PDPage> {
     }
 
     private void addBookmark(PDOutlineItem bookmark) {
-        if (bookmarks == null) bookmarks = new ArrayList();
+        if (bookmarks == null) bookmarks = new ArrayList<>();
         bookmarks.add(bookmark);
     }
 
@@ -346,11 +341,11 @@ public abstract class Table<T extends PDPage> {
     }
 
 
-    public void setHeader(Row header) {
+    public void setHeader(Row<T> header) {
         this.header = header;
     }
 
-    public Row getHeader() {
+    public Row<T> getHeader() {
         if (header == null) {
             throw new IllegalArgumentException("Header Row not set on table");
         }

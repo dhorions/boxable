@@ -43,8 +43,8 @@ public class TableTest {
         BaseTable table  = new BaseTable(yStart,yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, drawContent);
 
         //Create Header row
-        Row headerRow = table.createRow(15f);
-        Cell cell = headerRow.createCell(100, "Awesome Facts About Belgium");
+        Row<PDPage> headerRow = table.createRow(15f);
+        Cell<PDPage> cell = headerRow.createCell(100, "Awesome Facts About Belgium");
         cell.setFont(PDType1Font.HELVETICA_BOLD);
         cell.setFillColor(Color.BLACK);
         cell.setTextColor(Color.WHITE);
@@ -53,7 +53,7 @@ public class TableTest {
         table.setHeader(headerRow);
 
         //Create 2 column row
-        Row row = table.createRow(15f);
+        Row<PDPage> row = table.createRow(15f);
         cell = row.createCell(30,"Source:");
         cell.setFont(PDType1Font.HELVETICA);
 
@@ -61,7 +61,7 @@ public class TableTest {
         cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
 
         //Create Fact header row
-        Row factHeaderrow = table.createRow(15f);
+        Row<PDPage> factHeaderrow = table.createRow(15f);
 
         cell = factHeaderrow.createCell((100 / 3) * 2, "Fact");
         cell.setFont(PDType1Font.HELVETICA);
@@ -174,15 +174,15 @@ public class TableTest {
 
 
         //Create Header row
-        Row headerRow = table.createRow(15f);
-        Cell cell = headerRow.createCell(100,"Awesome Facts About Belgium");
+        Row<PDPage> headerRow = table.createRow(15f);
+        Cell<PDPage> cell = headerRow.createCell(100,"Awesome Facts About Belgium");
         cell.setFont(PDType1Font.HELVETICA_BOLD);
         cell.setFillColor(Color.BLACK);cell.setTextColor(Color.WHITE);
 
         table.setHeader(headerRow);
 
         //Create 2 column row
-        Row row = table.createRow(15f);
+        Row<PDPage> row = table.createRow(15f);
         cell = row.createCell(75,"Source:");
         cell.setFont(PDType1Font.HELVETICA);
 
@@ -190,7 +190,7 @@ public class TableTest {
         cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
 
         //Create Fact header row
-        Row factHeaderrow = table.createRow(15f);
+        Row<PDPage> factHeaderrow = table.createRow(15f);
         cell = factHeaderrow.createCell((100/3) * 2 ,"Fact");
         cell.setFont(PDType1Font.HELVETICA);
         cell.setFontSize(6);
