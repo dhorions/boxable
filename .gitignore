@@ -17,3 +17,5 @@ target
 /bin/
 /build/
 .settings
+.gradle
+.metadata
