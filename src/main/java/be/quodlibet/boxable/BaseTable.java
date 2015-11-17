@@ -19,9 +19,8 @@ public class BaseTable extends Table<PDPage> {
     }
 
     @Override
-    protected PDPage createPage()
-    {
-        PDPage newPage = new PDPage();
+    protected PDPage createPage() {
+        PDPage newPage = new PDPage(getCurrentPage().getMediaBox());
         getDocument().addPage(newPage);
         return newPage;
     }

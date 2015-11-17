@@ -35,7 +35,7 @@ public class Paragraph {
     public List<String> getLines() {
         List<String> result = new ArrayList();
 
-        String[] split = text.split("(?<=\\W)");
+        String[] split = text.split("(?<=\\s|-|@|,|\\.|:|;)");
 
         int[] possibleWrapPoints = new int[split.length];
 
