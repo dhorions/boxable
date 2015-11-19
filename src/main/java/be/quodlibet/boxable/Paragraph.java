@@ -10,17 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 public class Paragraph {
 
-
     private int width = 500;
-
-
     private String text;
-    private PDFont font = PDType1Font.HELVETICA;
-    private int fontSize = 10;
+    private PDFont font;
+    private int fontSize;
 
     private int color = 0;
 
@@ -71,6 +67,10 @@ public class Paragraph {
 
     public float getFontWidth() {
         return font.getFontDescriptor().getFontBoundingBox().getWidth() / 1000 * fontSize;
+    }
+    
+    public float getFontDescent() {
+    	return font.getFontDescriptor().getDescent() / 1000 * fontSize;
     }
 
     public Paragraph withWidth(int width) {

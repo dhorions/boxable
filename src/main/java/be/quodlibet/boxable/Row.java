@@ -13,6 +13,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 
 import be.quodlibet.boxable.Cell.Align;
+import be.quodlibet.boxable.Cell.Valign;
 
 public class Row<T extends PDPage> {
 
@@ -34,26 +35,27 @@ public class Row<T extends PDPage> {
     }
 
     /**
-     * <p>Creates a cell with provided width, cell value and default left alignment</p>
+     * <p>Creates a cell with provided width, cell value and default left top alignment</p>
      * @param width
      * @param value 
      * @return
      */
     public Cell<T> createCell(float width, String value) {
-        Cell<T> cell = new Cell<T>(this, width, value,true,  Align.LEFT);
+        Cell<T> cell = new Cell<T>(this, width, value,true,  Align.LEFT, Valign.TOP);
         cells.add(cell);
         return cell;
     }
     
     /**
-     * <p>Creates a cell with provided width, cell value and alignment</p>
+     * <p>Creates a cell with provided width, cell value, horizontal and vertical alignment</p>
      * @param width
-     * @param value 
-     * @param align Alignment of cell value (horizontal)
+     * @param value
+     * @param align
+     * @param valign
      * @return
      */
-    public Cell<T> createCell(float width, String value, Align align) {
-        Cell<T> cell = new Cell<T>(this, width, value,true, align);
+    public Cell<T> createCell(float width, String value, Align align, Valign valign) {
+        Cell<T> cell = new Cell<T>(this, width, value,true, align, valign);
         cells.add(cell);
         return cell;
     }
@@ -67,7 +69,7 @@ public class Row<T extends PDPage> {
     public Cell<T> createCell(String value) {
 
         float headerCellWidth = table.getHeader().getCells().get(cells.size()).getWidth();
-        Cell<T> cell = new Cell<T>(this, headerCellWidth, value,false, Align.LEFT);
+        Cell<T> cell = new Cell<T>(this, headerCellWidth, value,false, Align.LEFT, Valign.TOP);
         cells.add(cell);
         return cell;
     }
@@ -78,7 +80,7 @@ public class Row<T extends PDPage> {
 
         for (Cell<T> cell : this.cells) {
             float cellHeight = 0;
-            cellHeight = (cell.getParagraph().getLines().size() * this.height);
+            cellHeight = cell.getTextHeight() + cell.getTopPadding() + cell.getBottomPadding();
 
             if (cellHeight > maxheight){
                 maxheight = cellHeight;

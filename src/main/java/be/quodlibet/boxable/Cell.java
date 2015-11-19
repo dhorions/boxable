@@ -5,131 +5,150 @@
 package be.quodlibet.boxable;
 
 import java.awt.Color;
+import java.io.IOException;
 
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 public class Cell<T extends PDPage> {
-    
-    private float width;
-    private String text;
-    
-    private PDFont font = PDType1Font.HELVETICA;
-    private float fontSize = 8;
-    private Color fillColor;
-    private Color textColor = Color.BLACK;
-    private final Row<T> row;
 
-    // default padding
- 	private float leftPadding = 0f;
- 	private float rightPadding = 0f;
- 	private float topPadding = 0f;
- 	private float bottomPadding = 0f;
+	private float width;
+	private String text;
 
- 	// horizontal alignment
- 	public enum Align {
+	private PDFont font = PDType1Font.HELVETICA;
+	private float fontSize = 8;
+	private Color fillColor;
+	private Color textColor = Color.BLACK;
+	private final Row<T> row;
+
+	// default padding
+	private float leftPadding = 0f;
+	private float rightPadding = 0f;
+	private float topPadding = 0f;
+	private float bottomPadding = 0f;
+
+	// horizontal alignment
+	public enum Align {
 		LEFT, CENTER, RIGHT
 	}
- 	
- 	private final Align align;
- 	public Align align() {
- 		return align;
- 	}
-    
-    
-    /**
-     *  
-     * @param width in % of table width
-     * @param text
-     */
-    Cell(Row<T> row,float width, String text,boolean isCalculated, Align align) {
-        this.row = row;
-        if (isCalculated){
-            double calclulatedWidth = ((row.getWidth() * width)/100);
-            this.width = (float) calclulatedWidth;    
-        } else {
-            this.width = width;
-        }
-        
-        
-        if (getWidth() > row.getWidth()){
-            throw new IllegalArgumentException("Cell Width="+getWidth()+" can't be bigger than row width="+row.getWidth());
-        }
-        this.text = text == null ? "" : text;
-        this.align = align;
-    }
+	
+	// vertical alignment
+	public enum Valign {
+		TOP, MIDDLE, BOTTOM
+	}
 
-    public Color getTextColor()
-    {
-        return textColor;
-    }
+	private final Align align;
+	private final Valign valign;
 
-    public void setTextColor(Color textColor)
-    {
-        this.textColor = textColor;
-    }
+	public Align align() {
+		return align;
+	}
+	
+	public Valign valign() {
+		return valign;
+	}
 
-    public Color getFillColor()
-    {
-        return fillColor;
-    }
+	float horizontalFreeSpace = 0;
+	float verticalFreeSpace = 0;
 
-    public void setFillColor(Color fillColor)
-    {
-        this.fillColor = fillColor;
-    }
+	/**
+	 * 
+	 * @param width
+	 *            in % of table width
+	 * @param text
+	 */
+	Cell(Row<T> row, float width, String text, boolean isCalculated, Align align, Valign valign) {
+		this.row = row;
+		if (isCalculated) {
+			double calclulatedWidth = ((row.getWidth() * width) / 100);
+			this.width = (float) calclulatedWidth;
+		} else {
+			this.width = width;
+		}
 
-    public float getWidth() {
-        return width;
-    }
+		if (getWidth() > row.getWidth()) {
+			throw new IllegalArgumentException(
+					"Cell Width=" + getWidth() + " can't be bigger than row width=" + row.getWidth());
+		}
+		this.text = text == null ? "" : text;
+		this.align = align;
+		this.valign = valign;
+	}
 
-    public String getText()
-    {
-        return text;
-    }
+	public Color getTextColor() {
+		return textColor;
+	}
 
-    public void setText(String text)
-    {
-        this.text = text;
-    }
+	public void setTextColor(Color textColor) {
+		this.textColor = textColor;
+	}
 
-    public PDFont getFont() {
-        if (font == null){
-            throw new IllegalArgumentException("Font not set.");
-        }
-        return font;
-    }
+	public Color getFillColor() {
+		return fillColor;
+	}
 
-    public void setFont(PDFont font)
-    {
-        this.font = font;
-    }
+	public void setFillColor(Color fillColor) {
+		this.fillColor = fillColor;
+	}
 
-    public float getFontSize()
-    {
-        return fontSize;
-    }
+	public float getWidth() {
+		return width;
+	}
 
-    public void setFontSize(float fontSize)
-    {
-        this.fontSize = fontSize;
-    }
+	public float getInnerWidth() {
+		return getWidth() - getLeftPadding() - getRightPadding();
+	}
 
-    public Paragraph getParagraph()
-    {
-         return new Paragraph( text,  font,  (int)fontSize,  (int)width);
-    }
-    
-    public float getExtraWidth(){
-        return this.row.getLastCellExtraWidth() + getWidth();
-    }
+	public float getInnerHeight() {
+		return getHeight() - getBottomPadding() - getTopPadding();
+	}
 
-    public float getHeight() {
-        return row.getHeight();
-    }
-    
-    public float getLeftPadding() {
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public PDFont getFont() {
+		if (font == null) {
+			throw new IllegalArgumentException("Font not set.");
+		}
+		return font;
+	}
+
+	public void setFont(PDFont font) {
+		this.font = font;
+	}
+
+	public float getFontSize() {
+		return fontSize;
+	}
+
+	public void setFontSize(float fontSize) {
+		this.fontSize = fontSize;
+	}
+
+	public Paragraph getParagraph() {
+		return new Paragraph(text, font, (int) fontSize, (int) getInnerWidth());
+	}
+
+	public float getExtraWidth() {
+		return this.row.getLastCellExtraWidth() + getWidth();
+	}
+
+	public float getHeight() {
+		return row.getHeight();
+	}
+
+	public float getTextHeight() {
+		final Paragraph paragraph = getParagraph();
+		return paragraph.getLines().size() * paragraph.getFontHeight();
+	}
+
+	public float getLeftPadding() {
 		return leftPadding;
 	}
 
@@ -159,5 +178,22 @@ public class Cell<T extends PDPage> {
 
 	public void setBottomPadding(float cellBottomPadding) {
 		this.bottomPadding = cellBottomPadding;
+	}
+
+	public float getVerticalFreeSpace() {
+		return getInnerHeight() - getTextHeight();
+	}
+
+	public float getHorizontalFreeSpace() {
+		float tw = 0.0f;
+		try {
+			for (final String line : getParagraph().getLines()) {
+				tw = Math.max(tw, getFont().getStringWidth(line.trim()));
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		tw = tw / 1000 * getFontSize();
+		return getInnerWidth() - tw;
 	}
 }
