@@ -12,9 +12,6 @@ import java.util.List;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 
-import be.quodlibet.boxable.Cell.Align;
-import be.quodlibet.boxable.Cell.Valign;
-
 public class Row<T extends PDPage> {
 
     private final Table<T> table;
@@ -41,7 +38,7 @@ public class Row<T extends PDPage> {
      * @return
      */
     public Cell<T> createCell(float width, String value) {
-        Cell<T> cell = new Cell<T>(this, width, value,true,  Align.LEFT, Valign.TOP);
+        Cell<T> cell = new Cell<T>(this, width, value,true,  HorizontalAlignment.LEFT, VerticalAlignment.TOP);
         cells.add(cell);
         return cell;
     }
@@ -54,7 +51,7 @@ public class Row<T extends PDPage> {
      * @param valign
      * @return
      */
-    public Cell<T> createCell(float width, String value, Align align, Valign valign) {
+    public Cell<T> createCell(float width, String value, HorizontalAlignment align, VerticalAlignment valign) {
         Cell<T> cell = new Cell<T>(this, width, value,true, align, valign);
         cells.add(cell);
         return cell;
@@ -69,7 +66,7 @@ public class Row<T extends PDPage> {
     public Cell<T> createCell(String value) {
 
         float headerCellWidth = table.getHeader().getCells().get(cells.size()).getWidth();
-        Cell<T> cell = new Cell<T>(this, headerCellWidth, value,false, Align.LEFT, Valign.TOP);
+        Cell<T> cell = new Cell<T>(this, headerCellWidth, value,false, HorizontalAlignment.LEFT, VerticalAlignment.TOP);
         cells.add(cell);
         return cell;
     }

@@ -42,6 +42,7 @@ public abstract class Table<T extends PDPage> {
 	private final float width;
 	private final boolean drawLines;
 	private final boolean drawContent;
+	private float headerBottomMargin = 5f;
 
 	public Table(float yStart, float yStartNewPage, float bottomMargin, float width, float margin, PDDocument document,
 			T currentPage, boolean drawLines, boolean drawContent) throws IOException {
@@ -86,41 +87,68 @@ public abstract class Table<T extends PDPage> {
 		return document;
 	}
 
-	public void drawTitle(String title, PDFont font, int fontSize) throws IOException {
-		drawTitle(title, font, fontSize, null);
+	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, String alignment)
+			throws IOException {
+		drawTitle(title, font, fontSize, tableWidth, alignment, null);
 	}
 
-	public void drawTitle(String title, PDFont font, int fontSize, TextType textType) throws IOException {
-		PDPageContentStream articleTitle = createPdPageContentStream();
+	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, String alignment,
+			TextType textType) throws IOException {
+		yStart -= FontUtils.getHeight(font, fontSize);
 
-		articleTitle.beginText();
-		articleTitle.setFont(font, fontSize);
-		articleTitle.newLineAtOffset(getMargin(), yStart);
-		articleTitle.setNonStrokingColor(Color.black);
-		articleTitle.showText(title);
-		articleTitle.endText();
+		// DEBUG (mark title text box height)
+		// PDStreamUtils.rect(tableContentStream, margin, yStart, 3, -FontUtils.getHeight(font, fontSize), Color.BLUE);
+		// Reset NonStroking Color to default value
+		// this.tableContentStream.setNonStrokingColor(Color.BLACK);
+		// DEBUG
 
-		if (textType != null) {
-			switch (textType) {
-			case HIGHLIGHT:
-			case SQUIGGLY:
-			case STRIKEOUT:
-				throw new UnsupportedOperationException("Not implemented.");
-			case UNDERLINE:
-				float y = (float) (yStart - 1.5);
-				float titleWidth = font.getStringWidth(title) / 1000 * fontSize;
-				articleTitle.moveTo(getMargin(), y);
-				articleTitle.lineTo(getMargin() + titleWidth, y);
-				articleTitle.stroke();
+		if (title != null) {
+			PDPageContentStream articleTitle = createPdPageContentStream();
+
+			float horizontalFreeSpace = tableWidth - FontUtils.getStringWidth(font, title, fontSize);
+
+			// check appropriate alignment
+			float cursorX = getMargin();
+			switch (HorizontalAlignment.get(alignment)) {
+			case CENTER:
+				cursorX += horizontalFreeSpace / 2;
 				break;
-			default:
+			case LEFT:
+				break;
+			case RIGHT:
+				cursorX += horizontalFreeSpace;
 				break;
 			}
+
+			PDStreamUtils.write(articleTitle, title, font, fontSize, cursorX, yStart, Color.BLACK);
+
+			if (textType != null) {
+				switch (textType) {
+				case HIGHLIGHT:
+				case SQUIGGLY:
+				case STRIKEOUT:
+					throw new UnsupportedOperationException("Not implemented.");
+				case UNDERLINE:
+					float y = (float) (yStart - 1.5);
+					float titleWidth = font.getStringWidth(title) / 1000 * fontSize;
+					articleTitle.moveTo(getMargin(), y);
+					articleTitle.lineTo(getMargin() + titleWidth, y);
+					articleTitle.stroke();
+					break;
+				default:
+					break;
+				}
+			}
+			articleTitle.close();
 		}
-		articleTitle.close();
 
-		yStart = (float) (yStart - (fontSize / 1.5));
-
+		// DEBUG (draw margin)
+		// PDStreamUtils.rect(tableContentStream, margin, yStart, width, headerBottomMargin, Color.CYAN);
+		// Reset NonStroking Color to default value
+		// this.tableContentStream.setNonStrokingColor(Color.BLACK);
+		// DEBUG
+		
+		yStart -= headerBottomMargin;
 	}
 
 	public float getWidth() {
@@ -143,6 +171,13 @@ public abstract class Table<T extends PDPage> {
 		for (Row<T> row : rows) {
 			drawRow(row);
 		}
+
+		// DEBUG (draw margin between elements)
+		// PDStreamUtils.rect(tableContentStream, margin, yStart, width, 10, Color.MAGENTA);
+		// Reset NonStroking Color to default value
+		// tableContentStream.setNonStrokingColor(Color.BLACK);
+		// DEBUG
+		
 		endTable();
 
 		return yStart;
@@ -202,12 +237,14 @@ public abstract class Table<T extends PDPage> {
 			if (cell.getFont() == null) {
 				throw new IllegalArgumentException("Font is null on Cell=" + cell.getText());
 			}
-			
+
 			// position at top of current cell
-			// descending by font height - font descent, because we are positioning the base line here
-			float cursorY = yStart - cell.getTopPadding() - cell.getParagraph().getFontHeight() - cell.getParagraph().getFontDescent();;
-			
-			switch (cell.valign()) {
+			// descending by font height - font descent, because we are
+			// positioning the base line here
+			float cursorY = yStart - cell.getTopPadding() - cell.getParagraph().getFontHeight()
+					- cell.getParagraph().getFontDescent();
+
+			switch (cell.getValign()) {
 			case TOP:
 				break;
 			case MIDDLE:
@@ -217,18 +254,25 @@ public abstract class Table<T extends PDPage> {
 				cursorY -= cell.getVerticalFreeSpace();
 				break;
 			}
-			
-			// remember horizontal cursor position, so we can advance to the next cell easily later
+
+			// remember horizontal cursor position, so we can advance to the
+			// next cell easily later
 			float cellStartX = cursorX;
 
 			// respect left padding
 			cursorX += cell.getLeftPadding();
-			
-			// remember this horizontal position, as it is the anchor for each new line
+
+			// remember this horizontal position, as it is the anchor for each
+			// new line
 			float lineStartX = cursorX;
 
 			// font settings
 			this.tableContentStream.setFont(cell.getFont(), cell.getFontSize());
+
+			// if it is head row then please use bold font
+			if (row.equals(header)) {
+				this.tableContentStream.setFont(cell.getFontBold(), cell.getFontSize());
+			}
 			this.tableContentStream.setNonStrokingColor(cell.getTextColor());
 
 			// print all lines of the cell
@@ -236,12 +280,13 @@ public abstract class Table<T extends PDPage> {
 			for (String line : cell.getParagraph().getLines()) {
 				// screw you, whitespace!
 				line = line.trim();
-				
+
 				// we start at the line start ... seems legit
 				cursorX = lineStartX;
 
-				// the widest text does not fill the inner width of the cell? no problem, just add it ;)
-				switch (cell.align()) {
+				// the widest text does not fill the inner width of the cell? no
+				// problem, just add it ;)
+				switch (cell.getAlign()) {
 				case CENTER:
 					cursorX += cell.getHorizontalFreeSpace() / 2;
 					break;
@@ -251,35 +296,43 @@ public abstract class Table<T extends PDPage> {
 					cursorX += cell.getHorizontalFreeSpace();
 					break;
 				}
-				
+
 				// calculate the width of this line
 				tw = Math.max(tw, cell.getFont().getStringWidth(line));
 				tw = tw / 1000 * cell.getFontSize();
 				float freeSpaceWithinLine = cell.getInnerWidth() - cell.getHorizontalFreeSpace() - tw;
-				switch (cell.align()) {
+				switch (cell.getAlign()) {
 				case CENTER:
 					cursorX += freeSpaceWithinLine / 2;
 					break;
 				case LEFT:
-					// it doesn't matter because X position is always the same as row above
+					// it doesn't matter because X position is always the same
+					// as row above
 					break;
 				case RIGHT:
 					cursorX += freeSpaceWithinLine;
 					break;
 				}
-				
+
 				// finally draw the line
 				this.tableContentStream.beginText();
 				this.tableContentStream.newLineAtOffset(cursorX, cursorY);
+
+				// check if it is header cell
+				if (cell.isHeaderCell()) {
+					this.tableContentStream.setFont(cell.getFontBold(), cell.getFontSize());
+				}
+
 				this.tableContentStream.showText(line);
 				this.tableContentStream.endText();
 				this.tableContentStream.closePath();
-				
+
 				// advance a line vertically
 				cursorY = cursorY - cell.getParagraph().getFontHeight();
 			}
 
-			// set cursor to the start of this cell plus its width to advance to the next cell
+			// set cursor to the start of this cell plus its width to advance to
+			// the next cell
 			cursorX = cellStartX + cell.getWidth();
 
 		}

@@ -17,37 +17,23 @@ public class Cell<T extends PDPage> {
 	private String text;
 
 	private PDFont font = PDType1Font.HELVETICA;
+	private PDFont fontBold = PDType1Font.HELVETICA_BOLD;
+	
 	private float fontSize = 8;
 	private Color fillColor;
 	private Color textColor = Color.BLACK;
 	private final Row<T> row;
+	
+	private boolean isHeaderCell = false;
 
 	// default padding
-	private float leftPadding = 0f;
-	private float rightPadding = 0f;
-	private float topPadding = 0f;
-	private float bottomPadding = 0f;
+	private float leftPadding = 5f;
+	private float rightPadding = 5f;
+	private float topPadding = 5f;
+	private float bottomPadding = 5f;
 
-	// horizontal alignment
-	public enum Align {
-		LEFT, CENTER, RIGHT
-	}
-	
-	// vertical alignment
-	public enum Valign {
-		TOP, MIDDLE, BOTTOM
-	}
-
-	private final Align align;
-	private final Valign valign;
-
-	public Align align() {
-		return align;
-	}
-	
-	public Valign valign() {
-		return valign;
-	}
+	private final HorizontalAlignment align;
+	private final VerticalAlignment valign;
 
 	float horizontalFreeSpace = 0;
 	float verticalFreeSpace = 0;
@@ -58,7 +44,7 @@ public class Cell<T extends PDPage> {
 	 *            in % of table width
 	 * @param text
 	 */
-	Cell(Row<T> row, float width, String text, boolean isCalculated, Align align, Valign valign) {
+	Cell(Row<T> row, float width, String text, boolean isCalculated, HorizontalAlignment align, VerticalAlignment valign) {
 		this.row = row;
 		if (isCalculated) {
 			double calclulatedWidth = ((row.getWidth() * width) / 100);
@@ -195,5 +181,29 @@ public class Cell<T extends PDPage> {
 		}
 		tw = tw / 1000 * getFontSize();
 		return getInnerWidth() - tw;
+	}
+
+	public PDFont getFontBold() {
+		return fontBold;
+	}
+	
+	public void setFontBold(PDFont fontBold) {
+		this.fontBold = fontBold;
+	}
+
+	public HorizontalAlignment getAlign() {
+		return align;
+	}
+
+	public VerticalAlignment getValign() {
+		return valign;
+	}
+
+	public boolean isHeaderCell() {
+		return isHeaderCell;
+	}
+
+	public void setHeaderCell(boolean isHeaderCell) {
+		this.isHeaderCell = isHeaderCell;
 	}
 }
