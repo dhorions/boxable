@@ -45,7 +45,7 @@ public final class PDStreamUtils {
 			stream.beginText();
 			stream.setFont(font, fontSize);
 			// we want to position our text on his baseline
-			stream.newLineAtOffset(x, y - FontUtils.getDescent(font, fontSize));
+			stream.newLineAtOffset(x, y - FontUtils.getDescent(font, fontSize) - FontUtils.getHeight(font, fontSize));
 			stream.setNonStrokingColor(color);
 			stream.showText(text);
 			stream.endText();
@@ -73,7 +73,7 @@ public final class PDStreamUtils {
 	 *            Color of the text
 	 */
 	public static void rect(final PDPageContentStream stream, final float x, final float y, final float width,
-			final float height, final Color color) throws IOException {
+			final float height, final Color color) {
 		try {
 			stream.setNonStrokingColor(color);
 			// negative height because we want to draw down (not up!)
@@ -86,5 +86,14 @@ public final class PDStreamUtils {
 		} catch (final IOException e) {
 			throw new IllegalStateException("Unable to draw rectangle", e);
 		}
+	}
+	
+	public static void rectFontMetrics(final PDPageContentStream stream, final float x, final float y, final PDFont font, final float fontSize) {
+		// height
+		PDStreamUtils.rect(stream, x, y, 3, FontUtils.getHeight(font, fontSize), Color.BLUE);
+		// ascent
+		PDStreamUtils.rect(stream, x+3, y, 3, FontUtils.getAscent(font, fontSize), Color.CYAN);
+		// descent
+		PDStreamUtils.rect(stream, x+3, y - FontUtils.getHeight(font, fontSize), 3, FontUtils.getDescent(font, 14), Color.GREEN);
 	}
 }

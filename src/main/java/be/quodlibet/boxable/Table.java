@@ -42,7 +42,9 @@ public abstract class Table<T extends PDPage> {
 	private final float width;
 	private final boolean drawLines;
 	private final boolean drawContent;
-	private float headerBottomMargin = 5f;
+	private float headerBottomMargin = 4f;
+	
+	private boolean drawDebug;
 
 	public Table(float yStart, float yStartNewPage, float bottomMargin, float width, float margin, PDDocument document,
 			T currentPage, boolean drawLines, boolean drawContent) throws IOException {
@@ -87,67 +89,29 @@ public abstract class Table<T extends PDPage> {
 		return document;
 	}
 
-	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, String alignment)
-			throws IOException {
-		drawTitle(title, font, fontSize, tableWidth, alignment, null);
-	}
+	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment) throws IOException {
 
-	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, String alignment,
-			TextType textType) throws IOException {
-		yStart -= FontUtils.getHeight(font, fontSize);
-
-		// DEBUG (mark title text box height)
-		// PDStreamUtils.rect(tableContentStream, margin, yStart, 3, -FontUtils.getHeight(font, fontSize), Color.BLUE);
-		// Reset NonStroking Color to default value
-		// this.tableContentStream.setNonStrokingColor(Color.BLACK);
-		// DEBUG
-
-		if (title != null) {
+		if(title == null){
+			// if you don't have title just use height from sublock with max textBox
+			yStart -= height;
+		} else {
 			PDPageContentStream articleTitle = createPdPageContentStream();
-
-			float horizontalFreeSpace = tableWidth - FontUtils.getStringWidth(font, title, fontSize);
-
-			// check appropriate alignment
-			float cursorX = getMargin();
-			switch (HorizontalAlignment.get(alignment)) {
-			case CENTER:
-				cursorX += horizontalFreeSpace / 2;
-				break;
-			case LEFT:
-				break;
-			case RIGHT:
-				cursorX += horizontalFreeSpace;
-				break;
+			// TODO: why do we need to cast to int?
+			Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment));
+			paragraph.setDrawDebug(drawDebug);
+			yStart = paragraph.write(articleTitle, margin, yStart);
+			if(paragraph.getHeight() < height){
+				yStart -= (height -paragraph.getHeight());
 			}
-
-			PDStreamUtils.write(articleTitle, title, font, fontSize, cursorX, yStart, Color.BLACK);
-
-			if (textType != null) {
-				switch (textType) {
-				case HIGHLIGHT:
-				case SQUIGGLY:
-				case STRIKEOUT:
-					throw new UnsupportedOperationException("Not implemented.");
-				case UNDERLINE:
-					float y = (float) (yStart - 1.5);
-					float titleWidth = font.getStringWidth(title) / 1000 * fontSize;
-					articleTitle.moveTo(getMargin(), y);
-					articleTitle.lineTo(getMargin() + titleWidth, y);
-					articleTitle.stroke();
-					break;
-				default:
-					break;
-				}
-			}
+			
 			articleTitle.close();
 		}
 
-		// DEBUG (draw margin)
-		// PDStreamUtils.rect(tableContentStream, margin, yStart, width, headerBottomMargin, Color.CYAN);
-		// Reset NonStroking Color to default value
-		// this.tableContentStream.setNonStrokingColor(Color.BLACK);
-		// DEBUG
-		
+		if (drawDebug) {
+			// margin
+			PDStreamUtils.rect(tableContentStream, margin, yStart, width, headerBottomMargin, Color.CYAN);
+		}
+
 		yStart -= headerBottomMargin;
 	}
 
@@ -171,13 +135,6 @@ public abstract class Table<T extends PDPage> {
 		for (Row<T> row : rows) {
 			drawRow(row);
 		}
-
-		// DEBUG (draw margin between elements)
-		// PDStreamUtils.rect(tableContentStream, margin, yStart, width, 10, Color.MAGENTA);
-		// Reset NonStroking Color to default value
-		// tableContentStream.setNonStrokingColor(Color.BLACK);
-		// DEBUG
-		
 		endTable();
 
 		return yStart;
@@ -241,8 +198,8 @@ public abstract class Table<T extends PDPage> {
 			// position at top of current cell
 			// descending by font height - font descent, because we are
 			// positioning the base line here
-			float cursorY = yStart - cell.getTopPadding() - cell.getParagraph().getFontHeight()
-					- cell.getParagraph().getFontDescent();
+			float cursorY = yStart - cell.getTopPadding() - FontUtils.getHeight(cell.getFont(), cell.getFontSize())
+					- FontUtils.getDescent(cell.getFont(), cell.getFontSize());
 
 			switch (cell.getValign()) {
 			case TOP:
@@ -460,11 +417,20 @@ public abstract class Table<T extends PDPage> {
 		return header;
 	}
 
-	float getMargin() {
+	public float getMargin() {
 		return margin;
 	}
 
 	protected void setYStart(float yStart) {
 		this.yStart = yStart;
 	}
+
+	public boolean isDrawDebug() {
+		return drawDebug;
+	}
+
+	public void setDrawDebug(boolean drawDebug) {
+		this.drawDebug = drawDebug;
+	}
+
 }

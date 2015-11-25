@@ -118,7 +118,7 @@ public class Cell<T extends PDPage> {
 	}
 
 	public Paragraph getParagraph() {
-		return new Paragraph(text, font, (int) fontSize, (int) getInnerWidth());
+		return new Paragraph(text, font, fontSize, getInnerWidth(), align);
 	}
 
 	public float getExtraWidth() {
@@ -130,8 +130,7 @@ public class Cell<T extends PDPage> {
 	}
 
 	public float getTextHeight() {
-		final Paragraph paragraph = getParagraph();
-		return paragraph.getLines().size() * paragraph.getFontHeight();
+		return getParagraph().getHeight();
 	}
 
 	public float getLeftPadding() {

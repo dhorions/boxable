@@ -5,26 +5,39 @@
 package be.quodlibet.boxable;
 
 
+import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 
 public class Paragraph {
-
-    private int width = 500;
+	
+    private float width = 500;
     private String text;
     private PDFont font;
-    private int fontSize;
+    private float fontSize;
+    private HorizontalAlignment align;
+    private TextType textType;
 
-    private int color = 0;
+	private Color color;
+	
+	private boolean drawDebug;
 
-    public Paragraph(String text, PDFont font, int fontSize, int width) {
-        this.text = text;
-        this.font = font;
-        this.fontSize = fontSize;
-        this.width = width;
+    public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align) {
+    	this(text, font, fontSize, width, align, Color.BLACK, (TextType) null);
+    }
+    
+    public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align, final Color color, final TextType textType) {
+		this.color = color;
+		this.text = text;
+		this.font = font;
+		this.fontSize = fontSize;
+		this.width = width;
+		this.textType = textType;
+		this.setAlign(align);
     }
 
 
@@ -60,40 +73,79 @@ public class Paragraph {
         result.add(text.substring(start));
         return result;
     }
+    
+    public float write(final PDPageContentStream stream, float cursorX, float cursorY) {
+    	if (drawDebug) {
+			PDStreamUtils.rectFontMetrics(stream, cursorX, cursorY, font, fontSize);
+			
+			// width
+			PDStreamUtils.rect(stream, cursorX, cursorY, width, 1, Color.RED);
+    	}
+    	
+    	for (String line : getLines()) {
+			line = line.trim();
 
-    public float getFontHeight() {
-        return font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * fontSize;
-    }
+			float textX = cursorX;
+			switch (align) {
+			case CENTER:
+				textX += getHorizontalFreeSpace(line) / 2;
+				break;
+			case LEFT:
+				break;
+			case RIGHT:
+				textX += getHorizontalFreeSpace(line);
+				break;
+			}
 
-    public float getFontWidth() {
-        return font.getFontDescriptor().getFontBoundingBox().getWidth() / 1000 * fontSize;
+			PDStreamUtils.write(stream, line, font, fontSize, textX, cursorY, color);
+			
+			if (textType != null) {
+				switch (textType) {
+				case HIGHLIGHT:
+				case SQUIGGLY:
+				case STRIKEOUT:
+					throw new UnsupportedOperationException("Not implemented.");
+				case UNDERLINE:
+					float y = (float) (cursorY - FontUtils.getHeight(font, fontSize) - FontUtils.getDescent(font, fontSize) - 1.5);
+					try {
+						float titleWidth = font.getStringWidth(line) / 1000 * fontSize;
+						stream.moveTo(textX, y);
+						stream.lineTo(textX + titleWidth, y);
+						stream.stroke();
+					} catch (final IOException e) {
+						throw new IllegalStateException("Unable to underline text", e);
+					}
+					break;
+				default:
+					break;
+				}
+			}
+			
+			// move one "line" down
+			cursorY -= getFontHeight();
+		}
+    	
+    	return cursorY;
     }
     
-    public float getFontDescent() {
-    	return font.getFontDescriptor().getDescent() / 1000 * fontSize;
+    public float getHeight() {
+    	return getLines().size() * getFontHeight();
     }
 
-    public Paragraph withWidth(int width) {
-        this.width = width;
-        return this;
+    public float getFontHeight() {
+        return FontUtils.getHeight(font, fontSize);
     }
+    
+    private float getHorizontalFreeSpace(final String text) {
+		try {
+			final float tw = font.getStringWidth(text.trim()) / 1000 * fontSize;
+			return width - tw;
+		} catch (IOException e) {
+			throw new IllegalStateException("Unable to calculate text width", e);
+		}
+	}
 
-    public Paragraph withFont(PDFont font, int fontSize) {
-        this.font = font;
-        this.fontSize = fontSize;
-        return this;
-    }
-
-    public Paragraph withColor(int color) {
-        this.color = color;
-        return this;
-    }
-
-    public int getColor() {
-        return color;
-    }
-
-    public int getWidth() {
+    public float getWidth() {
         return width;
     }
 
@@ -105,7 +157,23 @@ public class Paragraph {
         return font;
     }
 
-    public int getFontSize() {
+    public float getFontSize() {
         return fontSize;
     }
+
+	public HorizontalAlignment getAlign() {
+		return align;
+	}
+
+	public void setAlign(HorizontalAlignment align) {
+		this.align = align;
+	}
+
+	public boolean isDrawDebug() {
+		return drawDebug;
+	}
+
+	public void setDrawDebug(boolean drawDebug) {
+		this.drawDebug = drawDebug;
+	}
 }
