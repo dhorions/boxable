@@ -6,6 +6,7 @@ package be.quodlibet.boxable;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.function.Function;
 
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
@@ -18,12 +19,12 @@ public class Cell<T extends PDPage> {
 
 	private PDFont font = PDType1Font.HELVETICA;
 	private PDFont fontBold = PDType1Font.HELVETICA_BOLD;
-	
+
 	private float fontSize = 8;
 	private Color fillColor;
 	private Color textColor = Color.BLACK;
 	private final Row<T> row;
-	
+	private Function<String, String[]> wrappingFunction;
 	private boolean isHeaderCell = false;
 
 	// default padding
@@ -32,6 +33,9 @@ public class Cell<T extends PDPage> {
 	private float topPadding = 5f;
 	private float bottomPadding = 5f;
 
+	private static final Function<String, String[]> DEFAULT_WRAP_FUNC
+		= t -> t.split("(?<=\\s|-|@|,|\\.|:|;)");
+
 	private final HorizontalAlignment align;
 	private final VerticalAlignment valign;
 
@@ -39,9 +43,8 @@ public class Cell<T extends PDPage> {
 	float verticalFreeSpace = 0;
 
 	/**
-	 * 
-	 * @param width
-	 *            in % of table width
+	 *
+	 * @param width in % of table width
 	 * @param text
 	 */
 	Cell(Row<T> row, float width, String text, boolean isCalculated, HorizontalAlignment align, VerticalAlignment valign) {
@@ -55,11 +58,12 @@ public class Cell<T extends PDPage> {
 
 		if (getWidth() > row.getWidth()) {
 			throw new IllegalArgumentException(
-					"Cell Width=" + getWidth() + " can't be bigger than row width=" + row.getWidth());
+				"Cell Width=" + getWidth() + " can't be bigger than row width=" + row.getWidth());
 		}
 		this.text = text == null ? "" : text;
 		this.align = align;
 		this.valign = valign;
+		this.wrappingFunction = null;
 	}
 
 	public Color getTextColor() {
@@ -118,7 +122,7 @@ public class Cell<T extends PDPage> {
 	}
 
 	public Paragraph getParagraph() {
-		return new Paragraph(text, font, fontSize, getInnerWidth(), align);
+		return new Paragraph(text, font, fontSize, getInnerWidth(), align, getWrappingFunction());
 	}
 
 	public float getExtraWidth() {
@@ -185,7 +189,7 @@ public class Cell<T extends PDPage> {
 	public PDFont getFontBold() {
 		return fontBold;
 	}
-	
+
 	public void setFontBold(PDFont fontBold) {
 		this.fontBold = fontBold;
 	}
@@ -204,5 +208,17 @@ public class Cell<T extends PDPage> {
 
 	public void setHeaderCell(boolean isHeaderCell) {
 		this.isHeaderCell = isHeaderCell;
+	}
+
+	public Function<String, String[]> getWrappingFunction() {
+		if (null == wrappingFunction) {
+			wrappingFunction = DEFAULT_WRAP_FUNC;
+		}
+
+		return wrappingFunction;
+	}
+
+	public void setWrappingFunction(Function<String, String[]> wrappingFunction) {
+		this.wrappingFunction = wrappingFunction;
 	}
 }

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -43,7 +44,7 @@ public abstract class Table<T extends PDPage> {
 	private final boolean drawLines;
 	private final boolean drawContent;
 	private float headerBottomMargin = 4f;
-	
+
 	private boolean drawDebug;
 
 	public Table(float yStart, float yStartNewPage, float bottomMargin, float width, float margin, PDDocument document,
@@ -90,6 +91,10 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment) throws IOException {
+		drawTitle(title, font, fontSize, tableWidth, height, alignment, null);
+	}
+
+	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment, Function<String, String[]> wrappingFunction) throws IOException {
 
 		if(title == null){
 			// if you don't have title just use height from sublock with max textBox
@@ -97,13 +102,13 @@ public abstract class Table<T extends PDPage> {
 		} else {
 			PDPageContentStream articleTitle = createPdPageContentStream();
 			// TODO: why do we need to cast to int?
-			Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment));
+			Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment), wrappingFunction);
 			paragraph.setDrawDebug(drawDebug);
 			yStart = paragraph.write(articleTitle, margin, yStart);
 			if(paragraph.getHeight() < height){
 				yStart -= (height -paragraph.getHeight());
 			}
-			
+
 			articleTitle.close();
 		}
 
