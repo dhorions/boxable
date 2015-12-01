@@ -8,29 +8,31 @@ package be.quodlibet.boxable;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.function.Function;
 import java.util.List;
 
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 
 public class Paragraph {
-	
+
     private float width = 500;
     private String text;
     private PDFont font;
     private float fontSize;
+    private final Function<String, String[]> wrappingFunction;
     private HorizontalAlignment align;
     private TextType textType;
 
 	private Color color;
-	
+
 	private boolean drawDebug;
 
-    public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align) {
-    	this(text, font, fontSize, width, align, Color.BLACK, (TextType) null);
+    public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align, Function<String, String[]> wrappingFunction) {
+    	this(text, font, fontSize, width, align, Color.BLACK, (TextType) null, wrappingFunction);
     }
-    
-    public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align, final Color color, final TextType textType) {
+
+    public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align, final Color color, final TextType textType, Function<String, String[]> wrappingFunction) {
 		this.color = color;
 		this.text = text;
 		this.font = font;
@@ -38,13 +40,14 @@ public class Paragraph {
 		this.width = width;
 		this.textType = textType;
 		this.setAlign(align);
+		this.wrappingFunction = wrappingFunction;
     }
 
 
     public List<String> getLines() {
         List<String> result = new ArrayList<>();
 
-        String[] split = text.split("(?<=\\s|-|@|,|\\.|:|;)");
+	String[] split = wrappingFunction.apply(text);
 
         int[] possibleWrapPoints = new int[split.length];
 
@@ -73,15 +76,15 @@ public class Paragraph {
         result.add(text.substring(start));
         return result;
     }
-    
+
     public float write(final PDPageContentStream stream, float cursorX, float cursorY) {
     	if (drawDebug) {
 			PDStreamUtils.rectFontMetrics(stream, cursorX, cursorY, font, fontSize);
-			
+
 			// width
 			PDStreamUtils.rect(stream, cursorX, cursorY, width, 1, Color.RED);
     	}
-    	
+
     	for (String line : getLines()) {
 			line = line.trim();
 
@@ -98,7 +101,7 @@ public class Paragraph {
 			}
 
 			PDStreamUtils.write(stream, line, font, fontSize, textX, cursorY, color);
-			
+
 			if (textType != null) {
 				switch (textType) {
 				case HIGHLIGHT:
@@ -120,14 +123,14 @@ public class Paragraph {
 					break;
 				}
 			}
-			
+
 			// move one "line" down
 			cursorY -= getFontHeight();
 		}
-    	
+
     	return cursorY;
     }
-    
+
     public float getHeight() {
     	return getLines().size() * getFontHeight();
     }
@@ -135,7 +138,7 @@ public class Paragraph {
     public float getFontHeight() {
         return FontUtils.getHeight(font, fontSize);
     }
-    
+
     private float getHorizontalFreeSpace(final String text) {
 		try {
 			final float tw = font.getStringWidth(text.trim()) / 1000 * fontSize;
