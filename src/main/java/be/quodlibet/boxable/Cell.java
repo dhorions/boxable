@@ -33,8 +33,12 @@ public class Cell<T extends PDPage> {
 	private float topPadding = 5f;
 	private float bottomPadding = 5f;
 
-	private static final Function<String, String[]> DEFAULT_WRAP_FUNC
-		= t -> t.split("(?<=\\s|-|@|,|\\.|:|;)");
+	private static final Function<String, String[]> DEFAULT_WRAP_FUNC = new Function<String, String[]>() {
+		@Override
+		public String[] apply(String t) {
+			return t.split("(?<=\\s|-|@|,|\\.|:|;)");
+		}
+	};
 
 	private final HorizontalAlignment align;
 	private final VerticalAlignment valign;
@@ -44,10 +48,12 @@ public class Cell<T extends PDPage> {
 
 	/**
 	 *
-	 * @param width in % of table width
+	 * @param width
+	 *            in % of table width
 	 * @param text
 	 */
-	Cell(Row<T> row, float width, String text, boolean isCalculated, HorizontalAlignment align, VerticalAlignment valign) {
+	Cell(Row<T> row, float width, String text, boolean isCalculated, HorizontalAlignment align,
+			VerticalAlignment valign) {
 		this.row = row;
 		if (isCalculated) {
 			double calclulatedWidth = ((row.getWidth() * width) / 100);
@@ -58,7 +64,7 @@ public class Cell<T extends PDPage> {
 
 		if (getWidth() > row.getWidth()) {
 			throw new IllegalArgumentException(
-				"Cell Width=" + getWidth() + " can't be bigger than row width=" + row.getWidth());
+					"Cell Width=" + getWidth() + " can't be bigger than row width=" + row.getWidth());
 		}
 		this.text = text == null ? "" : text;
 		this.align = align;
