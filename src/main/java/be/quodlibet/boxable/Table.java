@@ -42,7 +42,6 @@ public abstract class Table<T extends PDPage> {
 
 	private final float yStartNewPage;
 	private float yStart;
-	private final float bottomMargin;
 	private final float width;
 	private final boolean drawLines;
 	private final boolean drawContent;
@@ -54,12 +53,13 @@ public abstract class Table<T extends PDPage> {
 
 	// page margins
 	private final float pageTopMargin = calcMillimeterIntoPoints(20f);
+	private final float pageBottomMargin;
 	
 	private boolean drawDebug;
 
-	public Table(float yStart, float yStartNewPage, float bottomMargin, float width, float margin, PDDocument document,
+	public Table(float yStart, float yStartNewPage, float pageBottomMargin, float width, float margin, PDDocument document,
 			T currentPage, boolean drawLines, boolean drawContent) throws IOException {
-		this(yStart, yStartNewPage, bottomMargin, width, margin, document, currentPage, drawLines, drawContent, null);
+		this(yStart, yStartNewPage, pageBottomMargin, width, margin, document, currentPage, drawLines, drawContent, null);
 	}
 
 	public Table(float yStart, float yStartNewPage, float pageBottomMargin, float width, float margin,
@@ -73,16 +73,16 @@ public abstract class Table<T extends PDPage> {
 		this.margin = margin;
 		this.width = width;
 		this.yStart = yStart;
-		this.bottomMargin = pageBottomMargin;
+		this.pageBottomMargin = pageBottomMargin;
 		this.currentPage = currentPage;
 		this.pageProvider = pageProvider;
 		loadFonts();
 		this.tableContentStream = createPdPageContentStream();
 	}
 
-	public Table(float yStartNewPage, float bottomMargin, float width, float margin, PDDocument document,
+	public Table(float yStartNewPage, float pageBottomMargin, float width, float margin, PDDocument document,
 			boolean drawLines, boolean drawContent) throws IOException {
-		this(yStartNewPage, bottomMargin, width, margin, document, drawLines, drawContent, null);
+		this(yStartNewPage, pageBottomMargin, width, margin, document, drawLines, drawContent, null);
 	}
 
 	public Table(float yStartNewPage, float pageBottomMargin, float width, float margin, PDDocument document,
@@ -94,8 +94,8 @@ public abstract class Table<T extends PDPage> {
 		this.yStartNewPage = yStartNewPage;
 		this.margin = margin;
 		this.width = width;
-		this.bottomMargin = pageBottomMargin;
 		this.pageProvider = pageProvider;
+		this.pageBottomMargin = pageBottomMargin;
 
 		// Fonts needs to be loaded before page creation
 		loadFonts();
@@ -171,8 +171,8 @@ public abstract class Table<T extends PDPage> {
 		for (Row<T> row : rows) {
 			drawRow(row);
 		}
+		
 		endTable();
-
 		return yStart;
 	}
 
@@ -444,7 +444,7 @@ public abstract class Table<T extends PDPage> {
 
 	public boolean isEndOfPage(Row<T> row) {
 		float currentY = yStart - row.getHeight();
-		boolean isEndOfPage = currentY <= bottomMargin;
+		boolean isEndOfPage = currentY <= pageBottomMargin;
 		if (isEndOfPage) {
 			setTableIsBroken(true);
 			System.out.println("Its end of page. Table row height caused the problem.");
@@ -460,7 +460,7 @@ public abstract class Table<T extends PDPage> {
 	
 	public boolean isEndOfPage(float titleHeight){
 		float currentY = yStart - titleHeight;
-		boolean isEndOfPage = currentY <= bottomMargin;
+		boolean isEndOfPage = currentY <= pageBottomMargin;
 		if (isEndOfPage) {
 			System.out.println("Its end of the page. Table title caused this problem.");
 			setTableIsBroken(true);
