@@ -6,7 +6,6 @@ package be.quodlibet.boxable;
 
 import java.awt.Color;
 import java.io.IOException;
-import java.util.function.Function;
 
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
@@ -24,7 +23,7 @@ public class Cell<T extends PDPage> {
 	private Color fillColor;
 	private Color textColor = Color.BLACK;
 	private final Row<T> row;
-	private Function<String, String[]> wrappingFunction;
+	private WrappingFunction wrappingFunction;
 	private boolean isHeaderCell = false;
 
 	// default padding
@@ -33,9 +32,9 @@ public class Cell<T extends PDPage> {
 	private float topPadding = 5f;
 	private float bottomPadding = 5f;
 
-	private static final Function<String, String[]> DEFAULT_WRAP_FUNC = new Function<String, String[]>() {
+	private static final WrappingFunction DEFAULT_WRAP_FUNC = new WrappingFunction() {
 		@Override
-		public String[] apply(String t) {
+		public String[] getLines(String t) {
 			return t.split("(?<=\\s|-|@|,|\\.|:|;)");
 		}
 	};
@@ -216,7 +215,7 @@ public class Cell<T extends PDPage> {
 		this.isHeaderCell = isHeaderCell;
 	}
 
-	public Function<String, String[]> getWrappingFunction() {
+	public WrappingFunction getWrappingFunction() {
 		if (null == wrappingFunction) {
 			wrappingFunction = DEFAULT_WRAP_FUNC;
 		}
@@ -224,7 +223,7 @@ public class Cell<T extends PDPage> {
 		return wrappingFunction;
 	}
 
-	public void setWrappingFunction(Function<String, String[]> wrappingFunction) {
+	public void setWrappingFunction(WrappingFunction wrappingFunction) {
 		this.wrappingFunction = wrappingFunction;
 	}
 }

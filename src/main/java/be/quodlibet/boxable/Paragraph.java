@@ -4,11 +4,9 @@
  */
 package be.quodlibet.boxable;
 
-
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.function.Function;
 import java.util.List;
 
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -16,23 +14,25 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 
 public class Paragraph {
 
-    private float width = 500;
-    private String text;
-    private PDFont font;
-    private float fontSize;
-    private final Function<String, String[]> wrappingFunction;
-    private HorizontalAlignment align;
-    private TextType textType;
+	private float width = 500;
+	private String text;
+	private PDFont font;
+	private float fontSize;
+	private final WrappingFunction wrappingFunction;
+	private HorizontalAlignment align;
+	private TextType textType;
 
 	private Color color;
 
 	private boolean drawDebug;
 
-    public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align, Function<String, String[]> wrappingFunction) {
-    	this(text, font, fontSize, width, align, Color.BLACK, (TextType) null, wrappingFunction);
-    }
+	public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align,
+			WrappingFunction wrappingFunction) {
+		this(text, font, fontSize, width, align, Color.BLACK, (TextType) null, wrappingFunction);
+	}
 
-    public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align, final Color color, final TextType textType, Function<String, String[]> wrappingFunction) {
+	public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align,
+			final Color color, final TextType textType, WrappingFunction wrappingFunction) {
 		this.color = color;
 		this.text = text;
 		this.font = font;
@@ -41,51 +41,50 @@ public class Paragraph {
 		this.textType = textType;
 		this.setAlign(align);
 		this.wrappingFunction = wrappingFunction;
-    }
+	}
 
+	public List<String> getLines() {
+		List<String> result = new ArrayList<>();
 
-    public List<String> getLines() {
-        List<String> result = new ArrayList<>();
+		String[] split = wrappingFunction.getLines(text);
 
-	String[] split = wrappingFunction.apply(text);
+		int[] possibleWrapPoints = new int[split.length];
 
-        int[] possibleWrapPoints = new int[split.length];
+		possibleWrapPoints[0] = split[0].length();
 
-        possibleWrapPoints[0] = split[0].length();
+		for (int i = 1; i < split.length; i++) {
+			possibleWrapPoints[i] = possibleWrapPoints[i - 1] + split[i].length();
+		}
 
-        for (int i = 1; i < split.length; i++) {
-            possibleWrapPoints[i] = possibleWrapPoints[i - 1] + split[i].length();
-        }
+		int start = 0;
+		int end = 0;
+		for (int i : possibleWrapPoints) {
+			float width = 0;
+			try {
+				width = font.getStringWidth(text.substring(start, i)) / 1000 * fontSize;
+			} catch (IOException e) {
+				throw new IllegalArgumentException(e.getMessage(), e);
+			}
+			if (start < end && width > this.width) {
+				result.add(text.substring(start, end));
+				start = end;
+			}
+			end = i;
+		}
+		// Last piece of text
+		result.add(text.substring(start));
+		return result;
+	}
 
-        int start = 0;
-        int end = 0;
-        for (int i : possibleWrapPoints) {
-            float width = 0;
-            try {
-                width = font.getStringWidth(text.substring(start, i)) / 1000 * fontSize;
-            } catch (IOException e) {
-                throw new IllegalArgumentException(e.getMessage(), e);
-            }
-            if (start < end && width > this.width) {
-                result.add(text.substring(start, end));
-                start = end;
-            }
-            end = i;
-        }
-        // Last piece of text
-        result.add(text.substring(start));
-        return result;
-    }
-
-    public float write(final PDPageContentStream stream, float cursorX, float cursorY) {
-    	if (drawDebug) {
+	public float write(final PDPageContentStream stream, float cursorX, float cursorY) {
+		if (drawDebug) {
 			PDStreamUtils.rectFontMetrics(stream, cursorX, cursorY, font, fontSize);
 
 			// width
 			PDStreamUtils.rect(stream, cursorX, cursorY, width, 1, Color.RED);
-    	}
+		}
 
-    	for (String line : getLines()) {
+		for (String line : getLines()) {
 			line = line.trim();
 
 			float textX = cursorX;
@@ -109,7 +108,8 @@ public class Paragraph {
 				case STRIKEOUT:
 					throw new UnsupportedOperationException("Not implemented.");
 				case UNDERLINE:
-					float y = (float) (cursorY - FontUtils.getHeight(font, fontSize) - FontUtils.getDescent(font, fontSize) - 1.5);
+					float y = (float) (cursorY - FontUtils.getHeight(font, fontSize)
+							- FontUtils.getDescent(font, fontSize) - 1.5);
 					try {
 						float titleWidth = font.getStringWidth(line) / 1000 * fontSize;
 						stream.moveTo(textX, y);
@@ -128,18 +128,18 @@ public class Paragraph {
 			cursorY -= getFontHeight();
 		}
 
-    	return cursorY;
-    }
+		return cursorY;
+	}
 
-    public float getHeight() {
-    	return getLines().size() * getFontHeight();
-    }
+	public float getHeight() {
+		return getLines().size() * getFontHeight();
+	}
 
-    public float getFontHeight() {
-        return FontUtils.getHeight(font, fontSize);
-    }
+	public float getFontHeight() {
+		return FontUtils.getHeight(font, fontSize);
+	}
 
-    private float getHorizontalFreeSpace(final String text) {
+	private float getHorizontalFreeSpace(final String text) {
 		try {
 			final float tw = font.getStringWidth(text.trim()) / 1000 * fontSize;
 			return width - tw;
@@ -148,21 +148,21 @@ public class Paragraph {
 		}
 	}
 
-    public float getWidth() {
-        return width;
-    }
+	public float getWidth() {
+		return width;
+	}
 
-    public String getText() {
-        return text;
-    }
+	public String getText() {
+		return text;
+	}
 
-    public PDFont getFont() {
-        return font;
-    }
+	public PDFont getFont() {
+		return font;
+	}
 
-    public float getFontSize() {
-        return fontSize;
-    }
+	public float getFontSize() {
+		return fontSize;
+	}
 
 	public HorizontalAlignment getAlign() {
 		return align;

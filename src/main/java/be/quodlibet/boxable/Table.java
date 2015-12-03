@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Function;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -94,7 +93,7 @@ public abstract class Table<T extends PDPage> {
 		drawTitle(title, font, fontSize, tableWidth, height, alignment, null);
 	}
 
-	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment, Function<String, String[]> wrappingFunction) throws IOException {
+	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment, WrappingFunction wrappingFunction) throws IOException {
 
 		if(title == null){
 			// if you don't have title just use height from sublock with max textBox
