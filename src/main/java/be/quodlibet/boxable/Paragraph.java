@@ -29,6 +29,10 @@ public class Paragraph {
 	private Color color;
 
 	private boolean drawDebug;
+	
+	public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align) {
+		this(text, font, fontSize, width, align, null);
+	}
 
 	private static final WrappingFunction DEFAULT_WRAP_FUNC = new WrappingFunction() {
 		@Override

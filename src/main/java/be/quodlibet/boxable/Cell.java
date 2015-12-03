@@ -34,6 +34,8 @@ public class Cell<T extends PDPage> {
 	private float topPadding = 5f;
 	private float bottomPadding = 5f;
 
+	private Paragraph paragraph = null;
+
 	private final HorizontalAlignment align;
 	private final VerticalAlignment valign;
 
@@ -132,6 +134,9 @@ public class Cell<T extends PDPage> {
 
 	public void setText(String text) {
 		this.text = text;
+
+		// paragraph invalidated
+		paragraph = null;
 	}
 
 	public PDFont getFont() {
@@ -143,6 +148,9 @@ public class Cell<T extends PDPage> {
 
 	public void setFont(PDFont font) {
 		this.font = font;
+
+		// paragraph invalidated
+		paragraph = null;
 	}
 
 	public float getFontSize() {
@@ -151,10 +159,16 @@ public class Cell<T extends PDPage> {
 
 	public void setFontSize(float fontSize) {
 		this.fontSize = fontSize;
+
+		// paragraph invalidated
+		paragraph = null;
 	}
 
 	public Paragraph getParagraph() {
-		return new Paragraph(text, font, fontSize, getInnerWidth(), align, wrappingFunction);
+		if (paragraph == null) {
+			paragraph = new Paragraph(text, font, fontSize, getInnerWidth(), align, wrappingFunction);
+		}
+		return paragraph;
 	}
 
 	public float getExtraWidth() {
@@ -175,6 +189,9 @@ public class Cell<T extends PDPage> {
 
 	public void setLeftPadding(float cellLeftPadding) {
 		this.leftPadding = cellLeftPadding;
+
+		// paragraph invalidated
+		paragraph = null;
 	}
 
 	public float getRightPadding() {
@@ -183,6 +200,9 @@ public class Cell<T extends PDPage> {
 
 	public void setRightPadding(float cellRightPadding) {
 		this.rightPadding = cellRightPadding;
+
+		// paragraph invalidated
+		paragraph = null;
 	}
 
 	public float getTopPadding() {
@@ -248,5 +268,8 @@ public class Cell<T extends PDPage> {
 
 	public void setWrappingFunction(WrappingFunction wrappingFunction) {
 		this.wrappingFunction = wrappingFunction;
+
+		// paragraph invalidated
+		paragraph = null;
 	}
 }
