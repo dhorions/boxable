@@ -37,7 +37,6 @@ public abstract class Table<T extends PDPage> {
 	private T currentPage;
 	private PDPageContentStream tableContentStream;
 	private List<PDOutlineItem> bookmarks;
-	private static final int xSpacing = 0;
 	private Row<T> header;
 	private List<Row<T>> rows = new ArrayList<>();
 
@@ -48,9 +47,14 @@ public abstract class Table<T extends PDPage> {
 	private final boolean drawLines;
 	private final boolean drawContent;
 	private float headerBottomMargin = 4f;
+	
+	private boolean tableIsBroken = false;
 
 	private PageProvider<T> pageProvider;
 
+	// page margins
+	private final float pageTopMargin = calcMillimeterIntoPoints(20f);
+	
 	private boolean drawDebug;
 
 	public Table(float yStart, float yStartNewPage, float bottomMargin, float width, float margin, PDDocument document,
@@ -117,15 +121,19 @@ public abstract class Table<T extends PDPage> {
 	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
 			WrappingFunction wrappingFunction) throws IOException {
 
+		if (isEndOfPage(height)) {
+			this.tableContentStream.close(); 
+			pageBreak();
+			
+		}
+		
 		if (title == null) {
-			// if you don't have title just use height from sublock with max
-			// textBox
+			// if you don't have title just use the height of maxTextBox in your
+			// "row"
 			yStart -= height;
 		} else {
 			PDPageContentStream articleTitle = createPdPageContentStream();
-			// TODO: why do we need to cast to int?
-			Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment),
-					wrappingFunction);
+			Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment), wrappingFunction);
 			paragraph.setDrawDebug(drawDebug);
 			yStart = paragraph.write(articleTitle, margin, yStart);
 			if (paragraph.getHeight() < height) {
@@ -183,13 +191,9 @@ public abstract class Table<T extends PDPage> {
 			// Draw line at bottom of table
 			endTable();
 
-			// Reset yStart to yStartNewPage
-			this.yStart = yStartNewPage;
-
-			// Start new table on new page
-			this.currentPage = createNewPage();
-			this.tableContentStream = createPdPageContentStream();
-
+			// insert page break
+			pageBreak();
+			
 			// redraw all headers on each currentPage
 			if (header != null) {
 				drawRow(header);
@@ -358,7 +362,7 @@ public abstract class Table<T extends PDPage> {
 		float xStart = margin;
 
 		// give an extra margin to the latest cell
-		float xEnd = row.xEnd() + xSpacing;
+		float xEnd = row.xEnd();
 
 		// Draw Row upper border
 		drawLine("Row Upper Border ", xStart, yStart, xEnd, yStart);
@@ -420,7 +424,7 @@ public abstract class Table<T extends PDPage> {
 		if (cellIterator.hasNext()) {
 			width = cell.getWidth();
 		} else {
-			width = cell.getExtraWidth() + xSpacing;
+			width = cell.getExtraWidth();
 		}
 		return width;
 	}
@@ -428,27 +432,47 @@ public abstract class Table<T extends PDPage> {
 	private void endTable() throws IOException {
 		if (drawLines) {
 			// Draw line at bottom
-			drawLine("Row Bottom Border ", this.margin, this.yStart, this.margin + width + xSpacing, this.yStart);
+			drawLine("Row Bottom Border ", this.margin, this.yStart, this.margin + width, this.yStart);
 		}
 		this.tableContentStream.close();
 	}
-
+	
 	public T getCurrentPage() {
 		checkNotNull(this.currentPage, "No current page defined.");
 		return this.currentPage;
 	}
 
 	public boolean isEndOfPage(Row<T> row) {
-
 		float currentY = yStart - row.getHeight();
-		boolean isEndOfPage = currentY <= (bottomMargin + 10);
-		// LOGGER.info("isEndOfPage=" + isEndOfPage);
+		boolean isEndOfPage = currentY <= bottomMargin;
+		if (isEndOfPage) {
+			setTableIsBroken(true);
+			System.out.println("Its end of page. Table row height caused the problem.");
+		}
 
-		// If we are closer than 75 from bottom of currentPage, consider this
+		// If we are closer than bottom margin, consider this as
 		// the end of the currentPage
-		// If you add rows that are higher then 75, this needs to be checked
+		// If you add rows that are higher then bottom margin, this needs to be
+		// checked
 		// manually using getNextYPos
 		return isEndOfPage;
+	}
+	
+	public boolean isEndOfPage(float titleHeight){
+		float currentY = yStart - titleHeight;
+		boolean isEndOfPage = currentY <= bottomMargin;
+		if (isEndOfPage) {
+			System.out.println("Its end of the page. Table title caused this problem.");
+			setTableIsBroken(true);
+		}
+		return isEndOfPage;
+	}
+
+	public void pageBreak() throws IOException {
+		
+		this.yStart = yStartNewPage - pageTopMargin;
+		this.currentPage = createNewPage();
+		this.tableContentStream = createPdPageContentStream();
 	}
 
 	private void addBookmark(PDOutlineItem bookmark) {
@@ -486,6 +510,18 @@ public abstract class Table<T extends PDPage> {
 
 	public void setDrawDebug(boolean drawDebug) {
 		this.drawDebug = drawDebug;
+	}
+
+	private float calcMillimeterIntoPoints(float value) {
+		return (float) (value * 72 / 25.4);
+	}
+
+	public boolean tableIsBroken() {
+		return tableIsBroken;
+	}
+
+	public void setTableIsBroken(boolean tableIsBroken) {
+		this.tableIsBroken = tableIsBroken;
 	}
 
 }
