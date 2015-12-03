@@ -22,6 +22,7 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import be.quodlibet.boxable.page.PageProvider;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
 import be.quodlibet.boxable.utils.PDStreamUtils;
@@ -48,10 +49,18 @@ public abstract class Table<T extends PDPage> {
 	private final boolean drawContent;
 	private float headerBottomMargin = 4f;
 
+	private PageProvider<T> pageProvider;
+
 	private boolean drawDebug;
 
 	public Table(float yStart, float yStartNewPage, float bottomMargin, float width, float margin, PDDocument document,
 			T currentPage, boolean drawLines, boolean drawContent) throws IOException {
+		this(yStart, yStartNewPage, bottomMargin, width, margin, document, currentPage, drawLines, drawContent, null);
+	}
+
+	public Table(float yStart, float yStartNewPage, float pageBottomMargin, float width, float margin,
+			PDDocument document, T currentPage, boolean drawLines, boolean drawContent, PageProvider<T> pageProvider)
+					throws IOException {
 		this.document = document;
 		this.drawLines = drawLines;
 		this.drawContent = drawContent;
@@ -60,14 +69,20 @@ public abstract class Table<T extends PDPage> {
 		this.margin = margin;
 		this.width = width;
 		this.yStart = yStart;
-		this.bottomMargin = bottomMargin;
+		this.bottomMargin = pageBottomMargin;
 		this.currentPage = currentPage;
+		this.pageProvider = pageProvider;
 		loadFonts();
 		this.tableContentStream = createPdPageContentStream();
 	}
 
 	public Table(float yStartNewPage, float bottomMargin, float width, float margin, PDDocument document,
 			boolean drawLines, boolean drawContent) throws IOException {
+		this(yStartNewPage, bottomMargin, width, margin, document, drawLines, drawContent, null);
+	}
+
+	public Table(float yStartNewPage, float pageBottomMargin, float width, float margin, PDDocument document,
+			boolean drawLines, boolean drawContent, PageProvider<T> pageProvider) throws IOException {
 		this.document = document;
 		this.drawLines = drawLines;
 		this.drawContent = drawContent;
@@ -75,11 +90,12 @@ public abstract class Table<T extends PDPage> {
 		this.yStartNewPage = yStartNewPage;
 		this.margin = margin;
 		this.width = width;
-		this.bottomMargin = bottomMargin;
+		this.bottomMargin = pageBottomMargin;
+		this.pageProvider = pageProvider;
 
 		// Fonts needs to be loaded before page creation
 		loadFonts();
-		this.currentPage = createPage();
+		this.currentPage = pageProvider.createPage();
 		this.tableContentStream = createPdPageContentStream();
 	}
 
@@ -171,7 +187,7 @@ public abstract class Table<T extends PDPage> {
 			this.yStart = yStartNewPage;
 
 			// Start new table on new page
-			this.currentPage = createPage();
+			this.currentPage = createNewPage();
 			this.tableContentStream = createPdPageContentStream();
 
 			// redraw all headers on each currentPage
@@ -189,7 +205,36 @@ public abstract class Table<T extends PDPage> {
 		if (drawContent) {
 			drawCellContent(row);
 		}
+	}
 
+	/**
+	 * <p>
+	 * Method to switch between the {@link PageProvider} and the abstract method
+	 * {@link Table#createPage()}, preferring the {@link PageProvider}.
+	 * </p>
+	 * <p>
+	 * Will be removed once {@link #createPage()} is removed.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	private T createNewPage() {
+		if (pageProvider != null) {
+			return pageProvider.createPage();
+		}
+
+		return createPage();
+	}
+
+	/**
+	 * @deprecated Use a {@link PageProvider} instead
+	 * @return
+	 */
+	@Deprecated
+	// remove also createNewPage()
+	protected T createPage() {
+		throw new IllegalStateException(
+				"You either have to provide a " + PageProvider.class.getCanonicalName() + " or override this method");
 	}
 
 	private PDPageContentStream createPdPageContentStream() throws IOException {
@@ -379,8 +424,6 @@ public abstract class Table<T extends PDPage> {
 		}
 		return width;
 	}
-
-	protected abstract T createPage();
 
 	private void endTable() throws IOException {
 		if (drawLines) {
