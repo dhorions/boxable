@@ -29,14 +29,18 @@ public class Paragraph {
 	private Color color;
 
 	private boolean drawDebug;
-	
+
 	private static final WrappingFunction DEFAULT_WRAP_FUNC = new WrappingFunction() {
 		@Override
 		public String[] getLines(String t) {
 			return t.split("(?<=\\s|-|@|,|\\.|:|;)");
 		}
 	};
-	
+
+	public Paragraph(String text, PDFont font, int fontSize, int width) {
+		this(text, font, fontSize, width, HorizontalAlignment.LEFT, null);
+	}
+
 	public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align,
 			WrappingFunction wrappingFunction) {
 		this(text, font, fontSize, width, align, Color.BLACK, (TextType) null, wrappingFunction);
@@ -150,6 +154,51 @@ public class Paragraph {
 		return FontUtils.getHeight(font, fontSize);
 	}
 
+	/**
+	 * @deprecated This method will be removed in a future release
+	 */
+	@Deprecated
+	public float getFontWidth() {
+		return font.getFontDescriptor().getFontBoundingBox().getWidth() / 1000 * fontSize;
+	}
+
+	/**
+	 * @deprecated This method will be removed in a future release
+	 */
+	@Deprecated
+	public Paragraph withWidth(int width) {
+		this.width = width;
+		return this;
+	}
+
+	/**
+	 * @deprecated This method will be removed in a future release
+	 */
+	@Deprecated
+	public Paragraph withFont(PDFont font, int fontSize) {
+		this.font = font;
+		this.fontSize = fontSize;
+		return this;
+	}
+
+	/**
+	 * @deprecated This method will be removed in a future release
+	 */
+	@Deprecated
+	public Paragraph withColor(int color) {
+		this.color = new Color(color);
+		return this;
+	}
+
+	/**
+	 * @deprecated This method will be replaced by
+	 *             {@code public Color getColor()} in a future release
+	 */
+	@Deprecated
+	public int getColor() {
+		return color.getRGB();
+	}
+
 	private float getHorizontalFreeSpace(final String text) {
 		try {
 			final float tw = font.getStringWidth(text.trim()) / 1000 * fontSize;
@@ -190,7 +239,7 @@ public class Paragraph {
 	public void setDrawDebug(boolean drawDebug) {
 		this.drawDebug = drawDebug;
 	}
-	
+
 	public WrappingFunction getWrappingFunction() {
 		return wrappingFunction;
 	}
