@@ -52,19 +52,33 @@ public abstract class Table<T extends PDPage> {
 	private PageProvider<T> pageProvider;
 
 	// page margins
-	private final float pageTopMargin = calcMillimeterIntoPoints(20f);
+	private final float pageTopMargin;
 	private final float pageBottomMargin;
 	
 	private boolean drawDebug;
 
+	/**
+	 * @deprecated Use one of the constructors that pass a {@link PageProvider}
+	 */
+	@Deprecated
 	public Table(float yStart, float yStartNewPage, float pageBottomMargin, float width, float margin, PDDocument document,
 			T currentPage, boolean drawLines, boolean drawContent) throws IOException {
-		this(yStart, yStartNewPage, pageBottomMargin, width, margin, document, currentPage, drawLines, drawContent, null);
+		this(yStart, yStartNewPage, 0, pageBottomMargin, width, margin, document, currentPage, drawLines, drawContent, null);
+	}
+	
+	/**
+	 * @deprecated Use one of the constructors that pass a {@link PageProvider}
+	 */
+	@Deprecated
+	public Table(float yStartNewPage, float pageBottomMargin, float width, float margin, PDDocument document,
+			boolean drawLines, boolean drawContent) throws IOException {
+		this(yStartNewPage, 0, pageBottomMargin, width, margin, document, drawLines, drawContent, null);
 	}
 
-	public Table(float yStart, float yStartNewPage, float pageBottomMargin, float width, float margin,
+	public Table(float yStart, float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width, float margin,
 			PDDocument document, T currentPage, boolean drawLines, boolean drawContent, PageProvider<T> pageProvider)
 					throws IOException {
+		this.pageTopMargin = pageTopMargin;
 		this.document = document;
 		this.drawLines = drawLines;
 		this.drawContent = drawContent;
@@ -80,13 +94,9 @@ public abstract class Table<T extends PDPage> {
 		this.tableContentStream = createPdPageContentStream();
 	}
 
-	public Table(float yStartNewPage, float pageBottomMargin, float width, float margin, PDDocument document,
-			boolean drawLines, boolean drawContent) throws IOException {
-		this(yStartNewPage, pageBottomMargin, width, margin, document, drawLines, drawContent, null);
-	}
-
-	public Table(float yStartNewPage, float pageBottomMargin, float width, float margin, PDDocument document,
+	public Table(float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width, float margin, PDDocument document,
 			boolean drawLines, boolean drawContent, PageProvider<T> pageProvider) throws IOException {
+		this.pageTopMargin = pageTopMargin;
 		this.document = document;
 		this.drawLines = drawLines;
 		this.drawContent = drawContent;
@@ -510,10 +520,6 @@ public abstract class Table<T extends PDPage> {
 
 	public void setDrawDebug(boolean drawDebug) {
 		this.drawDebug = drawDebug;
-	}
-
-	private float calcMillimeterIntoPoints(float value) {
-		return (float) (value * 72 / 25.4);
 	}
 
 	public boolean tableIsBroken() {
