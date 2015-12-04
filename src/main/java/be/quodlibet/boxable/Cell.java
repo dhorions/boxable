@@ -11,6 +11,8 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
+import be.quodlibet.boxable.text.WrappingFunction;
+
 public class Cell<T extends PDPage> {
 
 	private float width;
@@ -32,13 +34,6 @@ public class Cell<T extends PDPage> {
 	private float topPadding = 5f;
 	private float bottomPadding = 5f;
 
-	private static final WrappingFunction DEFAULT_WRAP_FUNC = new WrappingFunction() {
-		@Override
-		public String[] getLines(String t) {
-			return t.split("(?<=\\s|-|@|,|\\.|:|;)");
-		}
-	};
-
 	private final HorizontalAlignment align;
 	private final VerticalAlignment valign;
 
@@ -46,10 +41,42 @@ public class Cell<T extends PDPage> {
 	float verticalFreeSpace = 0;
 
 	/**
-	 *
+	 * <p>
+	 * Constructs a cell with the default alignment
+	 * {@link VerticalAlignment#TOP} {@link HorizontalAlignment#LEFT}.
+	 * </p>
+	 * 
+	 * @param row
 	 * @param width
-	 *            in % of table width
 	 * @param text
+	 * @param isCalculated
+	 * @see Cell#Cell(Row, float, String, boolean, HorizontalAlignment,
+	 *      VerticalAlignment)
+	 */
+	Cell(Row<T> row, float width, String text, boolean isCalculated) {
+		this(row, width, text, isCalculated, HorizontalAlignment.LEFT, VerticalAlignment.TOP);
+	}
+
+	/**
+	 * <p>
+	 * Constructs a cell.
+	 * </p>
+	 * 
+	 * @param row
+	 *            The parent row
+	 * @param width
+	 *            absolute width in points or in % of table width (depending on
+	 *            the parameter {@code isCalculated})
+	 * @param text
+	 *            The text content of the cell
+	 * @param isCalculated
+	 *            If {@code true}, the width is interpreted in % to the table
+	 *            width
+	 * @param align
+	 *            The {@link HorizontalAlignment} of the cell content
+	 * @param valign
+	 *            The {@link VerticalAlignment} of the cell content
+	 * @see Cell#Cell(Row, float, String, boolean)
 	 */
 	Cell(Row<T> row, float width, String text, boolean isCalculated, HorizontalAlignment align,
 			VerticalAlignment valign) {
@@ -127,7 +154,7 @@ public class Cell<T extends PDPage> {
 	}
 
 	public Paragraph getParagraph() {
-		return new Paragraph(text, font, fontSize, getInnerWidth(), align, getWrappingFunction());
+		return new Paragraph(text, font, fontSize, getInnerWidth(), align, wrappingFunction);
 	}
 
 	public float getExtraWidth() {
@@ -216,11 +243,7 @@ public class Cell<T extends PDPage> {
 	}
 
 	public WrappingFunction getWrappingFunction() {
-		if (null == wrappingFunction) {
-			wrappingFunction = DEFAULT_WRAP_FUNC;
-		}
-
-		return wrappingFunction;
+		return getParagraph().getWrappingFunction();
 	}
 
 	public void setWrappingFunction(WrappingFunction wrappingFunction) {
