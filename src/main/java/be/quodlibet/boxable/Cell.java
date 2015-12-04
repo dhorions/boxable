@@ -32,13 +32,6 @@ public class Cell<T extends PDPage> {
 	private float topPadding = 5f;
 	private float bottomPadding = 5f;
 
-	private static final WrappingFunction DEFAULT_WRAP_FUNC = new WrappingFunction() {
-		@Override
-		public String[] getLines(String t) {
-			return t.split("(?<=\\s|-|@|,|\\.|:|;)");
-		}
-	};
-
 	private final HorizontalAlignment align;
 	private final VerticalAlignment valign;
 
@@ -159,7 +152,7 @@ public class Cell<T extends PDPage> {
 	}
 
 	public Paragraph getParagraph() {
-		return new Paragraph(text, font, fontSize, getInnerWidth(), align, getWrappingFunction());
+		return new Paragraph(text, font, fontSize, getInnerWidth(), align, wrappingFunction);
 	}
 
 	public float getExtraWidth() {
@@ -248,11 +241,7 @@ public class Cell<T extends PDPage> {
 	}
 
 	public WrappingFunction getWrappingFunction() {
-		if (null == wrappingFunction) {
-			wrappingFunction = DEFAULT_WRAP_FUNC;
-		}
-
-		return wrappingFunction;
+		return getParagraph().getWrappingFunction();
 	}
 
 	public void setWrappingFunction(WrappingFunction wrappingFunction) {

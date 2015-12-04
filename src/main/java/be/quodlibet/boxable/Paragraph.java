@@ -28,7 +28,14 @@ public class Paragraph {
 	private Color color;
 
 	private boolean drawDebug;
-
+	
+	private static final WrappingFunction DEFAULT_WRAP_FUNC = new WrappingFunction() {
+		@Override
+		public String[] getLines(String t) {
+			return t.split("(?<=\\s|-|@|,|\\.|:|;)");
+		}
+	};
+	
 	public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align,
 			WrappingFunction wrappingFunction) {
 		this(text, font, fontSize, width, align, Color.BLACK, (TextType) null, wrappingFunction);
@@ -43,7 +50,7 @@ public class Paragraph {
 		this.width = width;
 		this.textType = textType;
 		this.setAlign(align);
-		this.wrappingFunction = wrappingFunction;
+		this.wrappingFunction = wrappingFunction == null ? DEFAULT_WRAP_FUNC : wrappingFunction;
 	}
 
 	public List<String> getLines() {
@@ -181,5 +188,9 @@ public class Paragraph {
 
 	public void setDrawDebug(boolean drawDebug) {
 		this.drawDebug = drawDebug;
+	}
+	
+	public WrappingFunction getWrappingFunction() {
+		return wrappingFunction;
 	}
 }
