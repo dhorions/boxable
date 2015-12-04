@@ -12,6 +12,8 @@ import java.util.List;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 
+import be.quodlibet.boxable.utils.FontUtils;
+
 public class Paragraph {
 
 	private float width = 500;

@@ -4,8 +4,9 @@ import java.awt.Color;
 import java.io.IOException;
 
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
+
+import be.quodlibet.boxable.utils.FontUtils;
 
 /**
  * <p>

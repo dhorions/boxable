@@ -22,6 +22,8 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import be.quodlibet.boxable.utils.FontUtils;
+
 public abstract class Table<T extends PDPage> {
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(Table.class);
