@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,13 +38,29 @@ public final class FontUtils {
 
 	/**
 	 * <p>
-	 * {@link HashMap} for caching {@link FontMetrics} for designated {@link PDFont}
-	 * because {@link FontUtils#getHeight(PDFont, float)} is expensive to
-	 * calculate and the results are only approximate.
+	 * {@link HashMap} for caching {@link FontMetrics} for designated
+	 * {@link PDFont} because {@link FontUtils#getHeight(PDFont, float)} is
+	 * expensive to calculate and the results are only approximate.
 	 */
 	private static final Map<String, FontMetrics> fontMetrics = new HashMap<>();
 
 	private FontUtils() {
+	}
+
+	/**
+	 * <p>
+	 * Loads the {@link PDType0Font} to be embedded in the specified
+	 * {@link PDDocument}.
+	 * </p>
+	 * 
+	 * @param document
+	 * @param fontPath
+	 * @return The read {@link PDType0Font}
+	 * @throws IOException
+	 *             If reading the font file fails
+	 */
+	public static final PDType0Font loadFont(PDDocument document, String fontPath) throws IOException {
+		return PDType0Font.load(document, FontUtils.class.getClassLoader().getResourceAsStream(fontPath));
 	}
 
 	/**
@@ -142,8 +160,12 @@ public final class FontUtils {
 	}
 
 	/**
-	 * <p> Create basic {@link FontMetrics} for current font. <p>
-	 * @param font  The font from which calculation will be applied
+	 * <p>
+	 * Create basic {@link FontMetrics} for current font.
+	 * <p>
+	 * 
+	 * @param font
+	 *            The font from which calculation will be applied
 	 * @throws IOException
 	 */
 	private static void createFontMetrics(final PDFont font) throws IOException {

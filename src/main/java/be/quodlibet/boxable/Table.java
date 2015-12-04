@@ -84,30 +84,34 @@ public abstract class Table<T extends PDPage> {
 	protected abstract void loadFonts() throws IOException;
 
 	protected PDType0Font loadFont(String fontPath) throws IOException {
-		return BoxableUtils.loadFont(getDocument(), fontPath);
+		return FontUtils.loadFont(getDocument(), fontPath);
 	}
 
 	protected PDDocument getDocument() {
 		return document;
 	}
 
-	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment) throws IOException {
+	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment)
+			throws IOException {
 		drawTitle(title, font, fontSize, tableWidth, height, alignment, null);
 	}
 
-	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment, WrappingFunction wrappingFunction) throws IOException {
+	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
+			WrappingFunction wrappingFunction) throws IOException {
 
-		if(title == null){
-			// if you don't have title just use height from sublock with max textBox
+		if (title == null) {
+			// if you don't have title just use height from sublock with max
+			// textBox
 			yStart -= height;
 		} else {
 			PDPageContentStream articleTitle = createPdPageContentStream();
 			// TODO: why do we need to cast to int?
-			Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment), wrappingFunction);
+			Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment),
+					wrappingFunction);
 			paragraph.setDrawDebug(drawDebug);
 			yStart = paragraph.write(articleTitle, margin, yStart);
-			if(paragraph.getHeight() < height){
-				yStart -= (height -paragraph.getHeight());
+			if (paragraph.getHeight() < height) {
+				yStart -= (height - paragraph.getHeight());
 			}
 
 			articleTitle.close();
