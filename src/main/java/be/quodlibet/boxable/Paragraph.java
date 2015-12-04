@@ -13,6 +13,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 
 import be.quodlibet.boxable.utils.FontUtils;
+import be.quodlibet.boxable.utils.PDStreamUtils;
 
 public class Paragraph {
 

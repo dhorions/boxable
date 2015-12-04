@@ -1,4 +1,4 @@
-package be.quodlibet.boxable;
+package be.quodlibet.boxable.utils;
 
 import java.awt.Color;
 import java.io.IOException;
