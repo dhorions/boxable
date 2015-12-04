@@ -46,10 +46,42 @@ public class Cell<T extends PDPage> {
 	float verticalFreeSpace = 0;
 
 	/**
-	 *
+	 * <p>
+	 * Constructs a cell with the default alignment
+	 * {@link VerticalAlignment#TOP} {@link HorizontalAlignment#LEFT}.
+	 * </p>
+	 * 
+	 * @param row
 	 * @param width
-	 *            in % of table width
 	 * @param text
+	 * @param isCalculated
+	 * @see Cell#Cell(Row, float, String, boolean, HorizontalAlignment,
+	 *      VerticalAlignment)
+	 */
+	Cell(Row<T> row, float width, String text, boolean isCalculated) {
+		this(row, width, text, isCalculated, HorizontalAlignment.LEFT, VerticalAlignment.TOP);
+	}
+
+	/**
+	 * <p>
+	 * Constructs a cell.
+	 * </p>
+	 * 
+	 * @param row
+	 *            The parent row
+	 * @param width
+	 *            absolute width in points or in % of table width (depending on
+	 *            the parameter {@code isCalculated})
+	 * @param text
+	 *            The text content of the cell
+	 * @param isCalculated
+	 *            If {@code true}, the width is interpreted in % to the table
+	 *            width
+	 * @param align
+	 *            The {@link HorizontalAlignment} of the cell content
+	 * @param valign
+	 *            The {@link VerticalAlignment} of the cell content
+	 * @see Cell#Cell(Row, float, String, boolean)
 	 */
 	Cell(Row<T> row, float width, String text, boolean isCalculated, HorizontalAlignment align,
 			VerticalAlignment valign) {
