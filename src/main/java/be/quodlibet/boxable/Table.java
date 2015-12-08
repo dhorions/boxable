@@ -313,8 +313,9 @@ public abstract class Table<T extends PDPage> {
 			// font settings
 			this.tableContentStream.setFont(cell.getFont(), cell.getFontSize());
 
-			// if it is head row then please use bold font
-			if (row.equals(header)) {
+			// if it is head row or if it is header cell then please use bold
+			// font
+			if (row.equals(header) || cell.isHeaderCell()) {
 				this.tableContentStream.setFont(cell.getFontBold(), cell.getFontSize());
 			}
 			this.tableContentStream.setNonStrokingColor(cell.getTextColor());
@@ -361,11 +362,6 @@ public abstract class Table<T extends PDPage> {
 				// finally draw the line
 				this.tableContentStream.beginText();
 				this.tableContentStream.newLineAtOffset(cursorX, cursorY);
-
-				// check if it is header cell
-				if (cell.isHeaderCell()) {
-					this.tableContentStream.setFont(cell.getFontBold(), cell.getFontSize());
-				}
 
 				this.tableContentStream.showText(line);
 				this.tableContentStream.endText();
