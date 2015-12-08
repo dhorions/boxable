@@ -386,38 +386,53 @@ public abstract class Table<T extends PDPage> {
 		// give an extra margin to the latest cell
 		float xEnd = row.xEnd();
 
-		// Draw Row upper border
-		drawLine("Row Upper Border ", xStart, yStart, xEnd, yStart);
-
 		Iterator<Cell<T>> cellIterator = row.getCells().iterator();
 		while (cellIterator.hasNext()) {
 			Cell<T> cell = cellIterator.next();
 
 			fillCellColor(cell, yStart, xStart, cellIterator);
-
-			float yEnd = yStart - row.getHeight();
-
-			// draw the vertical line to separate cells
-			drawLine("Cell Separator ", xStart, yStart, xStart, yEnd);
+			
+			drawCellBorders(row, cell, xStart, xEnd);
 
 			xStart += getWidth(cell, cellIterator);
 		}
 
-		// draw the last vertical line at the right of the table
+	}
+	
+	private void drawCellBorders(Row<T> row, Cell<T> cell, float xStart, float xEnd) throws IOException {
+		
 		float yEnd = yStart - row.getHeight();
-
-		drawLine("Last Cell ", xEnd, yStart, xEnd, yEnd);
+		
+		// top
+		if (cell.getTopBorder() != null) {
+			drawLine(xStart, yStart, xStart + cell.getWidth(), yStart, cell.getTopBorder().getColor(), cell.getTopBorder().getWidth());
+		}
+		
+		// bottom
+		if (cell.getBottomBorder() != null) {
+			drawLine(xStart, yEnd, xStart + cell.getWidth(), yEnd, cell.getBottomBorder().getColor(), cell.getBottomBorder().getWidth());
+		}
+		
+		// left
+		if (cell.getLeftBorder() != null) {
+			drawLine(xStart, yStart, xStart, yEnd, cell.getLeftBorder().getColor(), cell.getLeftBorder().getWidth());
+		}
+		
+		// right
+		if (cell.getRightBorder() != null) {
+			drawLine(xStart + cell.getWidth(), yStart, xStart + cell.getWidth(), yEnd, cell.getRightBorder().getColor(),cell.getRightBorder().getWidth());
+		}
 	}
 
-	private void drawLine(String type, float xStart, float yStart, float xEnd, float yEnd) throws IOException {
+	private void drawLine(float xStart, float yStart, float xEnd, float yEnd, Color color, float width) throws IOException {
+		tableContentStream.setNonStrokingColor(color);
+		tableContentStream.setStrokingColor(color);
+		tableContentStream.setLineWidth(width);
 
-		this.tableContentStream.setNonStrokingColor(Color.BLACK);
-		this.tableContentStream.setStrokingColor(Color.BLACK);
-
-		this.tableContentStream.moveTo(xStart, yStart);
-		this.tableContentStream.lineTo(xEnd, yEnd);
-		this.tableContentStream.stroke();
-		this.tableContentStream.closePath();
+		tableContentStream.moveTo(xStart, yStart);
+		tableContentStream.lineTo(xEnd, yEnd);
+		tableContentStream.stroke();
+		tableContentStream.closePath();
 	}
 
 	private void fillCellColor(Cell<T> cell, float yStart, float xStart, Iterator<Cell<T>> cellIterator)
@@ -459,7 +474,7 @@ public abstract class Table<T extends PDPage> {
 	private void endTable() throws IOException {
 		if (drawLines) {
 			// Draw line at bottom
-			drawLine("Row Bottom Border ", this.margin, this.yStart, this.margin + width, this.yStart);
+//			drawLine(this.margin, this.yStart, this.margin + width, this.yStart, Color.GREEN, 5);
 		}
 		this.tableContentStream.close();
 	}
