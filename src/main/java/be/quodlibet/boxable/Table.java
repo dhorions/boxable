@@ -92,7 +92,7 @@ public abstract class Table<T extends PDPage> {
 		this.currentPage = currentPage;
 		this.pageProvider = pageProvider;
 		loadFonts();
-		this.tableContentStream = createPdPageContentStream();
+//		this.tableContentStream = createPdPageContentStream();
 	}
 
 	public Table(float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width, float margin,
@@ -112,7 +112,7 @@ public abstract class Table<T extends PDPage> {
 		// Fonts needs to be loaded before page creation
 		loadFonts();
 		this.currentPage = pageProvider.createPage();
-		this.tableContentStream = createPdPageContentStream();
+//		this.tableContentStream = createPdPageContentStream();
 	}
 
 	protected abstract void loadFonts() throws IOException;
@@ -125,16 +125,18 @@ public abstract class Table<T extends PDPage> {
 		return document;
 	}
 
-	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment)
+	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment, float freeSpaceForPageBreak, boolean drawHeaderMargin)
 			throws IOException {
-		drawTitle(title, font, fontSize, tableWidth, height, alignment, null);
+		drawTitle(title, font, fontSize, tableWidth, height, alignment, freeSpaceForPageBreak, null, drawHeaderMargin);
 	}
 
-	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
-			WrappingFunction wrappingFunction) throws IOException {
+	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment, float freeSpaceForPageBreak,
+			WrappingFunction wrappingFunction, boolean drawHeaderMargin) throws IOException {
 
-		if (isEndOfPage(height)) {
-			this.tableContentStream.close(); 
+		ensureStreamIsOpen();
+		
+		if (isEndOfPage(freeSpaceForPageBreak)) {
+			this.tableContentStream.close();
 			pageBreak();
 		}
 
@@ -153,14 +155,16 @@ public abstract class Table<T extends PDPage> {
 			}
 
 			articleTitle.close();
+			
+			if (drawDebug) {
+				// margin
+				PDStreamUtils.rect(tableContentStream, margin, yStart, width, headerBottomMargin, Color.CYAN);
+			}
 		}
 
-		if (drawDebug) {
-			// margin
-			PDStreamUtils.rect(tableContentStream, margin, yStart, width, headerBottomMargin, Color.CYAN);
+		if (drawHeaderMargin) {
+			yStart -= headerBottomMargin;
 		}
-
-		yStart -= headerBottomMargin;
 	}
 
 	public float getWidth() {
@@ -180,10 +184,20 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	public float draw() throws IOException {
+		ensureStreamIsOpen();
+		
 		for (Row<T> row : rows) {
+			if (row == header) {
+				// check if header row height and first data row height can fit the page
+				// if not draw them on another side
+				float headerHeightIncludingFirstDataRow = header.getHeight() + rows.get(1).getHeight();
+				if (isEndOfPage(headerHeightIncludingFirstDataRow)) {
+					pageBreak();
+				}
+			}
 			drawRow(row);
 		}
-		
+
 		endTable();
 		return yStart;
 	}
@@ -439,6 +453,12 @@ public abstract class Table<T extends PDPage> {
 		}
 		return width;
 	}
+	
+	private void ensureStreamIsOpen() throws IOException {
+		if (tableContentStream == null) {
+			tableContentStream = createPdPageContentStream();
+		}
+	}
 
 	private void endTable() throws IOException {
 		if (drawLines) {
@@ -468,24 +488,24 @@ public abstract class Table<T extends PDPage> {
 		// manually using getNextYPos
 		return isEndOfPage;
 	}
-	
-	public boolean isEndOfPage(float titleHeight){
-		float currentY = yStart - titleHeight;
+
+	private boolean isEndOfPage(float freeSpaceForPageBreak) {
+		float currentY = yStart - freeSpaceForPageBreak;
 		boolean isEndOfPage = currentY <= pageBottomMargin;
 		if (isEndOfPage) {
-			System.out.println("Its end of the page. Table title caused this problem.");
 			setTableIsBroken(true);
+			System.out.println("Its end of the page. Table title caused this problem.");
 		}
 		return isEndOfPage;
 	}
 
-	public void pageBreak() throws IOException {
-		
+	private void pageBreak() throws IOException {
+		tableContentStream.close();
 		this.yStart = yStartNewPage - pageTopMargin;
 		this.currentPage = createNewPage();
 		this.tableContentStream = createPdPageContentStream();
 	}
-
+	
 	private void addBookmark(PDOutlineItem bookmark) {
 		if (bookmarks == null)
 			bookmarks = new ArrayList<>();
@@ -526,6 +546,11 @@ public abstract class Table<T extends PDPage> {
 	public boolean tableIsBroken() {
 		return tableIsBroken;
 	}
+	
+	public float getHeaderAndDataHeight() {
+		return header == null ? 0 : header.getHeight() + rows.get(header == null ? 0 : 1).getHeight();
+	}
+	
 
 	public void setTableIsBroken(boolean tableIsBroken) {
 		this.tableIsBroken = tableIsBroken;

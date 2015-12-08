@@ -242,14 +242,6 @@ public class Cell<T extends PDPage> {
 		return getInnerWidth() - tw;
 	}
 
-	public PDFont getFontBold() {
-		return fontBold;
-	}
-
-	public void setFontBold(PDFont fontBold) {
-		this.fontBold = fontBold;
-	}
-
 	public HorizontalAlignment getAlign() {
 		return align;
 	}
@@ -275,5 +267,13 @@ public class Cell<T extends PDPage> {
 
 		// paragraph invalidated
 		paragraph = null;
+	}
+
+	public PDFont getFontBold() {
+		return fontBold;
+	}
+
+	public Border getBorder() {
+		return border;
 	}
 }

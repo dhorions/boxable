@@ -20,8 +20,8 @@ public class Paragraph {
 
 	private float width = 500;
 	private String text;
-	private PDFont font;
 	private float fontSize;
+	private PDFont font;
 	private final WrappingFunction wrappingFunction;
 	private HorizontalAlignment align;
 	private TextType textType;
@@ -220,13 +220,13 @@ public class Paragraph {
 		return text;
 	}
 
-	public PDFont getFont() {
-		return font;
-	}
-
 	public float getFontSize() {
 		return fontSize;
 	}
+	
+	public PDFont getFont() {
+        return font;
+    }
 
 	public HorizontalAlignment getAlign() {
 		return align;
@@ -247,4 +247,5 @@ public class Paragraph {
 	public WrappingFunction getWrappingFunction() {
 		return wrappingFunction;
 	}
+
 }
