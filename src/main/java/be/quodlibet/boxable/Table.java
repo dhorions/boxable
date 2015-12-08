@@ -472,10 +472,6 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	private void endTable() throws IOException {
-		if (drawLines) {
-			// Draw line at bottom
-//			drawLine(this.margin, this.yStart, this.margin + width, this.yStart, Color.GREEN, 5);
-		}
 		this.tableContentStream.close();
 	}
 
