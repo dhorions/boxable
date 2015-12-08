@@ -34,13 +34,13 @@ public class Cell<T extends PDPage> {
 	private float rightPadding = 5f;
 	private float topPadding = 5f;
 	private float bottomPadding = 5f;
-	
+
 	// default border
 	private Border leftBorder = new Border(Color.BLACK, 1);
 	private Border rightBorder = new Border(Color.BLACK, 1);
 	private Border topBorder = new Border(Color.BLACK, 1);
 	private Border bottomBorder = new Border(Color.BLACK, 1);
-	
+
 	private Paragraph paragraph = null;
 
 	private final HorizontalAlignment align;
@@ -128,11 +128,13 @@ public class Cell<T extends PDPage> {
 	}
 
 	public float getInnerWidth() {
-		return getWidth() - getLeftPadding() - getRightPadding();
+		return getWidth() - getLeftPadding() - getRightPadding() - (leftBorder == null ? 0 : leftBorder.getWidth())
+				- (rightBorder == null ? 0 : rightBorder.getWidth());
 	}
 
 	public float getInnerHeight() {
-		return getHeight() - getBottomPadding() - getTopPadding();
+		return getHeight() - getBottomPadding() - getTopPadding() - (topBorder == null ? 0 : topBorder.getWidth())
+				- (bottomBorder == null ? 0 : bottomBorder.getWidth());
 	}
 
 	public String getText() {
@@ -283,31 +285,31 @@ public class Cell<T extends PDPage> {
 	public Border getLeftBorder() {
 		return leftBorder;
 	}
-	
+
 	public Border getRightBorder() {
 		return rightBorder;
 	}
-	
+
 	public Border getTopBorder() {
 		return topBorder;
 	}
-	
+
 	public Border getBottomBorder() {
 		return bottomBorder;
 	}
-	
+
 	public void setLeftBorder(Border leftBorder) {
 		this.leftBorder = leftBorder;
 	}
-	
+
 	public void setRightBorder(Border rightBorder) {
 		this.rightBorder = rightBorder;
 	}
-	
+
 	public void setTopBorder(Border topBorder) {
 		this.topBorder = topBorder;
 	}
-	
+
 	public void setBottomBorder(Border bottomBorder) {
 		this.bottomBorder = bottomBorder;
 	}

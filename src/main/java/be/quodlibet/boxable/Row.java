@@ -84,7 +84,9 @@ public class Row<T extends PDPage> {
 
 		for (Cell<T> cell : this.cells) {
 			float cellHeight = 0;
-			cellHeight = cell.getTextHeight() + cell.getTopPadding() + cell.getBottomPadding();
+			cellHeight = cell.getTextHeight() + cell.getTopPadding() + cell.getBottomPadding()
+					+ (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth())
+					+ (cell.getBottomBorder() == null ? 0 : cell.getBottomBorder().getWidth());
 
 			if (cellHeight > maxheight) {
 				maxheight = cellHeight;
