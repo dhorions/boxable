@@ -273,7 +273,4 @@ public class Cell<T extends PDPage> {
 		return fontBold;
 	}
 
-	public Border getBorder() {
-		return border;
-	}
 }
