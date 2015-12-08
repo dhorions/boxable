@@ -428,6 +428,7 @@ public abstract class Table<T extends PDPage> {
 		tableContentStream.setNonStrokingColor(color);
 		tableContentStream.setStrokingColor(color);
 		tableContentStream.setLineWidth(width);
+		tableContentStream.setLineCapStyle(0); // CAP_BUTT
 
 		tableContentStream.moveTo(xStart, yStart);
 		tableContentStream.lineTo(xEnd, yEnd);
