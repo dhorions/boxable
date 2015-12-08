@@ -42,6 +42,7 @@ public class Row<T extends PDPage> {
 	 */
 	public Cell<T> createCell(float width, String value) {
 		Cell<T> cell = new Cell<T>(this, width, value, true);
+		setBorders(cell, cells.isEmpty());
 		cells.add(cell);
 		return cell;
 	}
@@ -60,6 +61,7 @@ public class Row<T extends PDPage> {
 	 */
 	public Cell<T> createCell(float width, String value, HorizontalAlignment align, VerticalAlignment valign) {
 		Cell<T> cell = new Cell<T>(this, width, value, true, align, valign);
+		setBorders(cell, cells.isEmpty());
 		cells.add(cell);
 		return cell;
 	}
@@ -74,13 +76,27 @@ public class Row<T extends PDPage> {
 
 		float headerCellWidth = table.getHeader().getCells().get(cells.size()).getWidth();
 		Cell<T> cell = new Cell<T>(this, headerCellWidth, value, false);
+		setBorders(cell, cells.isEmpty());
 		cells.add(cell);
 		return cell;
+	}
+	
+	private void setBorders(final Cell<T> cell, final boolean leftBorder) {
+		// remove left border
+		if (!leftBorder) {
+			cell.setLeftBorder(null);
+		}
+	}
+	
+	void removeTopBorders() {
+		for (final Cell<T> cell : cells) {
+			cell.setTopBorder(null);
+		}
 	}
 
 	public float getHeight() {
 
-		float maxheight = new Float(0);
+		float maxheight = 0.0f;
 
 		for (Cell<T> cell : this.cells) {
 			float cellHeight = 0;

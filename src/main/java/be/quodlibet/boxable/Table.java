@@ -204,6 +204,10 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	private void drawRow(Row<T> row) throws IOException {
+		// if it is not header row or first row in the table then remove row's top border
+		if (row != header && row != rows.get(0)) {
+			row.removeTopBorders();
+        }
 		// draw the bookmark
 		if (row.getBookmark() != null) {
 			PDPageXYZDestination bookmarkDestination = new PDPageXYZDestination();
@@ -287,7 +291,7 @@ public abstract class Table<T extends PDPage> {
 			// descending by font height - font descent, because we are
 			// positioning the base line here
 			float cursorY = yStart - cell.getTopPadding() - FontUtils.getHeight(cell.getFont(), cell.getFontSize())
-					- FontUtils.getDescent(cell.getFont(), cell.getFontSize());
+					- FontUtils.getDescent(cell.getFont(), cell.getFontSize()) - (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth());;
 
 			switch (cell.getValign()) {
 			case TOP:
@@ -305,7 +309,7 @@ public abstract class Table<T extends PDPage> {
 			float cellStartX = cursorX;
 
 			// respect left padding
-			cursorX += cell.getLeftPadding();
+			cursorX += cell.getLeftPadding() + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth());;
 
 			// remember this horizontal position, as it is the anchor for each
 			// new line
