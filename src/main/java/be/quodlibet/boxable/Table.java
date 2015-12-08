@@ -46,7 +46,7 @@ public abstract class Table<T extends PDPage> {
 	private final boolean drawLines;
 	private final boolean drawContent;
 	private float headerBottomMargin = 4f;
-	
+
 	private boolean tableIsBroken = false;
 
 	private PageProvider<T> pageProvider;
@@ -54,18 +54,19 @@ public abstract class Table<T extends PDPage> {
 	// page margins
 	private final float pageTopMargin;
 	private final float pageBottomMargin;
-	
+
 	private boolean drawDebug;
 
 	/**
 	 * @deprecated Use one of the constructors that pass a {@link PageProvider}
 	 */
 	@Deprecated
-	public Table(float yStart, float yStartNewPage, float pageBottomMargin, float width, float margin, PDDocument document,
-			T currentPage, boolean drawLines, boolean drawContent) throws IOException {
-		this(yStart, yStartNewPage, 0, pageBottomMargin, width, margin, document, currentPage, drawLines, drawContent, null);
+	public Table(float yStart, float yStartNewPage, float pageBottomMargin, float width, float margin,
+			PDDocument document, T currentPage, boolean drawLines, boolean drawContent) throws IOException {
+		this(yStart, yStartNewPage, 0, pageBottomMargin, width, margin, document, currentPage, drawLines, drawContent,
+				null);
 	}
-	
+
 	/**
 	 * @deprecated Use one of the constructors that pass a {@link PageProvider}
 	 */
@@ -75,9 +76,9 @@ public abstract class Table<T extends PDPage> {
 		this(yStartNewPage, 0, pageBottomMargin, width, margin, document, drawLines, drawContent, null);
 	}
 
-	public Table(float yStart, float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width, float margin,
-			PDDocument document, T currentPage, boolean drawLines, boolean drawContent, PageProvider<T> pageProvider)
-					throws IOException {
+	public Table(float yStart, float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width,
+			float margin, PDDocument document, T currentPage, boolean drawLines, boolean drawContent,
+			PageProvider<T> pageProvider) throws IOException {
 		this.pageTopMargin = pageTopMargin;
 		this.document = document;
 		this.drawLines = drawLines;
@@ -94,8 +95,9 @@ public abstract class Table<T extends PDPage> {
 		this.tableContentStream = createPdPageContentStream();
 	}
 
-	public Table(float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width, float margin, PDDocument document,
-			boolean drawLines, boolean drawContent, PageProvider<T> pageProvider) throws IOException {
+	public Table(float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width, float margin,
+			PDDocument document, boolean drawLines, boolean drawContent, PageProvider<T> pageProvider)
+					throws IOException {
 		this.pageTopMargin = pageTopMargin;
 		this.document = document;
 		this.drawLines = drawLines;
@@ -134,16 +136,16 @@ public abstract class Table<T extends PDPage> {
 		if (isEndOfPage(height)) {
 			this.tableContentStream.close(); 
 			pageBreak();
-			
 		}
-		
+
 		if (title == null) {
 			// if you don't have title just use the height of maxTextBox in your
 			// "row"
 			yStart -= height;
 		} else {
 			PDPageContentStream articleTitle = createPdPageContentStream();
-			Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment), wrappingFunction);
+			Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment),
+					wrappingFunction);
 			paragraph.setDrawDebug(drawDebug);
 			yStart = paragraph.write(articleTitle, margin, yStart);
 			if (paragraph.getHeight() < height) {
@@ -203,7 +205,7 @@ public abstract class Table<T extends PDPage> {
 
 			// insert page break
 			pageBreak();
-			
+
 			// redraw all headers on each currentPage
 			if (header != null) {
 				drawRow(header);
@@ -379,7 +381,6 @@ public abstract class Table<T extends PDPage> {
 
 		Iterator<Cell<T>> cellIterator = row.getCells().iterator();
 		while (cellIterator.hasNext()) {
-
 			Cell<T> cell = cellIterator.next();
 
 			fillCellColor(cell, yStart, xStart, cellIterator);
