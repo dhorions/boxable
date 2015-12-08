@@ -11,6 +11,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
+import be.quodlibet.boxable.border.Border;
 import be.quodlibet.boxable.text.WrappingFunction;
 
 public class Cell<T extends PDPage> {
