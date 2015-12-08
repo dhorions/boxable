@@ -22,6 +22,7 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import be.quodlibet.boxable.border.Border;
 import be.quodlibet.boxable.page.PageProvider;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
@@ -382,7 +383,7 @@ public abstract class Table<T extends PDPage> {
 
 	private void drawVerticalLines(Row<T> row) throws IOException {
 		float xStart = margin;
-
+		
 		// give an extra margin to the latest cell
 		float xEnd = row.xEnd();
 
@@ -404,23 +405,31 @@ public abstract class Table<T extends PDPage> {
 		float yEnd = yStart - row.getHeight();
 		
 		// top
-		if (cell.getTopBorder() != null) {
-			drawLine(xStart, yStart, xStart + cell.getWidth(), yStart, cell.getTopBorder().getColor(), cell.getTopBorder().getWidth());
-		}
-		
-		// bottom
-		if (cell.getBottomBorder() != null) {
-			drawLine(xStart, yEnd, xStart + cell.getWidth(), yEnd, cell.getBottomBorder().getColor(), cell.getBottomBorder().getWidth());
-		}
-		
-		// left
-		if (cell.getLeftBorder() != null) {
-			drawLine(xStart, yStart, xStart, yEnd, cell.getLeftBorder().getColor(), cell.getLeftBorder().getWidth());
+		Border topBorder = cell.getTopBorder();
+		if (topBorder != null) {
+			float y = yStart - topBorder.getWidth() / 2;
+			drawLine(xStart, y, xStart + cell.getWidth(), y, topBorder.getColor(), topBorder.getWidth());
 		}
 		
 		// right
-		if (cell.getRightBorder() != null) {
-			drawLine(xStart + cell.getWidth(), yStart, xStart + cell.getWidth(), yEnd, cell.getRightBorder().getColor(),cell.getRightBorder().getWidth());
+		Border rightBorder = cell.getRightBorder();
+		if (rightBorder != null) {
+			float x = xStart + cell.getWidth() - rightBorder.getWidth() / 2;
+			drawLine(x, yStart - (topBorder == null ? 0 : topBorder.getWidth()), x, yEnd, rightBorder.getColor(),rightBorder.getWidth());
+		}
+		
+		// bottom
+		Border bottomBorder = cell.getBottomBorder();
+		if (bottomBorder != null) {
+			float y = yEnd + bottomBorder.getWidth() / 2;
+			drawLine(xStart, y, xStart + cell.getWidth() - (rightBorder == null ? 0 : rightBorder.getWidth()), y, bottomBorder.getColor(), bottomBorder.getWidth());
+		}
+		
+		// left
+		Border leftBorder = cell.getLeftBorder();
+		if (leftBorder != null) {
+			float x = xStart + leftBorder.getWidth() / 2;
+			drawLine(x, yStart, x, yEnd + (bottomBorder == null ? 0 : bottomBorder.getWidth()), leftBorder.getColor(), leftBorder.getWidth());
 		}
 	}
 
