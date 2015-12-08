@@ -463,13 +463,13 @@ public abstract class Table<T extends PDPage> {
 		}
 		this.tableContentStream.close();
 	}
-	
+
 	public T getCurrentPage() {
 		checkNotNull(this.currentPage, "No current page defined.");
 		return this.currentPage;
 	}
 
-	public boolean isEndOfPage(Row<T> row) {
+	private boolean isEndOfPage(Row<T> row) {
 		float currentY = yStart - row.getHeight();
 		boolean isEndOfPage = currentY <= pageBottomMargin;
 		if (isEndOfPage) {
