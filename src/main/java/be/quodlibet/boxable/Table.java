@@ -22,7 +22,7 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import be.quodlibet.boxable.border.Border;
+import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.page.PageProvider;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
@@ -291,7 +291,9 @@ public abstract class Table<T extends PDPage> {
 			// descending by font height - font descent, because we are
 			// positioning the base line here
 			float cursorY = yStart - cell.getTopPadding() - FontUtils.getHeight(cell.getFont(), cell.getFontSize())
-					- FontUtils.getDescent(cell.getFont(), cell.getFontSize()) - (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth());;
+					- FontUtils.getDescent(cell.getFont(), cell.getFontSize())
+					- (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth());
+			;
 
 			switch (cell.getValign()) {
 			case TOP:
@@ -396,53 +398,51 @@ public abstract class Table<T extends PDPage> {
 			Cell<T> cell = cellIterator.next();
 
 			fillCellColor(cell, yStart, xStart, cellIterator);
-			
+
 			drawCellBorders(row, cell, xStart, xEnd);
 
 			xStart += getWidth(cell, cellIterator);
 		}
 
 	}
-	
+
 	private void drawCellBorders(Row<T> row, Cell<T> cell, float xStart, float xEnd) throws IOException {
-		
+
 		float yEnd = yStart - row.getHeight();
-		
+
 		// top
-		Border topBorder = cell.getTopBorder();
+		LineStyle topBorder = cell.getTopBorder();
 		if (topBorder != null) {
 			float y = yStart - topBorder.getWidth() / 2;
-			drawLine(xStart, y, xStart + cell.getWidth(), y, topBorder.getColor(), topBorder.getWidth());
+			drawLine(xStart, y, xStart + cell.getWidth(), y, topBorder);
 		}
-		
+
 		// right
-		Border rightBorder = cell.getRightBorder();
+		LineStyle rightBorder = cell.getRightBorder();
 		if (rightBorder != null) {
 			float x = xStart + cell.getWidth() - rightBorder.getWidth() / 2;
-			drawLine(x, yStart - (topBorder == null ? 0 : topBorder.getWidth()), x, yEnd, rightBorder.getColor(),rightBorder.getWidth());
+			drawLine(x, yStart - (topBorder == null ? 0 : topBorder.getWidth()), x, yEnd, rightBorder);
 		}
-		
+
 		// bottom
-		Border bottomBorder = cell.getBottomBorder();
+		LineStyle bottomBorder = cell.getBottomBorder();
 		if (bottomBorder != null) {
 			float y = yEnd + bottomBorder.getWidth() / 2;
-			drawLine(xStart, y, xStart + cell.getWidth() - (rightBorder == null ? 0 : rightBorder.getWidth()), y, bottomBorder.getColor(), bottomBorder.getWidth());
+			drawLine(xStart, y, xStart + cell.getWidth() - (rightBorder == null ? 0 : rightBorder.getWidth()), y,
+					bottomBorder);
 		}
-		
+
 		// left
-		Border leftBorder = cell.getLeftBorder();
+		LineStyle leftBorder = cell.getLeftBorder();
 		if (leftBorder != null) {
 			float x = xStart + leftBorder.getWidth() / 2;
-			drawLine(x, yStart, x, yEnd + (bottomBorder == null ? 0 : bottomBorder.getWidth()), leftBorder.getColor(), leftBorder.getWidth());
+			drawLine(x, yStart, x, yEnd + (bottomBorder == null ? 0 : bottomBorder.getWidth()), leftBorder);
 		}
+
 	}
 
-	private void drawLine(float xStart, float yStart, float xEnd, float yEnd, Color color, float width) throws IOException {
-		tableContentStream.setNonStrokingColor(color);
-		tableContentStream.setStrokingColor(color);
-		tableContentStream.setLineWidth(width);
-		tableContentStream.setLineCapStyle(0); // CAP_BUTT
-
+	private void drawLine(float xStart, float yStart, float xEnd, float yEnd, LineStyle border) throws IOException {
+		PDStreamUtils.setLineStyles(tableContentStream, border);
 		tableContentStream.moveTo(xStart, yStart);
 		tableContentStream.lineTo(xEnd, yEnd);
 		tableContentStream.stroke();

@@ -84,13 +84,13 @@ public class Row<T extends PDPage> {
 	private void setBorders(final Cell<T> cell, final boolean leftBorder) {
 		// remove left border
 		if (!leftBorder) {
-			cell.setLeftBorder(null);
+			cell.setLeftBorderStyle(null);
 		}
 	}
 	
 	void removeTopBorders() {
 		for (final Cell<T> cell : cells) {
-			cell.setTopBorder(null);
+			cell.setTopBorderStyle(null);
 		}
 	}
 
