@@ -166,10 +166,10 @@ public class Cell<T extends PDPage> {
 
 	public Paragraph getParagraph() {
 		if (paragraph == null) {
-			if(isHeaderCell){
-				paragraph = new Paragraph(text, fontBold, fontSize, getInnerWidth(), align, wrappingFunction);
+			if (isHeaderCell) {
+				paragraph = new Paragraph(text, fontBold, fontSize, getInnerWidth(), align, textColor, null, wrappingFunction);
 			} else {
-				paragraph = new Paragraph(text, font, fontSize, getInnerWidth(), align, wrappingFunction);
+				paragraph = new Paragraph(text, font, fontSize, getInnerWidth(), align, textColor, null, wrappingFunction);
 			}
 		}
 		return paragraph;
