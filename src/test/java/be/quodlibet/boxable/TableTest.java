@@ -3,13 +3,12 @@
  */
 package be.quodlibet.boxable;
 
-import com.google.common.io.Files;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.pdfbox.exceptions.COSVisitorException;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
@@ -17,11 +16,13 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDocume
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 import org.junit.Test;
 
+import com.google.common.io.Files;
+
 
 public class TableTest {
 
     @Test
-    public void Sample1 () throws IOException, COSVisitorException {
+    public void Sample1 () throws IOException {
 
         //Set margins
         float margin = 10;
@@ -32,18 +33,18 @@ public class TableTest {
         //Initialize Document
         PDDocument doc = new PDDocument();
         PDPage page = addNewPage(doc);
-        float yStartNewPage = page.findMediaBox().getHeight() - (2 * margin);
+        float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
 
         //Initialize table
-        float tableWidth = page.findMediaBox().getWidth() - (2 * margin);
+        float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
         boolean drawContent = true;
         float yStart = yStartNewPage;
         float bottomMargin = 70;
         BaseTable table  = new BaseTable(yStart,yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, drawContent);
 
         //Create Header row
-        Row headerRow = table.createRow(15f);
-        Cell cell = headerRow.createCell(100, "Awesome Facts About Belgium");
+        Row<PDPage> headerRow = table.createRow(15f);
+        Cell<PDPage> cell = headerRow.createCell(100, "Awesome Facts About Belgium");
         cell.setFont(PDType1Font.HELVETICA_BOLD);
         cell.setFillColor(Color.BLACK);
         cell.setTextColor(Color.WHITE);
@@ -52,7 +53,7 @@ public class TableTest {
         table.setHeader(headerRow);
 
         //Create 2 column row
-        Row row = table.createRow(15f);
+        Row<PDPage> row = table.createRow(15f);
         cell = row.createCell(30,"Source:");
         cell.setFont(PDType1Font.HELVETICA);
 
@@ -60,7 +61,7 @@ public class TableTest {
         cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
 
         //Create Fact header row
-        Row factHeaderrow = table.createRow(15f);
+        Row<PDPage> factHeaderrow = table.createRow(15f);
 
         cell = factHeaderrow.createCell((100 / 3) * 2, "Fact");
         cell.setFont(PDType1Font.HELVETICA);
@@ -147,7 +148,7 @@ public class TableTest {
 
 
     @Test
-    public void SampleTest2() throws IOException, COSVisitorException {
+    public void SampleTest2() throws IOException {
 
         //Set margins
         float margin = 10;
@@ -163,8 +164,8 @@ public class TableTest {
         PDPage page = addNewPage(doc);
 
         //Initialize table
-        float tableWidth = page.findMediaBox().getWidth()-(2*margin);
-        float yStartNewPage = page.findMediaBox().getHeight() - (2 * margin);
+        float tableWidth = page.getMediaBox().getWidth()-(2*margin);
+        float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         boolean drawContent = true;
         boolean drawLines = true;
         float yStart = yStartNewPage;
@@ -173,15 +174,15 @@ public class TableTest {
 
 
         //Create Header row
-        Row headerRow = table.createRow(15f);
-        Cell cell = headerRow.createCell(100,"Awesome Facts About Belgium");
+        Row<PDPage> headerRow = table.createRow(15f);
+        Cell<PDPage> cell = headerRow.createCell(100,"Awesome Facts About Belgium");
         cell.setFont(PDType1Font.HELVETICA_BOLD);
         cell.setFillColor(Color.BLACK);cell.setTextColor(Color.WHITE);
 
         table.setHeader(headerRow);
 
         //Create 2 column row
-        Row row = table.createRow(15f);
+        Row<PDPage> row = table.createRow(15f);
         cell = row.createCell(75,"Source:");
         cell.setFont(PDType1Font.HELVETICA);
 
@@ -189,7 +190,7 @@ public class TableTest {
         cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
 
         //Create Fact header row
-        Row factHeaderrow = table.createRow(15f);
+        Row<PDPage> factHeaderrow = table.createRow(15f);
         cell = factHeaderrow.createCell((100/3) * 2 ,"Fact");
         cell.setFont(PDType1Font.HELVETICA);
         cell.setFontSize(6);
@@ -231,7 +232,7 @@ public class TableTest {
         PDDocumentOutline outline =  new PDDocumentOutline();
 
         for(PDOutlineItem bm : bookmarks) {
-            outline.appendChild(bm);
+            outline.addLast(bm);
         }
 
         doc.getDocumentCatalog().setDocumentOutline(outline);

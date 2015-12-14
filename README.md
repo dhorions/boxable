@@ -1,12 +1,13 @@
 boxable
 =======
 
-
 Create tables in pdf documents using [PDFBox](http://pdfbox.apache.org)
 
 - Example pdf can be found at [examples](http://goo.gl/a7QvRM)
 
 - Example code can be found at [SampleCode](https://github.com/dhorions/boxable/blob/master/src/test/java/be/quodlibet/boxable/TableTest.java)
+
+The project is Java 7 compliant.
 
 Maven : 
 The project can be used as a Maven dependency by using jitpack.io.

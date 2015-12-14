@@ -1,0 +1,29 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.7
+
+/*
+ * Gets the version name from the latest Git tag
+ */
+def getVersionName = {
+	->
+	def stdout = new ByteArrayOutputStream()
+	exec {
+		commandLine 'git', 'describe', '--tags'
+		standardOutput = stdout
+	}
+	return stdout.toString().trim()
+}
+version = getVersionName()
+group = 'com.github.dgautier'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile 'org.apache.pdfbox:pdfbox:2.0.0-RC2'
+	compile 'org.slf4j:slf4j-api:1.7.10'
+	compile 'com.google.guava:guava:18.0'
+	testCompile 'junit:junit:4.12'
+}

@@ -10,8 +10,12 @@ manifest.mf
 *.jar
 *.war
 *.ear
-.project
-.classpath
+
 .idea
 target
 *.iml
+/bin/
+/build/
+.settings
+.gradle
+.metadata
