@@ -22,6 +22,7 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.page.PageProvider;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
@@ -203,6 +204,10 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	private void drawRow(Row<T> row) throws IOException {
+		// if it is not header row or first row in the table then remove row's top border
+		if (row != header && row != rows.get(0)) {
+			row.removeTopBorders();
+        }
 		// draw the bookmark
 		if (row.getBookmark() != null) {
 			PDPageXYZDestination bookmarkDestination = new PDPageXYZDestination();
@@ -286,7 +291,9 @@ public abstract class Table<T extends PDPage> {
 			// descending by font height - font descent, because we are
 			// positioning the base line here
 			float cursorY = yStart - cell.getTopPadding() - FontUtils.getHeight(cell.getFont(), cell.getFontSize())
-					- FontUtils.getDescent(cell.getFont(), cell.getFontSize());
+					- FontUtils.getDescent(cell.getFont(), cell.getFontSize())
+					- (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth());
+			;
 
 			switch (cell.getValign()) {
 			case TOP:
@@ -304,7 +311,7 @@ public abstract class Table<T extends PDPage> {
 			float cellStartX = cursorX;
 
 			// respect left padding
-			cursorX += cell.getLeftPadding();
+			cursorX += cell.getLeftPadding() + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth());;
 
 			// remember this horizontal position, as it is the anchor for each
 			// new line
@@ -382,12 +389,9 @@ public abstract class Table<T extends PDPage> {
 
 	private void drawVerticalLines(Row<T> row) throws IOException {
 		float xStart = margin;
-
+		
 		// give an extra margin to the latest cell
 		float xEnd = row.xEnd();
-
-		// Draw Row upper border
-		drawLine("Row Upper Border ", xStart, yStart, xEnd, yStart);
 
 		Iterator<Cell<T>> cellIterator = row.getCells().iterator();
 		while (cellIterator.hasNext()) {
@@ -395,29 +399,54 @@ public abstract class Table<T extends PDPage> {
 
 			fillCellColor(cell, yStart, xStart, cellIterator);
 
-			float yEnd = yStart - row.getHeight();
-
-			// draw the vertical line to separate cells
-			drawLine("Cell Separator ", xStart, yStart, xStart, yEnd);
+			drawCellBorders(row, cell, xStart, xEnd);
 
 			xStart += getWidth(cell, cellIterator);
 		}
 
-		// draw the last vertical line at the right of the table
-		float yEnd = yStart - row.getHeight();
-
-		drawLine("Last Cell ", xEnd, yStart, xEnd, yEnd);
 	}
 
-	private void drawLine(String type, float xStart, float yStart, float xEnd, float yEnd) throws IOException {
+	private void drawCellBorders(Row<T> row, Cell<T> cell, float xStart, float xEnd) throws IOException {
 
-		this.tableContentStream.setNonStrokingColor(Color.BLACK);
-		this.tableContentStream.setStrokingColor(Color.BLACK);
+		float yEnd = yStart - row.getHeight();
 
-		this.tableContentStream.moveTo(xStart, yStart);
-		this.tableContentStream.lineTo(xEnd, yEnd);
-		this.tableContentStream.stroke();
-		this.tableContentStream.closePath();
+		// top
+		LineStyle topBorder = cell.getTopBorder();
+		if (topBorder != null) {
+			float y = yStart - topBorder.getWidth() / 2;
+			drawLine(xStart, y, xStart + cell.getWidth(), y, topBorder);
+		}
+
+		// right
+		LineStyle rightBorder = cell.getRightBorder();
+		if (rightBorder != null) {
+			float x = xStart + cell.getWidth() - rightBorder.getWidth() / 2;
+			drawLine(x, yStart - (topBorder == null ? 0 : topBorder.getWidth()), x, yEnd, rightBorder);
+		}
+
+		// bottom
+		LineStyle bottomBorder = cell.getBottomBorder();
+		if (bottomBorder != null) {
+			float y = yEnd + bottomBorder.getWidth() / 2;
+			drawLine(xStart, y, xStart + cell.getWidth() - (rightBorder == null ? 0 : rightBorder.getWidth()), y,
+					bottomBorder);
+		}
+
+		// left
+		LineStyle leftBorder = cell.getLeftBorder();
+		if (leftBorder != null) {
+			float x = xStart + leftBorder.getWidth() / 2;
+			drawLine(x, yStart, x, yEnd + (bottomBorder == null ? 0 : bottomBorder.getWidth()), leftBorder);
+		}
+
+	}
+
+	private void drawLine(float xStart, float yStart, float xEnd, float yEnd, LineStyle border) throws IOException {
+		PDStreamUtils.setLineStyles(tableContentStream, border);
+		tableContentStream.moveTo(xStart, yStart);
+		tableContentStream.lineTo(xEnd, yEnd);
+		tableContentStream.stroke();
+		tableContentStream.closePath();
 	}
 
 	private void fillCellColor(Cell<T> cell, float yStart, float xStart, Iterator<Cell<T>> cellIterator)
@@ -457,10 +486,6 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	private void endTable() throws IOException {
-		if (drawLines) {
-			// Draw line at bottom
-			drawLine("Row Bottom Border ", this.margin, this.yStart, this.margin + width, this.yStart);
-		}
 		this.tableContentStream.close();
 	}
 
