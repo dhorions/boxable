@@ -1,18 +1,11 @@
 package be.quodlibet.boxable.utils;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.metadata.IIOMetadataFormatImpl;
-import javax.imageio.metadata.IIOMetadataNode;
-import javax.imageio.stream.ImageInputStream;
-
-import org.w3c.dom.NodeList;
 
 import be.quodlibet.boxable.image.Image;
 
@@ -21,10 +14,10 @@ import be.quodlibet.boxable.image.Image;
  * Utility methods for images
  * </p>
  * 
- * @author hstimac
  * @author mkuehne
+ * @author hstimac
  */
-public final class ImageUtils {
+public class ImageUtils {
 
 	// utility class, no instance needed
 	private ImageUtils() {
@@ -41,76 +34,43 @@ public final class ImageUtils {
 	 * @throws IOException
 	 */
 	public static Image readImage(File imageFile) throws IOException {
-		final float[] dpi = getDPI(imageFile);
 		final BufferedImage bufferedImage = ImageIO.read(imageFile);
-
-		return new Image(bufferedImage, dpi[0], dpi[1]);
+		return new Image(bufferedImage);
 	}
 
 	/**
 	 * <p>
-	 * Method calculates image's DPI (horizontal and vertical)
+	 * Provide an ability to scale {@link Image} on desired {@link Dimension}
 	 * </p>
 	 * 
-	 * @param imageFile
-	 *            {@link File} from which image's DPI will be calculated
-	 * @return {@link Float[]} array with calculated horizontal and vertical
-	 *         image DPI's. First element is horizontal DPI and the second is
-	 *         vertical DPI.
-	 * @throws IOException
-	 *             If a cache file is needed but cannot be created.
+	 * @param imgDim
+	 *            Original image {@link Dimension} which will be scaled
+	 * @param boundary
+	 *            Boundary {@link Dimension} where image will be applied
+	 * @return Appropriate scaled image {@link Dimension} based on boundary
+	 *         {@link Dimension}
 	 */
-	public static float[] getDPI(File imageFile) throws IOException {
-		ImageInputStream stream = ImageIO.createImageInputStream(imageFile);
+	public static Dimension getScaledDimension(Dimension imgDim, Dimension boundary) {
+		int imgWidth = imgDim.width;
+		int imgHeight = imgDim.height;
+		int boundWidth = boundary.width;
+		int boundHeight = boundary.height;
+		int newImgWidth = imgWidth;
+		int newImgHeight = imgHeight;
 
-		Iterator<ImageReader> readers = ImageIO.getImageReaders(stream);
-		if (readers.hasNext()) {
-			ImageReader reader = readers.next();
-			reader.setInput(stream);
-
-			IIOMetadata metadata = reader.getImageMetadata(0);
-			IIOMetadataNode standardTree = (IIOMetadataNode) metadata
-					.getAsTree(IIOMetadataFormatImpl.standardMetadataFormatName);
-			IIOMetadataNode dimension = (IIOMetadataNode) standardTree.getElementsByTagName("Dimension").item(0);
-			float horizontalPixelSizeMM = getPixelSizeMM(dimension, "HorizontalPixelSize");
-			float verticalPixelSizeMM = getPixelSizeMM(dimension, "VerticalPixelSize");
-
-			float[] result = new float[2];
-			result[0] = pixelMMtoDPI(horizontalPixelSizeMM);
-			result[1] = pixelMMtoDPI(verticalPixelSizeMM);
-			return result;
+		// first check if we need to scale width
+		if (imgWidth > boundWidth) {
+			newImgWidth = boundWidth;
+			// scale height to maintain aspect ratio
+			newImgHeight = (newImgWidth * imgHeight) / imgWidth;
 		}
 
-		throw new IllegalArgumentException("Cannot read DPI of [" + imageFile + "]");
-	}
-
-	/**
-	 * <p>
-	 * Extracting pixels per millimeter using the standard {@link ImageIO} API
-	 * and the standard metadata format.
-	 * </p>
-	 * 
-	 * @param dimension
-	 * @param elementName
-	 * @return
-	 */
-	private static float getPixelSizeMM(final IIOMetadataNode dimension, final String elementName) {
-		// NOTE: The standard metadata format has defined dimension to pixels per millimeters, not DPI...
-		NodeList pixelSizes = dimension.getElementsByTagName(elementName);
-		IIOMetadataNode pixelSize = pixelSizes.getLength() > 0 ? (IIOMetadataNode) pixelSizes.item(0) : null;
-		return pixelSize != null ? Float.parseFloat(pixelSize.getAttribute("value")) : -1;
-	}
-
-	/**
-	 * <p>
-	 * Converts pixel per millimeter into DPI value.
-	 * </p>
-	 * 
-	 * @param pixelPerMM
-	 *            Value in pixel per millimeter
-	 * @return Calculated DPI value
-	 */
-	private static float pixelMMtoDPI(float pixelPerMM) {
-		return (1 / pixelPerMM) * 25.4f;
+		// then check if the new height is also bigger than expected
+		if (newImgHeight > boundHeight) {
+			newImgHeight = boundHeight;
+			// scale width to maintain aspect ratio
+			newImgWidth = (newImgHeight * imgWidth) / imgHeight;
+		}
+		return new Dimension(newImgWidth, newImgHeight);
 	}
 }
