@@ -93,7 +93,6 @@ public abstract class Table<T extends PDPage> {
 		this.currentPage = currentPage;
 		this.pageProvider = pageProvider;
 		loadFonts();
-//		this.tableContentStream = createPdPageContentStream();
 	}
 
 	public Table(float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width, float margin,
@@ -113,7 +112,6 @@ public abstract class Table<T extends PDPage> {
 		// Fonts needs to be loaded before page creation
 		loadFonts();
 		this.currentPage = pageProvider.createPage();
-//		this.tableContentStream = createPdPageContentStream();
 	}
 
 	protected abstract void loadFonts() throws IOException;
@@ -126,16 +124,17 @@ public abstract class Table<T extends PDPage> {
 		return document;
 	}
 
-	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment, float freeSpaceForPageBreak, boolean drawHeaderMargin)
-			throws IOException {
+	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
+			float freeSpaceForPageBreak, boolean drawHeaderMargin) throws IOException {
 		drawTitle(title, font, fontSize, tableWidth, height, alignment, freeSpaceForPageBreak, null, drawHeaderMargin);
 	}
 
-	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment, float freeSpaceForPageBreak,
-			WrappingFunction wrappingFunction, boolean drawHeaderMargin) throws IOException {
+	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
+			float freeSpaceForPageBreak, WrappingFunction wrappingFunction, boolean drawHeaderMargin)
+					throws IOException {
 
 		ensureStreamIsOpen();
-		
+
 		if (isEndOfPage(freeSpaceForPageBreak)) {
 			this.tableContentStream.close();
 			pageBreak();
@@ -156,7 +155,7 @@ public abstract class Table<T extends PDPage> {
 			}
 
 			articleTitle.close();
-			
+
 			if (drawDebug) {
 				// margin
 				PDStreamUtils.rect(tableContentStream, margin, yStart, width, headerBottomMargin, Color.CYAN);
@@ -186,10 +185,11 @@ public abstract class Table<T extends PDPage> {
 
 	public float draw() throws IOException {
 		ensureStreamIsOpen();
-		
+
 		for (Row<T> row : rows) {
 			if (row == header) {
-				// check if header row height and first data row height can fit the page
+				// check if header row height and first data row height can fit
+				// the page
 				// if not draw them on another side
 				float headerHeightIncludingFirstDataRow = header.getHeight() + rows.get(1).getHeight();
 				if (isEndOfPage(headerHeightIncludingFirstDataRow)) {
@@ -204,10 +204,11 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	private void drawRow(Row<T> row) throws IOException {
-		// if it is not header row or first row in the table then remove row's top border
+		// if it is not header row or first row in the table then remove row's
+		// top border
 		if (row != header && row != rows.get(0)) {
 			row.removeTopBorders();
-        }
+		}
 		// draw the bookmark
 		if (row.getBookmark() != null) {
 			PDPageXYZDestination bookmarkDestination = new PDPageXYZDestination();
@@ -282,106 +283,119 @@ public abstract class Table<T extends PDPage> {
 		float cursorX = margin;
 
 		for (Cell<T> cell : row.getCells()) {
-			// no text without font
-			if (cell.getFont() == null) {
-				throw new IllegalArgumentException("Font is null on Cell=" + cell.getText());
-			}
-
-			// position at top of current cell
-			// descending by font height - font descent, because we are
-			// positioning the base line here
-			float cursorY = yStart - cell.getTopPadding() - FontUtils.getHeight(cell.getFont(), cell.getFontSize())
-					- FontUtils.getDescent(cell.getFont(), cell.getFontSize())
-					- (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth());
-			;
-
-			switch (cell.getValign()) {
-			case TOP:
-				break;
-			case MIDDLE:
-				cursorY -= cell.getVerticalFreeSpace() / 2;
-				break;
-			case BOTTOM:
-				cursorY -= cell.getVerticalFreeSpace();
-				break;
-			}
-
 			// remember horizontal cursor position, so we can advance to the
 			// next cell easily later
 			float cellStartX = cursorX;
 
-			// respect left padding
-			cursorX += cell.getLeftPadding() + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth());;
+			if (cell instanceof ImageCell) {
+				final ImageCell<T> imageCell = (ImageCell<T>) cell;
 
-			// remember this horizontal position, as it is the anchor for each
-			// new line
-			float lineStartX = cursorX;
+				float cursorY = yStart - cell.getTopPadding()
+						- (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth());
 
-			// font settings
-			this.tableContentStream.setFont(cell.getFont(), cell.getFontSize());
+				cursorX += cell.getLeftPadding() + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth());;
+				imageCell.getImage().draw(document, tableContentStream, cursorX, cursorY);
+			} else {
+				// no text without font
+				if (cell.getFont() == null) {
+					throw new IllegalArgumentException("Font is null on Cell=" + cell.getText());
+				}
 
-			// if it is head row or if it is header cell then please use bold
-			// font
-			if (row.equals(header) || cell.isHeaderCell()) {
-				this.tableContentStream.setFont(cell.getFontBold(), cell.getFontSize());
-			}
-			this.tableContentStream.setNonStrokingColor(cell.getTextColor());
+				// position at top of current cell
+				// descending by font height - font descent, because we are
+				// positioning the base line here
+				float cursorY = yStart - cell.getTopPadding() - FontUtils.getHeight(cell.getFont(), cell.getFontSize())
+						- FontUtils.getDescent(cell.getFont(), cell.getFontSize())
+						- (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth());
 
-			// print all lines of the cell
-			float tw = 0.0f;
-			for (String line : cell.getParagraph().getLines()) {
-				// screw you, whitespace!
-				line = line.trim();
-
-				// we start at the line start ... seems legit
-				cursorX = lineStartX;
-
-				// the widest text does not fill the inner width of the cell? no
-				// problem, just add it ;)
-				switch (cell.getAlign()) {
-				case CENTER:
-					cursorX += cell.getHorizontalFreeSpace() / 2;
+				switch (cell.getValign()) {
+				case TOP:
 					break;
-				case LEFT:
+				case MIDDLE:
+					cursorY -= cell.getVerticalFreeSpace() / 2;
 					break;
-				case RIGHT:
-					cursorX += cell.getHorizontalFreeSpace();
+				case BOTTOM:
+					cursorY -= cell.getVerticalFreeSpace();
 					break;
 				}
 
-				// calculate the width of this line
-				tw = Math.max(tw, cell.getFont().getStringWidth(line));
-				tw = tw / 1000 * cell.getFontSize();
-				float freeSpaceWithinLine = cell.getInnerWidth() - cell.getHorizontalFreeSpace() - tw;
-				switch (cell.getAlign()) {
-				case CENTER:
-					cursorX += freeSpaceWithinLine / 2;
-					break;
-				case LEFT:
-					// it doesn't matter because X position is always the same
-					// as row above
-					break;
-				case RIGHT:
-					cursorX += freeSpaceWithinLine;
-					break;
+				// respect left padding
+				cursorX += cell.getLeftPadding() + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth());
+
+				// remember this horizontal position, as it is the anchor for
+				// each
+				// new line
+				float lineStartX = cursorX;
+
+				// font settings
+				this.tableContentStream.setFont(cell.getFont(), cell.getFontSize());
+
+				// if it is head row or if it is header cell then please use
+				// bold
+				// font
+				if (row.equals(header) || cell.isHeaderCell()) {
+					this.tableContentStream.setFont(cell.getFontBold(), cell.getFontSize());
 				}
+				this.tableContentStream.setNonStrokingColor(cell.getTextColor());
 
-				// finally draw the line
-				this.tableContentStream.beginText();
-				this.tableContentStream.newLineAtOffset(cursorX, cursorY);
+				// print all lines of the cell
+				float tw = 0.0f;
+				for (String line : cell.getParagraph().getLines()) {
+					// screw you, whitespace!
+					line = line.trim();
 
-				this.tableContentStream.showText(line);
-				this.tableContentStream.endText();
-				this.tableContentStream.closePath();
+					// we start at the line start ... seems legit
+					cursorX = lineStartX;
 
-				// advance a line vertically
-				cursorY = cursorY - cell.getParagraph().getFontHeight();
+					// the widest text does not fill the inner width of the
+					// cell? no
+					// problem, just add it ;)
+					switch (cell.getAlign()) {
+					case CENTER:
+						cursorX += cell.getHorizontalFreeSpace() / 2;
+						break;
+					case LEFT:
+						break;
+					case RIGHT:
+						cursorX += cell.getHorizontalFreeSpace();
+						break;
+					}
+
+					// calculate the width of this line
+					tw = Math.max(tw, cell.getFont().getStringWidth(line));
+					tw = tw / 1000 * cell.getFontSize();
+					float freeSpaceWithinLine = cell.getInnerWidth() - cell.getHorizontalFreeSpace() - tw;
+					switch (cell.getAlign()) {
+					case CENTER:
+						cursorX += freeSpaceWithinLine / 2;
+						break;
+					case LEFT:
+						// it doesn't matter because X position is always the
+						// same
+						// as row above
+						break;
+					case RIGHT:
+						cursorX += freeSpaceWithinLine;
+						break;
+					}
+
+					// finally draw the line
+					this.tableContentStream.beginText();
+					this.tableContentStream.newLineAtOffset(cursorX, cursorY);
+
+					this.tableContentStream.showText(line);
+					this.tableContentStream.endText();
+					this.tableContentStream.closePath();
+
+					// advance a line vertically
+					cursorY = cursorY - cell.getParagraph().getFontHeight();
+				}
 			}
 
-			// set cursor to the start of this cell plus its width to advance to
+			// set cursor to the start of this cell plus its width to
+			// advance to
 			// the next cell
 			cursorX = cellStartX + cell.getWidth();
-
 		}
 		// Set Y position for next row
 		yStart = yStart - row.getHeight();
@@ -389,7 +403,7 @@ public abstract class Table<T extends PDPage> {
 
 	private void drawVerticalLines(Row<T> row) throws IOException {
 		float xStart = margin;
-		
+
 		// give an extra margin to the latest cell
 		float xEnd = row.xEnd();
 
@@ -478,7 +492,7 @@ public abstract class Table<T extends PDPage> {
 		}
 		return width;
 	}
-	
+
 	private void ensureStreamIsOpen() throws IOException {
 		if (tableContentStream == null) {
 			tableContentStream = createPdPageContentStream();
@@ -526,7 +540,7 @@ public abstract class Table<T extends PDPage> {
 		this.currentPage = createNewPage();
 		this.tableContentStream = createPdPageContentStream();
 	}
-	
+
 	private void addBookmark(PDOutlineItem bookmark) {
 		if (bookmarks == null)
 			bookmarks = new ArrayList<>();
@@ -567,11 +581,10 @@ public abstract class Table<T extends PDPage> {
 	public boolean tableIsBroken() {
 		return tableIsBroken;
 	}
-	
+
 	public float getHeaderAndDataHeight() {
 		return header == null ? 0 : header.getHeight() + rows.get(header == null ? 0 : 1).getHeight();
 	}
-	
 
 	public void setTableIsBroken(boolean tableIsBroken) {
 		this.tableIsBroken = tableIsBroken;
