@@ -513,7 +513,6 @@ public abstract class Table<T extends PDPage> {
 		boolean isEndOfPage = currentY <= pageBottomMargin;
 		if (isEndOfPage) {
 			setTableIsBroken(true);
-			System.out.println("Its end of page. Table row height caused the problem.");
 		}
 
 		// If we are closer than bottom margin, consider this as
@@ -529,7 +528,6 @@ public abstract class Table<T extends PDPage> {
 		boolean isEndOfPage = currentY <= pageBottomMargin;
 		if (isEndOfPage) {
 			setTableIsBroken(true);
-			System.out.println("Its end of the page. Table title caused this problem.");
 		}
 		return isEndOfPage;
 	}
