@@ -6,6 +6,7 @@ package be.quodlibet.boxable;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,8 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
 import org.junit.Test;
 
 import com.google.common.io.Files;
+
+import be.quodlibet.boxable.utils.ImageUtils;
 
 
 public class TableTest {
@@ -82,13 +85,22 @@ public class TableTest {
             cell.setFontSize(6);
 
             for (int i = 1; i < fact.length; i++) {
-
-                cell = row.createCell((100 / 9), fact[i]);
-                cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
-                cell.setFontSize(6);
-                //Set colors
-                if (fact[i].contains("beer")) cell.setFillColor(Color.yellow);
-                if (fact[i].contains("champion")) cell.setTextColor(Color.GREEN);
+            	if (fact[i].startsWith("image:")) {
+            		File imageFile;
+					try {
+						imageFile = new File(TableTest.class.getResource("/" + fact[i].substring("image:".length())).toURI());
+						cell = row.createImageCell(100 / 9, ImageUtils.readImage(imageFile));
+					} catch (final URISyntaxException e) {
+						e.printStackTrace();
+					}
+            	} else {
+	                cell = row.createCell((100 / 9), fact[i]);
+	                cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
+	                cell.setFontSize(6);
+	                //Set colors
+	                if (fact[i].contains("beer")) cell.setFillColor(Color.yellow);
+	                if (fact[i].contains("champion")) cell.setTextColor(Color.GREEN);
+            	}
             }
         }
 
@@ -110,7 +122,7 @@ public class TableTest {
         facts.add(new String[]{"Oil Painting was invented by the Belgian van Eyck brothers", "art", "inventions", "science"});
         facts.add(new String[]{"The Belgian Adolphe Sax invented the Saxophone", "inventions", "music", ""});
         facts.add(new String[]{"11 sites in Belgium are on the UNESCO World Heritage List", "art", "history", ""});
-        facts.add(new String[]{"Belgium was the second country in the world to legalize same-sex marriage", "politics", "", ""});
+        facts.add(new String[]{"Belgium was the second country in the world to legalize same-sex marriage", "politics", "image:150dpi.png", ""});
         facts.add(new String[]{"In the seventies, schools served light beer during lunch", "health", "school", "beer"});
         facts.add(new String[]{"Belgium has the sixth fastest domestic internet connection in the world", "science", "technology", ""});
         facts.add(new String[]{"Belgium hosts the World's Largest Sand Sculpture Festival", "art", "festivals", "world championship"});
@@ -124,7 +136,7 @@ public class TableTest {
         facts.add(new String[]{"Tintin was conceived by Belgian artist Hergé", "art", "celebrities", "inventions"});
         facts.add(new String[]{"Brussels Airport is the world's biggest selling point of chocolate", "food", "world champions", ""});
         facts.add(new String[]{"Tomorrowland is the biggest electronic dance music festival in the world", "festivals", "music", "world champion"});
-        facts.add(new String[]{"French Fries are actually from Belgium", "food", "inventions", ""});
+        facts.add(new String[]{"French Fries are actually from Belgium", "food", "inventions", "image:300dpi.png"});
         facts.add(new String[]{"Herman Van Rompy is the first full-time president of the European Council", "politics", "", ""});
         facts.add(new String[]{"Belgians are the fourth most money saving people in the world", "economy", "social", ""});
         facts.add(new String[]{"The Belgian highway system is the only man-made structure visible from the moon at night", "technology", "world champions", ""});
