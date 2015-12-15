@@ -11,6 +11,8 @@ import java.util.List;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 
+import be.quodlibet.boxable.image.Image;
+
 public class Row<T extends PDPage> {
 
 	private final Table<T> table;
@@ -43,6 +45,20 @@ public class Row<T extends PDPage> {
 	public Cell<T> createCell(float width, String value) {
 		Cell<T> cell = new Cell<T>(this, width, value, true);
 		setBorders(cell, cells.isEmpty());
+		cells.add(cell);
+		return cell;
+	}
+	/**
+	 * <p>
+	 * Creates a image cell with provided width and {@link Image}
+	 * </p>
+	 * 
+	 * @param width Cell's width
+	 * @param img {@link Image} in the cell 
+	 * @return
+	 */
+	public Cell<T> createImageCell(float width, Image img){
+		ImageCell<T> cell = new ImageCell<>(this, width, img, true);
 		cells.add(cell);
 		return cell;
 	}
