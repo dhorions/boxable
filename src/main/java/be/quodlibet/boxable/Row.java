@@ -59,6 +59,7 @@ public class Row<T extends PDPage> {
 	 */
 	public ImageCell<T> createImageCell(float width, Image img){
 		ImageCell<T> cell = new ImageCell<>(this, width, img, true);
+		setBorders(cell, cells.isEmpty());
 		cells.add(cell);
 		return cell;
 	}
