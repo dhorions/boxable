@@ -57,7 +57,7 @@ public class Row<T extends PDPage> {
 	 * @param img {@link Image} in the cell 
 	 * @return
 	 */
-	public Cell<T> createImageCell(float width, Image img){
+	public ImageCell<T> createImageCell(float width, Image img){
 		ImageCell<T> cell = new ImageCell<>(this, width, img, true);
 		cells.add(cell);
 		return cell;
