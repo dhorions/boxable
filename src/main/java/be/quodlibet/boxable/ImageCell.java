@@ -14,15 +14,25 @@ public class ImageCell<T extends PDPage> extends Cell<T> {
 
 	ImageCell(Row<T> row, float width, Image image, boolean isCalculated) {
 		super(row, width, null, isCalculated);
-		this.img = image.scale(getInnerWidth());
+		this.img = image;
+		if(image.getWidth() > getInnerWidth()){
+			scaleToFit();
+		}
 		this.align = HorizontalAlignment.LEFT;
 		this.valign = VerticalAlignment.TOP;
 	}
 
+	public void scaleToFit() {
+		img = img.scale(getInnerWidth());
+	}
+
 	ImageCell(Row<T> row, float width, Image image, boolean isCalculated, HorizontalAlignment align,
 			VerticalAlignment valign) {
-		super(row, width, null, isCalculated);
+		super(row, width, null, isCalculated, align, valign);
 		this.img = image;
+		if(image.getWidth() > getInnerWidth()){
+			scaleToFit();
+		}
 		this.align = align;
 		this.valign = valign;
 	}
@@ -34,12 +44,14 @@ public class ImageCell<T extends PDPage> extends Cell<T> {
 
 	@Override
 	public float getHorizontalFreeSpace() {
-		return getInnerWidth() - getImageWidth();
+		return getInnerWidth() - img.getWidth();
+	}
+	
+	@Override
+	public float getVerticalFreeSpace() {
+		return getInnerHeight() - img.getHeight();
 	}
 
-	private float getImageWidth() {
-		return img.getWidth();
-	}
 
 	/**
 	 * <p>

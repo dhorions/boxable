@@ -63,6 +63,13 @@ public class Row<T extends PDPage> {
 		cells.add(cell);
 		return cell;
 	}
+	
+	public Cell<T> createImageCell(float width, Image img, HorizontalAlignment align, VerticalAlignment valign) {
+		Cell<T> cell = new ImageCell<T>(this, width, img, true, align, valign);
+		setBorders(cell, cells.isEmpty());
+		cells.add(cell);
+		return cell;
+	}
 
 	/**
 	 * <p>

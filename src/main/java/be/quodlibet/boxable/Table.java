@@ -292,8 +292,34 @@ public abstract class Table<T extends PDPage> {
 
 				float cursorY = yStart - cell.getTopPadding()
 						- (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth());
-
-				cursorX += cell.getLeftPadding() + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth());;
+				
+				// image cell vertical alignment
+				switch (cell.getValign()) {
+				case TOP:
+					break;
+				case MIDDLE:
+					cursorY -= cell.getVerticalFreeSpace() / 2;
+					break;
+				case BOTTOM:
+					cursorY -= cell.getVerticalFreeSpace();
+					break;
+				}
+				
+				cursorX += cell.getLeftPadding() + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth());
+				
+				// image cell horizontal alignment
+				switch (cell.getAlign()) {
+				case CENTER:
+					cursorX += cell.getHorizontalFreeSpace() / 2;
+					break;
+				case LEFT:
+					break;
+				case RIGHT:
+					cursorX += cell.getHorizontalFreeSpace();
+					break;
+				}
+				
+				
 				imageCell.getImage().draw(document, tableContentStream, cursorX, cursorY);
 			} else {
 				// no text without font
