@@ -257,6 +257,65 @@ public class TableTest {
         doc.close();
 
     }
+    
+    @Test
+    public void SampleTest3() throws IOException {
+    	 //Set margins
+        float margin = 10;
+
+        //Initialize Document
+        PDDocument doc = new PDDocument();
+        PDPage page = addNewPage(doc);
+
+        //Initialize table
+        float tableWidth = page.getMediaBox().getWidth()-(2*margin);
+        float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+        boolean drawContent = true;
+        boolean drawLines = true;
+        float yStart = yStartNewPage;
+        float bottomMargin = 70;
+        BaseTable table = new BaseTable(yStart,yStartNewPage,bottomMargin,tableWidth, margin, doc, page, drawLines, drawContent);
+
+        //Create Header row
+        Row<PDPage> row = table.createRow(15f);
+        Cell cell = row.createCell((100/3), "Hello", HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
+        cell.setTextRotated(true);
+        cell.setFont(PDType1Font.HELVETICA);
+        cell.setFontSize(6);
+        
+        Cell cell2 = row.createCell((100/3), "It's me", HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+        cell2.setTextRotated(true);
+        cell2.setFont(PDType1Font.HELVETICA);
+        cell2.setFontSize(6);
+        
+        Cell cell3 = row.createCell((100/3), "I was wondering", HorizontalAlignment.get("center"), VerticalAlignment.get("bottom"));
+        cell3.setTextRotated(true);
+        cell3.setFont(PDType1Font.HELVETICA);
+        cell3.setFontSize(6);
+        
+        Row<PDPage> row2 = table.createRow(15f);
+        Cell cell4 = row2.createCell((100/3), "Hello", HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
+        cell4.setFont(PDType1Font.HELVETICA);
+        cell4.setFontSize(6);
+        
+        Cell cell5 = row2.createCell((100/3), "can you hear me?", HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+        cell5.setTextRotated(true);
+        cell5.setFont(PDType1Font.HELVETICA);
+        cell5.setFontSize(6);
+        
+        Cell cell6 = row2.createCell((100/3), "I'm in California dreaming about who we used to be. When we were younger and free. I've forgotten how it felt before the world fell at our feet", HorizontalAlignment.get("center"), VerticalAlignment.get("bottom"));
+        cell6.setFont(PDType1Font.HELVETICA);
+        cell6.setFontSize(6);
+        table.draw();
+
+    	
+    	//Save the document
+        File file = new File("target/BoxableSample3.pdf");
+        System.out.println("Sample file saved at : " + file.getAbsolutePath());
+        Files.createParentDirs(file);
+        doc.save(file);
+        doc.close();
+    }
 
     private static PDPage addNewPage(PDDocument doc) {
         PDPage page = new PDPage();
