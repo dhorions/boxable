@@ -48,22 +48,25 @@ public class Row<T extends PDPage> {
 		cells.add(cell);
 		return cell;
 	}
+
 	/**
 	 * <p>
 	 * Creates a image cell with provided width and {@link Image}
 	 * </p>
 	 * 
-	 * @param width Cell's width
-	 * @param img {@link Image} in the cell 
+	 * @param width
+	 *            Cell's width
+	 * @param img
+	 *            {@link Image} in the cell
 	 * @return
 	 */
-	public ImageCell<T> createImageCell(float width, Image img){
+	public ImageCell<T> createImageCell(float width, Image img) {
 		ImageCell<T> cell = new ImageCell<>(this, width, img, true);
 		setBorders(cell, cells.isEmpty());
 		cells.add(cell);
 		return cell;
 	}
-	
+
 	public Cell<T> createImageCell(float width, Image img, HorizontalAlignment align, VerticalAlignment valign) {
 		Cell<T> cell = new ImageCell<T>(this, width, img, true, align, valign);
 		setBorders(cell, cells.isEmpty());
@@ -91,47 +94,66 @@ public class Row<T extends PDPage> {
 	}
 
 	/**
+	 * <p>
 	 * Creates a cell with the same width as the corresponding header cell
+	 * </p>
 	 *
 	 * @param value
 	 * @return
 	 */
 	public Cell<T> createCell(String value) {
-
 		float headerCellWidth = table.getHeader().getCells().get(cells.size()).getWidth();
 		Cell<T> cell = new Cell<T>(this, headerCellWidth, value, false);
 		setBorders(cell, cells.isEmpty());
 		cells.add(cell);
 		return cell;
 	}
-	
+
+	/**
+	 * <p>
+	 * Remove left border to avoid double borders from previous cell's right
+	 * border
+	 * </p>
+	 * 
+	 * @param cell
+	 * @param leftBorder
+	 */
 	private void setBorders(final Cell<T> cell, final boolean leftBorder) {
-		// remove left border
 		if (!leftBorder) {
 			cell.setLeftBorderStyle(null);
 		}
 	}
-	
+
+	/**
+	 * <p>
+	 * remove top borders of cells to avoid double borders from cells in
+	 * previous row
+	 * </p>
+	 */
 	void removeTopBorders() {
 		for (final Cell<T> cell : cells) {
 			cell.setTopBorderStyle(null);
 		}
 	}
 
+	/**
+	 * <p>
+	 * Gets maximal height of the cells in current row therefore row's height.
+	 * </p> 
+	 * 
+	 * @return Row's height
+	 */
 	public float getHeight() {
 
 		float maxheight = 0.0f;
-
 		for (Cell<T> cell : this.cells) {
-			float cellHeight = 0;
-			cellHeight = cell.getTextHeight() + cell.getTopPadding() + cell.getBottomPadding()
-					+ (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth())
-					+ (cell.getBottomBorder() == null ? 0 : cell.getBottomBorder().getWidth());
+			float cellHeight = cell.getCellHeight();
 
 			if (cellHeight > maxheight) {
 				maxheight = cellHeight;
 			}
 		}
+
 		return maxheight;
 	}
 
@@ -181,4 +203,5 @@ public class Row<T extends PDPage> {
 	public float xEnd() {
 		return table.getMargin() + getWidth();
 	}
+
 }
