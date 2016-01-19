@@ -559,7 +559,7 @@ public abstract class Table<T extends PDPage> {
 
 	private void fillCellColor(Cell<T> cell, float yStart, float xStart, Iterator<Cell<T>> cellIterator)
 			throws IOException {
-		// Fill Cell Color
+
 		if (cell.getFillColor() != null) {
 			this.tableContentStream.setNonStrokingColor(cell.getFillColor());
 

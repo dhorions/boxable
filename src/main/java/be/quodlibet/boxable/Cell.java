@@ -289,6 +289,7 @@ public class Cell<T extends PDPage> {
 	 * {@link Cell#getInnerHeight()} otherwise {@link Cell#getInnerWidth()}
 	 * </p>
 	 * 
+	 * 
 	 * @return Cell's {@link Paragraph}
 	 */
 	public Paragraph getParagraph() {
@@ -339,7 +340,7 @@ public class Cell<T extends PDPage> {
 	 * <p>
 	 * Depending of rotated/normal cell's value there is two cases for calculation:
 	 * <ol>
-	 * <li>Rotate value - cell's height is equal to overall text length in the cell with necessery paddings (top,bottom)</li>
+	 * <li>Rotated value - cell's height is equal to overall text length in the cell with necessery paddings (top,bottom)</li>
 	 * <li>Normal value - cell's height is equal to {@link Paragraph}'s height with
 	 * necessery paddings (top,bottom)</li>
 	 * </ol>
@@ -625,6 +626,11 @@ public class Cell<T extends PDPage> {
 		this.bottomBorderStyle = bottomBorder;
 	}
 
+	/**
+	 * <p> Easy setting for cell border style. 
+	 * @param border It is {@link LineStyle} for all borders
+	 * @see {@link LineStyle} for rendering line attributes
+	 */
 	public void setBorderStyle(LineStyle border) {
 		this.leftBorderStyle = border;
 		this.rightBorderStyle = border;
