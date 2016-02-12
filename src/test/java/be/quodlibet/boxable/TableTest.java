@@ -66,12 +66,12 @@ public class TableTest {
         //Create Fact header row
         Row<PDPage> factHeaderrow = table.createRow(15f);
 
-        cell = factHeaderrow.createCell((100 / 3) * 2, "Fact");
+        cell = factHeaderrow.createCell((100 / 3f) * 2, "Fact");
         cell.setFont(PDType1Font.HELVETICA);
         cell.setFontSize(6);
         cell.setFillColor(Color.LIGHT_GRAY);
 
-        cell = factHeaderrow.createCell((100 / 3), "Tags");
+        cell = factHeaderrow.createCell((100 / 3f), "Tags");
         cell.setFillColor(Color.LIGHT_GRAY);
         cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
         cell.setFontSize(6);
@@ -80,7 +80,7 @@ public class TableTest {
         for (String[] fact : facts) {
 
             row = table.createRow(10f);
-            cell = row.createCell((100 / 3) * 2, fact[0]);
+            cell = row.createCell((100 / 3f) * 2, fact[0]);
             cell.setFont(PDType1Font.HELVETICA);
             cell.setFontSize(6);
 
@@ -89,12 +89,12 @@ public class TableTest {
             		File imageFile;
 					try {
 						imageFile = new File(TableTest.class.getResource("/" + fact[i].substring("image:".length())).toURI());
-						cell = row.createImageCell(100 / 9, ImageUtils.readImage(imageFile));
+						cell = row.createImageCell((100 / 9f), ImageUtils.readImage(imageFile));
 					} catch (final URISyntaxException e) {
 						e.printStackTrace();
 					}
             	} else {
-	                cell = row.createCell((100 / 9), fact[i]);
+	                cell = row.createCell((100 / 9f), fact[i]);
 	                cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
 	                cell.setFontSize(6);
 	                //Set colors
@@ -203,12 +203,12 @@ public class TableTest {
 
         //Create Fact header row
         Row<PDPage> factHeaderrow = table.createRow(15f);
-        cell = factHeaderrow.createCell((100/3) * 2 ,"Fact");
+        cell = factHeaderrow.createCell((100/3f) * 2 ,"Fact");
         cell.setFont(PDType1Font.HELVETICA);
         cell.setFontSize(6);
         cell.setFillColor(Color.LIGHT_GRAY);
 
-        cell = factHeaderrow.createCell((100/3),"Tags");
+        cell = factHeaderrow.createCell((100/3f),"Tags");
         cell.setFillColor(Color.LIGHT_GRAY);
         cell.setFont(PDType1Font.HELVETICA_OBLIQUE);cell.setFontSize(6);
 
@@ -217,8 +217,9 @@ public class TableTest {
         for(String[] fact : facts) {
 
             row = table.createRow(10f);
-            cell = row.createCell((100/3)*2 ,fact[0]+ " " + fact[0]+ " " + fact[0]);
-            cell.setFont(PDType1Font.HELVETICA);cell.setFontSize(6);
+            cell = row.createCell((100/3.0f)*2 ,fact[0]+ " " + fact[0]+ " " + fact[0]);
+            cell.setFont(PDType1Font.HELVETICA);
+            cell.setFontSize(6);
 
             //Create a bookmark for each record
             PDOutlineItem outlineItem = new PDOutlineItem();
@@ -226,7 +227,7 @@ public class TableTest {
             row.setBookmark( outlineItem);
 
             for(int i = 1; i< fact.length; i++) {
-                cell = row.createCell((100/9) ,fact[i]);
+                cell = row.createCell((100/9f) ,fact[i]);
                 cell.setFont(PDType1Font.HELVETICA_OBLIQUE);cell.setFontSize(6);
 
                 //Set colors
@@ -278,32 +279,32 @@ public class TableTest {
 
         //Create Header row
         Row<PDPage> row = table.createRow(15f);
-        Cell cell = row.createCell((100/3), "Hello", HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
+        Cell cell = row.createCell((100/3f), "Hello", HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
         cell.setTextRotated(true);
         cell.setFont(PDType1Font.HELVETICA);
         cell.setFontSize(6);
         
-        Cell cell2 = row.createCell((100/3), "It's me", HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+        Cell cell2 = row.createCell((100/3f), "It's me", HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
         cell2.setTextRotated(true);
         cell2.setFont(PDType1Font.HELVETICA);
         cell2.setFontSize(6);
         
-        Cell cell3 = row.createCell((100/3), "I was wondering", HorizontalAlignment.get("center"), VerticalAlignment.get("bottom"));
+        Cell cell3 = row.createCell((100/3f), "I was wondering", HorizontalAlignment.get("center"), VerticalAlignment.get("bottom"));
         cell3.setTextRotated(true);
         cell3.setFont(PDType1Font.HELVETICA);
         cell3.setFontSize(6);
         
         Row<PDPage> row2 = table.createRow(15f);
-        Cell cell4 = row2.createCell((100/3), "Hello", HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
+        Cell cell4 = row2.createCell((100/3.0f), "Hello", HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
         cell4.setFont(PDType1Font.HELVETICA);
         cell4.setFontSize(6);
         
-        Cell cell5 = row2.createCell((100/3), "can you hear me?", HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+        Cell cell5 = row2.createCell((100/3f), "can you hear me?", HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
         cell5.setTextRotated(true);
         cell5.setFont(PDType1Font.HELVETICA);
         cell5.setFontSize(6);
         
-        Cell cell6 = row2.createCell((100/3), "I'm in California dreaming about who we used to be. When we were younger and free. I've forgotten how it felt before the world fell at our feet", HorizontalAlignment.get("center"), VerticalAlignment.get("bottom"));
+        Cell cell6 = row2.createCell((100/3f), "I'm in California dreaming about who we used to be. When we were younger and free. I've forgotten how it felt before the world fell at our feet", HorizontalAlignment.get("center"), VerticalAlignment.get("bottom"));
         cell6.setFont(PDType1Font.HELVETICA);
         cell6.setFontSize(6);
         table.draw();
