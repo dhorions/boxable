@@ -29,10 +29,10 @@ public class Cell<T extends PDPage> {
 	private boolean isHeaderCell = false;
 
 	// default padding
-	private float leftPadding = 5f;
-	private float rightPadding = 5f;
-	private float topPadding = 5f;
-	private float bottomPadding = 5f;
+	private float leftPadding = 0f;
+	private float rightPadding = 0f;
+	private float topPadding = 0f;
+	private float bottomPadding = 0f;
 
 	// default border
 	private LineStyle leftBorderStyle = new LineStyle(Color.BLACK, 1);
@@ -548,21 +548,7 @@ public class Cell<T extends PDPage> {
 	 * @see {@link #getTextHeight}
 	 */
 	public float getHorizontalFreeSpace() {
-
-		float tw = 0.0f;
-		try {
-			for (final String line : getParagraph().getLines()) {
-				tw = Math.max(tw, getFont().getStringWidth(line.trim()));
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		tw = tw / 1000 * getFontSize();
-		if (isTextRotated()) {
-			return getInnerWidth() - getTextHeight();
-		} else {
-			return getInnerWidth() - tw;
-		}
+		return getInnerWidth() - getParagraph().getMaxLineWidth();
 	}
 
 	public HorizontalAlignment getAlign() {

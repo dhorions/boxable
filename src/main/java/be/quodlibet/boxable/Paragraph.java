@@ -7,11 +7,16 @@ package be.quodlibet.boxable;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
+import be.quodlibet.boxable.text.Token;
+import be.quodlibet.boxable.text.Tokenizer;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
 import be.quodlibet.boxable.utils.PDStreamUtils;
@@ -21,14 +26,19 @@ public class Paragraph {
 	private float width = 500;
 	private String text;
 	private float fontSize;
-	private PDFont font;
+	private PDFont font = PDType1Font.HELVETICA;
+	private PDFont fontBold = PDType1Font.HELVETICA_BOLD;
+	private PDFont fontItalic = PDType1Font.HELVETICA_OBLIQUE;
+	private PDFont fontBoldItalic = PDType1Font.HELVETICA_BOLD_OBLIQUE;
 	private final WrappingFunction wrappingFunction;
 	private HorizontalAlignment align;
 	private TextType textType;
 
 	private Color color;
-
+	
 	private boolean drawDebug;
+	private final Map<Integer, Float> lineWidths = new HashMap<>();
+	private float maxLineWidth;
 	
 	public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align) {
 		this(text, font, fontSize, width, align, null);
@@ -63,36 +73,113 @@ public class Paragraph {
 	}
 
 	public List<String> getLines() {
-		List<String> result = new ArrayList<>();
-
-		String[] split = wrappingFunction.getLines(text);
-
-		int[] possibleWrapPoints = new int[split.length];
-
-		possibleWrapPoints[0] = split[0].length();
-
-		for (int i = 1; i < split.length; i++) {
-			possibleWrapPoints[i] = possibleWrapPoints[i - 1] + split[i].length();
-		}
-
-		int start = 0;
-		int end = 0;
-		for (int i : possibleWrapPoints) {
-			float width = 0;
-			try {
-				width = font.getStringWidth(text.substring(start, i)) / 1000 * fontSize;
-			} catch (IOException e) {
-				throw new IllegalArgumentException(e.getMessage(), e);
+		final List<String> result = new ArrayList<>();
+		final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
+		
+		int lineCounter = 0; 
+		boolean italic = false;
+		boolean bold = false;
+		PDFont currentFont = font;
+		float widthSinceLastWrapPoint = 0.0f;
+		float widthInLine = 0.0f;
+		final StringBuilder textInLine = new StringBuilder();
+		final StringBuilder textSinceLastWrapPoint = new StringBuilder();
+		
+		for (final Token token : tokens) {
+			switch (token.getType()) {
+			case OPEN_TAG:
+				if (isBold(token)) {
+					bold = true;
+					currentFont = getFont(bold, italic);
+				} else if (isItalic(token)) {
+					italic = true;
+					currentFont = getFont(bold, italic);
+				}
+				break;
+			case CLOSE_TAG:
+				if (isBold(token)) {
+					bold = false;
+					currentFont = getFont(bold, italic);
+				} else if (isItalic(token)) {
+					italic = false;
+					currentFont = getFont(bold, italic);
+				}
+				break;
+			case POSSIBLE_WRAP_POINT:
+				if (widthInLine + widthSinceLastWrapPoint > width) {
+					// break
+					result.add(textInLine.toString());
+					lineWidths.put(lineCounter, widthInLine);
+					maxLineWidth = Math.max(maxLineWidth, widthInLine);
+					lineCounter++;
+					
+					textInLine.delete(0, textInLine.length());
+					textInLine.append(textSinceLastWrapPoint);
+					textSinceLastWrapPoint.delete(0, textSinceLastWrapPoint.length());
+					
+					widthInLine = widthSinceLastWrapPoint;
+					widthSinceLastWrapPoint = 0.0f;
+				} else {
+					widthInLine += widthSinceLastWrapPoint;
+					widthSinceLastWrapPoint = 0.0f;
+					
+					textInLine.append(textSinceLastWrapPoint);
+					textSinceLastWrapPoint.delete(0, textSinceLastWrapPoint.length());
+				}
+				break;
+			case WRAP_POINT:
+				// break
+				result.add(textInLine.toString());
+				lineWidths.put(lineCounter, widthInLine);
+				maxLineWidth = Math.max(maxLineWidth, widthInLine);
+				lineCounter++;
+				
+				textInLine.delete(0, textInLine.length());
+				textInLine.append(textSinceLastWrapPoint);
+				textSinceLastWrapPoint.delete(0, textSinceLastWrapPoint.length());
+				
+				widthInLine = widthSinceLastWrapPoint;
+				widthSinceLastWrapPoint = 0.0f;
+				break;
+			case TEXT:
+				textSinceLastWrapPoint.append(token.getData());
+				try {
+					widthSinceLastWrapPoint += (currentFont.getStringWidth(token.getData()) / 1000f * fontSize);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				break;
 			}
-			if (start < end && width > this.width) {
-				result.add(text.substring(start, end));
-				start = end;
-			}
-			end = i;
 		}
-		// Last piece of text
-		result.add(text.substring(start));
+		
+		textInLine.append(textSinceLastWrapPoint);
+		result.add(textInLine.toString());
+		lineWidths.put(lineCounter, widthInLine + widthSinceLastWrapPoint);
+		
 		return result;
+	}
+
+	private boolean isItalic(final Token token) {
+		return "i".equals(token.getData());
+	}
+
+	private boolean isBold(final Token token) {
+		return "b".equals(token.getData());
+	}
+	
+	private PDFont getFont(boolean isBold, boolean isItalic) {
+		if (isBold) {
+			if (isItalic) {
+				return fontBoldItalic;
+			} else {
+				return fontBold;
+			}
+		} else if (isItalic) {
+			return fontItalic;
+		} else {
+			return font;
+		}
 	}
 
 	public float write(final PDPageContentStream stream, float cursorX, float cursorY) {
@@ -246,6 +333,14 @@ public class Paragraph {
 
 	public WrappingFunction getWrappingFunction() {
 		return wrappingFunction;
+	}
+
+	public float getMaxLineWidth() {
+		return maxLineWidth;
+	}
+
+	public float getLineWidth(int key) {
+		return lineWidths.get(key);
 	}
 
 }

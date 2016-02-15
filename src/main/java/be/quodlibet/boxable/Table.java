@@ -325,7 +325,6 @@ public abstract class Table<T extends PDPage> {
 					cursorX += cell.getHorizontalFreeSpace();
 					break;
 				}
-
 				imageCell.getImage().draw(document, tableContentStream, cursorX, cursorY);
 
 			} else {
@@ -422,7 +421,6 @@ public abstract class Table<T extends PDPage> {
 					}
 
 				}
-
 				// remember this horizontal position, as it is the anchor for
 				// each new line
 				float lineStartX = cursorX;

@@ -4,19 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-
 public final class Tokenizer {
 
 	private Tokenizer() {
 	}
-
-	// font settings
-	private static final PDFont font = PDType1Font.HELVETICA;
-	private static final PDFont fontBold = PDType1Font.HELVETICA_BOLD;
-	private static final PDFont fontItalic = PDType1Font.HELVETICA_OBLIQUE;
-	private static final PDFont fontBoldItalic = PDType1Font.HELVETICA_BOLD_OBLIQUE;
 
 	public static List<Token> tokenize(final String text, final WrappingFunction wrappingFunction) {
 		final List<Token> tokens = new ArrayList<>();
@@ -27,7 +18,7 @@ public final class Tokenizer {
 		possibleWrapPoints.push(textIndex);
 		for (int i = split.length - 1; i > 0; i--) {
 			final int splitLength = split[i].length();
-			possibleWrapPoints.push(textIndex - splitLength);
+			possibleWrapPoints.push(textIndex - splitLength - 1);
 			textIndex -= splitLength;
 		}
 
@@ -110,17 +101,4 @@ public final class Tokenizer {
 		return tokens;
 	}
 
-	public static PDFont getFont(boolean isBold, boolean isItalic) {
-		if (isBold) {
-			if (isItalic) {
-				return fontBoldItalic;
-			} else {
-				return fontBold;
-			}
-		} else if (isItalic) {
-			return fontItalic;
-		} else {
-			return font;
-		}
-	}
 }

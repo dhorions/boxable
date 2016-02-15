@@ -20,7 +20,7 @@ public class TokenizerTest {
 		final int[] expected = {2,6,13,15};
 		int index = 0;
 		final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
-//		System.out.println(tokens);
+		System.out.println(tokens);
 		for (final Token token : tokens) {
 			if (TokenType.POSSIBLE_WRAP_POINT.equals(token.getType())) {
 				Assert.assertEquals("Wrap point " + index + " is wrong", "" + expected[index], token.getData());
