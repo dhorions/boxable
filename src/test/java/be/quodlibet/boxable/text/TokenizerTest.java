@@ -1,5 +1,6 @@
 package be.quodlibet.boxable.text;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
@@ -16,11 +17,10 @@ public class TokenizerTest {
 
 	@Test
 	public void testWrapPoints() throws Exception {
-		final String text = "1 123 123456  12";
+		final String text = "1 123 123456 12";
 		final int[] expected = {2,6,13,15};
 		int index = 0;
 		final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
-		System.out.println(tokens);
 		for (final Token token : tokens) {
 			if (TokenType.POSSIBLE_WRAP_POINT.equals(token.getType())) {
 				Assert.assertEquals("Wrap point " + index + " is wrong", "" + expected[index], token.getData());
@@ -34,19 +34,46 @@ public class TokenizerTest {
 	public void testEndsWithLt() throws Exception {
 		final String text = "1 123 123456 12<";
 		final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
+			if (TokenType.CLOSE_TAG.equals(tokens.get(tokens.size()-1).getType())) {
+				Assert.assertEquals("Text doesn't end with '<' charachter", "" + "<", tokens.get(tokens.size()-1).getData());
+		}
 	}
 	
 	@Test
 	public void testSimpleItalic() throws Exception {
 		{
 			final String text = "1 <i>123 123456</i> 12";
+			final StringBuilder italicText = new StringBuilder();
 			final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
-			System.out.println("1. " + tokens);
+			boolean italic = false;
+			for (final Token token : tokens) {
+				if (TokenType.OPEN_TAG.equals(token.getType()) && token.getData().equals("i")) {
+					italic = true;
+				} else if(TokenType.CLOSE_TAG.equals(token.getType()) && token.getData().equals("i")){
+					italic = false;
+				}
+				if(TokenType.TEXT.equals(token.getType()) && italic){
+					italicText.append(token.getData());
+				}
+			}
+			Assert.assertEquals("Italic text is parsed wrong", "123 123456", italicText.toString());
 		}
 		{
 			final String text = "1 <i>123</i> <i> 123456</i> 12";
 			final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
-			System.out.println("2. " + tokens);
+			final StringBuilder italicText = new StringBuilder();
+			boolean italic = false;
+			for (final Token token : tokens) {
+				if (TokenType.OPEN_TAG.equals(token.getType()) && token.getData().equals("i")) {
+					italic = true;
+				} else if(TokenType.CLOSE_TAG.equals(token.getType()) && token.getData().equals("i")){
+					italic = false;
+				}
+				if(TokenType.TEXT.equals(token.getType()) && italic){
+					italicText.append(token.getData());
+				}
+			}
+			Assert.assertEquals("Italic text is parsed wrong", "123 123456", italicText.toString());
 		}
 	}
 	
@@ -55,24 +82,71 @@ public class TokenizerTest {
 		{
 			final String text = "1 <i><b>123</b> 123456</i> 12";
 			final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
-			System.out.println("3. " + tokens);
+			final StringBuilder boldItalicText = new StringBuilder();
+			boolean bold = false;
+			boolean italic = false;
+			for (final Token token : tokens) {
+				if (TokenType.OPEN_TAG.equals(token.getType()) && token.getData().equals("b")) {
+					bold = true;
+				} else if(TokenType.CLOSE_TAG.equals(token.getType()) && token.getData().equals("b")){
+					bold = false;
+				}
+				if (TokenType.OPEN_TAG.equals(token.getType()) && token.getData().equals("i")) {
+					italic = true;
+				} else if(TokenType.CLOSE_TAG.equals(token.getType()) && token.getData().equals("i")){
+					italic = false;
+				}
+				
+				if(TokenType.TEXT.equals(token.getType()) && bold && italic){
+					boldItalicText.append(token.getData());
+				}
+			}
+			Assert.assertEquals("Bold-italic text is parsed wrong", "123", boldItalicText.toString());
 		}
 		{
 			final String text = "1 <i>123</i> <i> <b>123456</i></b> 12";
 			final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
-			System.out.println("4. " + tokens);
+			final StringBuilder boldItalicText = new StringBuilder();
+			boolean bold = false;
+			boolean italic = false;
+			for (final Token token : tokens) {
+				if (TokenType.OPEN_TAG.equals(token.getType()) && token.getData().equals("b")) {
+					bold = true;
+				} else if(TokenType.CLOSE_TAG.equals(token.getType()) && token.getData().equals("b")){
+					bold = false;
+				}
+				if (TokenType.OPEN_TAG.equals(token.getType()) && token.getData().equals("i")) {
+					italic = true;
+				} else if(TokenType.CLOSE_TAG.equals(token.getType()) && token.getData().equals("i")){
+					italic = false;
+				}
+				
+				if(TokenType.TEXT.equals(token.getType()) && bold && italic){
+					boldItalicText.append(token.getData());
+				}
+			}
+			Assert.assertEquals("Bold-italic text is parsed wrong", "123456", boldItalicText.toString());
 		}
 	}
 	
 	@Test
 	public void testEmptyString() throws Exception {
 		// ""
+		{
+			final String text = "";
+			final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
+			for (final Token token : tokens) {
+				if (TokenType.TEXT.equals(token.getType()) && token.getData().equals("")) {
+					Assert.assertEquals("Bold-italic text is parsed wrong", "", token.getData());
+				}
+			}
+		}
 		// null
-		final String text = "";
-		final String textNull = null;
-		final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
-//		final List<Token> tokens2 = Tokenizer.tokenize(textNull, wrappingFunction);
-		System.out.println("5. " + tokens);
-//		System.out.println("6. " + tokens2);
+		{
+			final String textNull = null;
+			final List<Token> tokens = Tokenizer.tokenize(textNull, wrappingFunction);
+			Assert.assertEquals("Bold-italic text is parsed wrong", Collections.emptyList(), tokens);
+		}
+	
 	}
 }
