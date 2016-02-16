@@ -15,6 +15,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
+import be.quodlibet.boxable.text.PipelineLayer;
 import be.quodlibet.boxable.text.Token;
 import be.quodlibet.boxable.text.Tokenizer;
 import be.quodlibet.boxable.text.WrappingFunction;
@@ -80,10 +81,9 @@ public class Paragraph {
 		boolean italic = false;
 		boolean bold = false;
 		PDFont currentFont = font;
-		float widthSinceLastWrapPoint = 0.0f;
-		float widthInLine = 0.0f;
-		final StringBuilder textInLine = new StringBuilder();
-		final StringBuilder textSinceLastWrapPoint = new StringBuilder();
+		
+		final PipelineLayer textInLine = new PipelineLayer();
+		final PipelineLayer sinceLastWrapPoint = new PipelineLayer();
 		
 		for (final Token token : tokens) {
 			switch (token.getType()) {
@@ -106,45 +106,32 @@ public class Paragraph {
 				}
 				break;
 			case POSSIBLE_WRAP_POINT:
-				if (widthInLine + widthSinceLastWrapPoint > width) {
-					// break
-					result.add(textInLine.toString());
-					lineWidths.put(lineCounter, widthInLine);
-					maxLineWidth = Math.max(maxLineWidth, widthInLine);
+				if (textInLine.width() + sinceLastWrapPoint.trimmedWidth() > width) {
+					// this is our line
+					result.add(textInLine.trimmedText());
+					lineWidths.put(lineCounter, textInLine.trimmedWidth());
 					lineCounter++;
+					textInLine.reset();
 					
-					textInLine.delete(0, textInLine.length());
-					textInLine.append(textSinceLastWrapPoint);
-					textSinceLastWrapPoint.delete(0, textSinceLastWrapPoint.length());
-					
-					widthInLine = widthSinceLastWrapPoint;
-					widthSinceLastWrapPoint = 0.0f;
+					// wrapping at last wrap point
+					textInLine.push(sinceLastWrapPoint);
 				} else {
-					widthInLine += widthSinceLastWrapPoint;
-					widthSinceLastWrapPoint = 0.0f;
-					
-					textInLine.append(textSinceLastWrapPoint);
-					textSinceLastWrapPoint.delete(0, textSinceLastWrapPoint.length());
+					textInLine.push(sinceLastWrapPoint);
 				}
 				break;
 			case WRAP_POINT:
-				// break
-				result.add(textInLine.toString());
-				lineWidths.put(lineCounter, widthInLine);
-				maxLineWidth = Math.max(maxLineWidth, widthInLine);
+				// this is our line
+				result.add(textInLine.trimmedText());
+				lineWidths.put(lineCounter, textInLine.trimmedWidth());
 				lineCounter++;
+				textInLine.reset();
 				
-				textInLine.delete(0, textInLine.length());
-				textInLine.append(textSinceLastWrapPoint);
-				textSinceLastWrapPoint.delete(0, textSinceLastWrapPoint.length());
-				
-				widthInLine = widthSinceLastWrapPoint;
-				widthSinceLastWrapPoint = 0.0f;
+				// wrapping at last wrap point
+				textInLine.push(sinceLastWrapPoint);
 				break;
 			case TEXT:
-				textSinceLastWrapPoint.append(token.getData());
 				try {
-					widthSinceLastWrapPoint += (currentFont.getStringWidth(token.getData()) / 1000f * fontSize);
+					sinceLastWrapPoint.push(token.getData(), currentFont, fontSize);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -153,9 +140,10 @@ public class Paragraph {
 			}
 		}
 		
-		textInLine.append(textSinceLastWrapPoint);
-		result.add(textInLine.toString());
-		lineWidths.put(lineCounter, widthInLine + widthSinceLastWrapPoint);
+		if (sinceLastWrapPoint.trimmedWidth() + textInLine.trimmedWidth() > 0) {
+			result.add(textInLine.trimmedText());
+			lineWidths.put(lineCounter, textInLine.trimmedWidth());
+		}
 		
 		return result;
 	}

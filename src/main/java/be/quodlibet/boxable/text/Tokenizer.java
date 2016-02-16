@@ -18,7 +18,7 @@ public final class Tokenizer {
 		possibleWrapPoints.push(textIndex);
 		for (int i = split.length - 1; i > 0; i--) {
 			final int splitLength = split[i].length();
-			possibleWrapPoints.push(textIndex - splitLength - 1);
+			possibleWrapPoints.push(textIndex - splitLength);
 			textIndex -= splitLength;
 		}
 

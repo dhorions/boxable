@@ -140,8 +140,7 @@ public abstract class Table<T extends PDPage> {
 		}
 
 		if (title == null) {
-			// if you don't have title just use the height of maxTextBox in your
-			// "row"
+			// if you don't have title just use the height of maxTextBox in your "row"
 			yStart -= height;
 		} else {
 			PDPageContentStream articleTitle = createPdPageContentStream();

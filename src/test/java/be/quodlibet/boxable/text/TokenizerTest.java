@@ -16,7 +16,7 @@ public class TokenizerTest {
 
 	@Test
 	public void testWrapPoints() throws Exception {
-		final String text = "1 123 123456 12";
+		final String text = "1 123 123456  12";
 		final int[] expected = {2,6,13,15};
 		int index = 0;
 		final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
