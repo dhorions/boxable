@@ -1,5 +1,6 @@
 package be.quodlibet.boxable.text;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,16 +19,22 @@ public class TokenizerTest {
 	@Test
 	public void testWrapPoints() throws Exception {
 		final String text = "1 123 123456 12";
-		final int[] expected = {2,6,13,15};
+		final String[] lines = wrappingFunction.getLines(text);
+		final List<Integer> expected = new ArrayList<>();
+		int pos = 0;
+		for (final String line : lines) {
+			pos += line.length();
+			expected.add(pos);
+		}
 		int index = 0;
 		final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
 		for (final Token token : tokens) {
 			if (TokenType.POSSIBLE_WRAP_POINT.equals(token.getType())) {
-				Assert.assertEquals("Wrap point " + index + " is wrong", "" + expected[index], token.getData());
+				Assert.assertEquals("Wrap point " + index + " is wrong", "" + expected.get(index), token.getData());
 				index++;
 			}
 		}
-		Assert.assertEquals("Not all possible wrap points were defined", index, expected.length);
+		Assert.assertEquals("Not all possible wrap points were defined", index, expected.size());
 	}
 	
 	@Test
@@ -35,7 +42,7 @@ public class TokenizerTest {
 		final String text = "1 123 123456 12<";
 		final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
 			if (TokenType.CLOSE_TAG.equals(tokens.get(tokens.size()-1).getType())) {
-				Assert.assertEquals("Text doesn't end with '<' charachter", "" + "<", tokens.get(tokens.size()-1).getData());
+				Assert.assertEquals("Text doesn't end with '<' character", "<", tokens.get(tokens.size()-1).getData());
 		}
 	}
 	
