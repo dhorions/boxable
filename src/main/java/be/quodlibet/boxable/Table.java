@@ -291,7 +291,44 @@ public abstract class Table<T extends PDPage> {
 		float cursorY;
 
 		for (Cell<T> cell : row.getCells()) {
-			// remember horizontal cursor position, so we can advance to the next cell easily later
+			// no text without font
+			if (cell.getFont() == null) {
+				throw new IllegalArgumentException("Font is null on Cell=" + cell.getText());
+			}
+			// position at top of current cell
+			// descending by font height - font descent, because we are
+			// positioning the base line here
+			cursorY = yStart - cell.getTopPadding() - FontUtils.getHeight(cell.getFont(), cell.getFontSize())
+					- FontUtils.getDescent(cell.getFont(), cell.getFontSize())
+					- (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth());
+			;
+
+			switch (cell.getValign()) {
+			case TOP:
+				break;
+			case MIDDLE:
+				cursorY -= cell.getVerticalFreeSpace() / 2;
+				break;
+			case BOTTOM:
+				cursorY -= cell.getVerticalFreeSpace();
+				break;
+			}
+			
+			if (drawDebug) {
+				// @formatter:off 
+				// top padding
+				PDStreamUtils.rect(tableContentStream, cursorX + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth()), yStart - (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth()), cell.getWidth() - (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth()) - (cell.getRightBorder() == null ? 0 : cell.getRightBorder().getWidth()), cell.getTopPadding(), Color.RED);
+				// bottom padding
+				PDStreamUtils.rect(tableContentStream, cursorX + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth()), yStart - cell.getHeight() +  (cell.getBottomBorder() == null ? 0 : cell.getBottomBorder().getWidth()) + cell.getBottomPadding(), cell.getWidth() - (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth()) - (cell.getRightBorder() == null ? 0 : cell.getRightBorder().getWidth()), cell.getBottomPadding(), Color.RED);
+				// left padding
+				PDStreamUtils.rect(tableContentStream, cursorX + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth()), yStart - (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth()), cell.getLeftPadding(), cell.getHeight() - (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth()) - (cell.getBottomBorder() == null ? 0 : cell.getBottomBorder().getWidth()), Color.RED);
+				// right padding
+				PDStreamUtils.rect(tableContentStream, cursorX + cell.getWidth() - (cell.getRightBorder() == null ? 0 : cell.getRightBorder().getWidth()) , yStart - (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth()), -cell.getRightPadding(), cell.getHeight() - (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth()) - (cell.getBottomBorder() == null ? 0 : cell.getBottomBorder().getWidth()), Color.RED);
+				// @formatter:on 
+			}
+
+			// remember horizontal cursor position, so we can advance to the
+			// next cell easily later
 			float cellStartX = cursorX;
 			if (cell instanceof ImageCell) {
 				final ImageCell<T> imageCell = (ImageCell<T>) cell;
