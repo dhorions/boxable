@@ -39,7 +39,8 @@ public class Paragraph {
 	
 	private boolean drawDebug;
 	private final Map<Integer, Float> lineWidths = new HashMap<>();
-	private float maxLineWidth;
+	private Map<Integer, List<Token>> mapLineTokens = new HashMap<>();
+	private float maxLineWidth = Integer.MIN_VALUE;
 	
 	public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align) {
 		this(text, font, fontSize, width, align, null);
@@ -95,6 +96,7 @@ public class Paragraph {
 					italic = true;
 					currentFont = getFont(bold, italic);
 				}
+				sinceLastWrapPoint.push(token);
 				break;
 			case CLOSE_TAG:
 				if (isBold(token)) {
@@ -104,12 +106,15 @@ public class Paragraph {
 					italic = false;
 					currentFont = getFont(bold, italic);
 				}
+				sinceLastWrapPoint.push(token);
 				break;
 			case POSSIBLE_WRAP_POINT:
 				if (textInLine.width() + sinceLastWrapPoint.trimmedWidth() > width) {
 					// this is our line
 					result.add(textInLine.trimmedText());
 					lineWidths.put(lineCounter, textInLine.trimmedWidth());
+					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+					mapLineTokens.put(lineCounter, textInLine.tokens());
 					lineCounter++;
 					textInLine.reset();
 					
@@ -120,29 +125,43 @@ public class Paragraph {
 				}
 				break;
 			case WRAP_POINT:
+				// wrap at last wrap point?
+				if (textInLine.width() + sinceLastWrapPoint.trimmedWidth() > width) {
+					// this is our line
+					result.add(textInLine.trimmedText());
+					lineWidths.put(lineCounter, textInLine.trimmedWidth());
+					mapLineTokens.put(lineCounter, textInLine.tokens());
+					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+					textInLine.reset();
+					lineCounter++;
+					// wrapping at last wrap point
+					textInLine.push(sinceLastWrapPoint);
+				}
+				// wrapping at this must-have wrap point
+				textInLine.push(sinceLastWrapPoint);
 				// this is our line
 				result.add(textInLine.trimmedText());
-				lineWidths.put(lineCounter, textInLine.trimmedWidth());
-				lineCounter++;
 				textInLine.reset();
-				
-				// wrapping at last wrap point
-				textInLine.push(sinceLastWrapPoint);
+				lineWidths.put(lineCounter, textInLine.trimmedWidth());
+				mapLineTokens.put(lineCounter, textInLine.tokens());
+				lineCounter++;
+				maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 				break;
 			case TEXT:
 				try {
-					sinceLastWrapPoint.push(token.getData(), currentFont, fontSize);
+					sinceLastWrapPoint.push(currentFont, fontSize, token);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				break;
 			}
 		}
-		
 		if (sinceLastWrapPoint.trimmedWidth() + textInLine.trimmedWidth() > 0) {
+			textInLine.push(sinceLastWrapPoint);
 			result.add(textInLine.trimmedText());
 			lineWidths.put(lineCounter, textInLine.trimmedWidth());
+			mapLineTokens.put(lineCounter, textInLine.tokens());
+			maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 		}
 		
 		return result;
@@ -156,7 +175,7 @@ public class Paragraph {
 		return "b".equals(token.getData());
 	}
 	
-	private PDFont getFont(boolean isBold, boolean isItalic) {
+	public PDFont getFont(boolean isBold, boolean isItalic) {
 		if (isBold) {
 			if (isItalic) {
 				return fontBoldItalic;
@@ -329,6 +348,10 @@ public class Paragraph {
 
 	public float getLineWidth(int key) {
 		return lineWidths.get(key);
+	}
+
+	public Map<Integer, List<Token>> getMapLineTokens() {
+		return mapLineTokens;
 	}
 
 }

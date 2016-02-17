@@ -1,6 +1,8 @@
 package be.quodlibet.boxable.text;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.pdfbox.pdmodel.font.PDFont;
@@ -19,6 +21,8 @@ public class PipelineLayer {
 	
 	private String lastTextToken = "";
 	
+	private List<Token> tokens = new ArrayList<>();
+	
 	private String trimmedLastTextToken = "";
 	
 	private float width;
@@ -27,26 +31,30 @@ public class PipelineLayer {
 	
 	private float widthTrimmedLastToken;
 	
-	public void push(final String tokenText, final PDFont font, final float fontSize) throws IOException {
+	public void push(final Token token) {
+		tokens.add(token);
+	}
+	
+	public void push(final PDFont font, final float fontSize, final Token token) throws IOException {
 		text.append(lastTextToken);
 		width += widthLastToken;
-		
-		lastTextToken = tokenText;
+		lastTextToken = token.getData();
 		trimmedLastTextToken = whitespace.matcher(lastTextToken).replaceAll("");
 		widthLastToken = (font.getStringWidth(lastTextToken) / 1000f * fontSize);
 		widthTrimmedLastToken = (font.getStringWidth(trimmedLastTextToken) / 1000f * fontSize);
+		
+		push(token);
 	}
 	
 	public void push(final PipelineLayer pipeline) {
 		text.append(lastTextToken);
 		width += widthLastToken;
-		
 		text.append(pipeline.text);
-		
 		lastTextToken = pipeline.lastTextToken;
 		trimmedLastTextToken = pipeline.trimmedLastTextToken;
 		widthLastToken = pipeline.widthLastToken;
 		widthTrimmedLastToken = pipeline.widthTrimmedLastToken;
+		tokens.addAll(pipeline.tokens);
 		
 		pipeline.reset();
 	}
@@ -58,6 +66,7 @@ public class PipelineLayer {
 		trimmedLastTextToken = "";
 		widthLastToken = 0.0f;
 		widthTrimmedLastToken = 0.0f;
+		tokens.clear();
 	}
 	
 	public String trimmedText() {
@@ -70,6 +79,10 @@ public class PipelineLayer {
 	
 	public float trimmedWidth() {
 		return width + widthTrimmedLastToken;
+	}
+	
+	public List<Token> tokens() {
+		return new ArrayList<>(tokens);
 	}
 	
 	@Override

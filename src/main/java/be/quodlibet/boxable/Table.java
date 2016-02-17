@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -24,6 +25,8 @@ import org.apache.pdfbox.util.Matrix;
 
 import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.page.PageProvider;
+import be.quodlibet.boxable.text.Token;
+import be.quodlibet.boxable.text.Tokenizer;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
 import be.quodlibet.boxable.utils.PDStreamUtils;
@@ -200,6 +203,10 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	private void drawRow(Row<T> row) throws IOException {
+		// if it is not header row or first row in the table then remove row's top border
+		if (row != header && row != rows.get(0)) {
+			row.removeTopBorders();
+		}
 		// draw the bookmark
 		if (row.getBookmark() != null) {
 			PDPageXYZDestination bookmarkDestination = new PDPageXYZDestination();
@@ -313,7 +320,7 @@ public abstract class Table<T extends PDPage> {
 				cursorY -= cell.getVerticalFreeSpace();
 				break;
 			}
-			
+
 			if (drawDebug) {
 				// @formatter:off 
 				// top padding
@@ -455,7 +462,6 @@ public abstract class Table<T extends PDPage> {
 						cursorY -= cell.getVerticalFreeSpace();
 						break;
 					}
-
 				}
 				// remember this horizontal position, as it is the anchor for
 				// each new line
@@ -527,7 +533,6 @@ public abstract class Table<T extends PDPage> {
 					}
 				}
 			}
-
 			// set cursor to the start of this cell plus its width to advance to the next cell
 			cursorX = cellStartX + cell.getWidth();
 		}
@@ -785,7 +790,6 @@ public abstract class Table<T extends PDPage> {
 	public boolean tableIsBroken() {
 		return tableIsBroken;
 	}
-
 	public void setTableIsBroken(boolean tableIsBroken) {
 		this.tableIsBroken = tableIsBroken;
 	}
