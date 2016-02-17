@@ -40,7 +40,7 @@ public class TableTest {
         boolean drawContent = true;
         float yStart = yStartNewPage;
         float bottomMargin = 70;
-        BaseTable table  = new BaseTable(yStart,yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, drawContent);
+        BaseTable table  = new BaseTable(yStart,yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, false, drawContent);
 
         //Create Header row
         Row<PDPage> headerRow = table.createRow(15f);
@@ -170,7 +170,7 @@ public class TableTest {
         boolean drawLines = true;
         float yStart = yStartNewPage;
         float bottomMargin = 70;
-        BaseTable table = new BaseTable(yStart,yStartNewPage,bottomMargin,tableWidth, margin, doc, page, drawLines, drawContent);
+        BaseTable table = new BaseTable(yStart,yStartNewPage,bottomMargin,tableWidth, margin, doc, page, drawLines, drawContent, false);
 
 
         //Create Header row
