@@ -48,6 +48,7 @@ public abstract class Table<T extends PDPage> {
   private boolean canBeSplit = true;
 	private final boolean drawContent;
 	private float headerBottomMargin = 4f;
+  private float lineWidth = 1.0f;
 
 	private boolean tableIsBroken = false;
 
@@ -444,6 +445,7 @@ public abstract class Table<T extends PDPage> {
 
 		this.tableContentStream.setNonStrokingColor(Color.BLACK);
 		this.tableContentStream.setStrokingColor(Color.BLACK);
+    this.tableContentStream.setLineWidth(lineWidth);
 
 		this.tableContentStream.moveTo(xStart, yStart);
 		this.tableContentStream.lineTo(xEnd, yEnd);
@@ -594,5 +596,13 @@ public abstract class Table<T extends PDPage> {
 
   public void setCanBeSplit(boolean canBeSplit) {
     this.canBeSplit = canBeSplit;
+  }
+
+  public float getLineWidth() {
+    return lineWidth;
+  }
+
+  public void setLineWidth(float lineWidth) {
+    this.lineWidth = lineWidth;
   }
 }
