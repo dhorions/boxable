@@ -44,8 +44,11 @@ public abstract class Table<T extends PDPage> {
 	private float yStart;
 	private final float width;
 	private final boolean drawLines;
+  private boolean drawBorder;
+  private boolean canBeSplit = true;
 	private final boolean drawContent;
 	private float headerBottomMargin = 4f;
+  private float lineWidth = 1.0f;
 
 	private boolean tableIsBroken = false;
 
@@ -63,7 +66,7 @@ public abstract class Table<T extends PDPage> {
 	@Deprecated
 	public Table(float yStart, float yStartNewPage, float pageBottomMargin, float width, float margin,
 			PDDocument document, T currentPage, boolean drawLines, boolean drawContent) throws IOException {
-		this(yStart, yStartNewPage, 0, pageBottomMargin, width, margin, document, currentPage, drawLines, drawContent,
+		this(yStart, yStartNewPage, 0, pageBottomMargin, width, margin, document, currentPage, drawLines, drawContent,false,
 				null);
 	}
 
@@ -73,16 +76,23 @@ public abstract class Table<T extends PDPage> {
 	@Deprecated
 	public Table(float yStartNewPage, float pageBottomMargin, float width, float margin, PDDocument document,
 			boolean drawLines, boolean drawContent) throws IOException {
-		this(yStartNewPage, 0, pageBottomMargin, width, margin, document, drawLines, drawContent, null);
+		this(yStartNewPage, 0, pageBottomMargin, width, margin, document, drawLines, drawContent, false, null);
 	}
 
+  public Table(float yStart, float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width,
+               float margin, PDDocument document, T currentPage, boolean drawLines, boolean drawContent,
+               PageProvider<T> pageProvider) throws IOException {
+    this(yStart, yStartNewPage, pageTopMargin, pageBottomMargin, width, margin, document, currentPage, drawLines, drawContent, false, pageProvider);
+  }
+
 	public Table(float yStart, float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width,
-			float margin, PDDocument document, T currentPage, boolean drawLines, boolean drawContent,
-			PageProvider<T> pageProvider) throws IOException {
+                     float margin, PDDocument document, T currentPage, boolean drawLines, boolean drawContent, boolean drawBorder,
+                     PageProvider<T> pageProvider) throws IOException {
 		this.pageTopMargin = pageTopMargin;
 		this.document = document;
 		this.drawLines = drawLines;
 		this.drawContent = drawContent;
+                this.drawBorder = drawBorder;
 		// Initialize table
 		this.yStartNewPage = yStartNewPage;
 		this.margin = margin;
@@ -96,12 +106,13 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	public Table(float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width, float margin,
-			PDDocument document, boolean drawLines, boolean drawContent, PageProvider<T> pageProvider)
+                     PDDocument document, boolean drawLines, boolean drawContent, boolean drawBorder, PageProvider<T> pageProvider)
 					throws IOException {
 		this.pageTopMargin = pageTopMargin;
 		this.document = document;
 		this.drawLines = drawLines;
 		this.drawContent = drawContent;
+                this.drawBorder = drawBorder;
 		// Initialize table
 		this.yStartNewPage = yStartNewPage;
 		this.margin = margin;
@@ -118,7 +129,7 @@ public abstract class Table<T extends PDPage> {
 	protected abstract void loadFonts() throws IOException;
 
 	protected PDType0Font loadFont(String fontPath) throws IOException {
-		return FontUtils.loadFont(getDocument(), fontPath);
+    return FontUtils.loadFont(getDocument(), fontPath);
 	}
 
 	protected PDDocument getDocument() {
@@ -185,7 +196,19 @@ public abstract class Table<T extends PDPage> {
 
 	public float draw() throws IOException {
 		ensureStreamIsOpen();
-		
+
+    if (!canBeSplit) {
+      // verify that all rows fit.
+      float d = 0f;
+      for (Row<T> row: rows) {
+        d = d + row.getHeight();
+      }
+      //double d = rows.stream().collect(Collectors.summingDouble(Row::getHeight));
+      if (isEndOfPage((float)d)) {
+        pageBreak();
+      }
+    }
+
 		for (Row<T> row : rows) {
 			if (row == header) {
 				// check if header row height and first data row height can fit the page
@@ -223,12 +246,10 @@ public abstract class Table<T extends PDPage> {
 			// redraw all headers on each currentPage
 			if (header != null) {
 				drawRow(header);
-			} else {
-				LOGGER.warn("No Header Row Defined.");
 			}
 		}
 
-		if (drawLines) {
+		if (drawLines || drawBorder) {
 			drawVerticalLines(row);
 		}
 
@@ -386,8 +407,13 @@ public abstract class Table<T extends PDPage> {
 		// give an extra margin to the latest cell
 		float xEnd = row.xEnd();
 
-		// Draw Row upper border
-		drawLine("Row Upper Border ", xStart, yStart, xEnd, yStart);
+                if (drawLines) {
+                  // Draw Row upper border
+                  drawLine("Row Upper Border ", xStart, yStart, xEnd, yStart);
+                }
+                else if (drawBorder && (rows.indexOf(row) == 0)) {
+                  drawLine("Row Upper Border ", xStart, yStart, xEnd, yStart);
+                }
 
 		Iterator<Cell<T>> cellIterator = row.getCells().iterator();
 		while (cellIterator.hasNext()) {
@@ -397,8 +423,14 @@ public abstract class Table<T extends PDPage> {
 
 			float yEnd = yStart - row.getHeight();
 
-			// draw the vertical line to separate cells
-			drawLine("Cell Separator ", xStart, yStart, xStart, yEnd);
+                        if (drawLines) {
+                          // draw the vertical line to separate cells
+                          drawLine("Cell Separator ", xStart, yStart, xStart, yEnd);
+                        }
+                        else if (drawBorder && (row.getCells().indexOf(cell) == 0)) {
+                          drawLine("Cell Separator ", xStart, yStart, xStart, yEnd);
+                        }
+                          
 
 			xStart += getWidth(cell, cellIterator);
 		}
@@ -413,6 +445,7 @@ public abstract class Table<T extends PDPage> {
 
 		this.tableContentStream.setNonStrokingColor(Color.BLACK);
 		this.tableContentStream.setStrokingColor(Color.BLACK);
+    this.tableContentStream.setLineWidth(lineWidth);
 
 		this.tableContentStream.moveTo(xStart, yStart);
 		this.tableContentStream.lineTo(xEnd, yEnd);
@@ -457,7 +490,7 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	private void endTable() throws IOException {
-		if (drawLines) {
+          if (drawLines || drawBorder) {
 			// Draw line at bottom
 			drawLine("Row Bottom Border ", this.margin, this.yStart, this.margin + width, this.yStart);
 		}
@@ -474,7 +507,7 @@ public abstract class Table<T extends PDPage> {
 		boolean isEndOfPage = currentY <= pageBottomMargin;
 		if (isEndOfPage) {
 			setTableIsBroken(true);
-			System.out.println("Its end of page. Table row height caused the problem.");
+			//System.out.println("Its end of page. Table row height caused the problem.");
 		}
 
 		// If we are closer than bottom margin, consider this as
@@ -490,7 +523,7 @@ public abstract class Table<T extends PDPage> {
 		boolean isEndOfPage = currentY <= pageBottomMargin;
 		if (isEndOfPage) {
 			setTableIsBroken(true);
-			System.out.println("Its end of the page. Table title caused this problem.");
+			//System.out.println("Its end of the page. Table title caused this problem.");
 		}
 		return isEndOfPage;
 	}
@@ -517,9 +550,6 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	public Row<T> getHeader() {
-		if (header == null) {
-			throw new IllegalArgumentException("Header Row not set on table");
-		}
 		return header;
 	}
 
@@ -539,6 +569,14 @@ public abstract class Table<T extends PDPage> {
 		this.drawDebug = drawDebug;
 	}
 
+	public boolean isDrawBorder() {
+		return drawBorder;
+	}
+
+	public void setDrawBorder(boolean drawBorder) {
+          this.drawBorder = drawBorder;
+	}
+  
 	public boolean tableIsBroken() {
 		return tableIsBroken;
 	}
@@ -552,4 +590,19 @@ public abstract class Table<T extends PDPage> {
 		this.tableIsBroken = tableIsBroken;
 	}
 
+  public boolean isCanBeSplit() {
+    return canBeSplit;
+  }
+
+  public void setCanBeSplit(boolean canBeSplit) {
+    this.canBeSplit = canBeSplit;
+  }
+
+  public float getLineWidth() {
+    return lineWidth;
+  }
+
+  public void setLineWidth(float lineWidth) {
+    this.lineWidth = lineWidth;
+  }
 }

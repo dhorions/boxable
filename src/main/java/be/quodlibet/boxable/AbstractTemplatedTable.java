@@ -27,7 +27,7 @@ public abstract class AbstractTemplatedTable<T extends AbstractPageTemplate> ext
     }
 
     public AbstractTemplatedTable(float yStartNewPage, float bottomMargin, float width, float margin, PDDocument document, boolean drawLines, boolean drawContent, PageProvider<T> pageProvider) throws IOException {
-        super(yStartNewPage, 0, bottomMargin, width, margin, document, drawLines, drawContent, pageProvider);
+        super(yStartNewPage, 0, bottomMargin, width, margin, document, drawLines, drawContent, false, pageProvider);
         setYStart(getCurrentPage().yStart());
     }
 
