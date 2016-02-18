@@ -143,9 +143,9 @@ public class Paragraph {
 				result.add(textInLine.trimmedText());
 				lineWidths.put(lineCounter, textInLine.trimmedWidth());
 				mapLineTokens.put(lineCounter, textInLine.tokens());
+				maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 				textInLine.reset();
 				lineCounter++;
-				maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 				break;
 			case TEXT:
 				try {
