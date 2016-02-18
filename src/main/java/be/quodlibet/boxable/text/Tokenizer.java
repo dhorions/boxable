@@ -61,6 +61,21 @@ public final class Tokenizer {
 							}
 							tokens.add(new Token(TokenType.OPEN_TAG, "b"));
 							textIndex += 2;
+						}  else if ('b' == lookahead1 && 'r' == lookahead2) {
+							final char lookahead3 = text.charAt(textIndex + 3);
+							final char lookahead4 = text.charAt(textIndex + 4);
+							if ((lookahead3 == '/' && lookahead4 == '>') || lookahead3 == '>'){
+								if (sb.length() > 0) {
+									tokens.add(new Token(TokenType.TEXT, sb.toString()));
+									// clean string builder
+									sb.delete(0, sb.length());
+								}
+								tokens.add(new Token(TokenType.WRAP_POINT, "br"));
+								textIndex +=3;
+								if(lookahead3 == '/'){
+									textIndex++;
+								}
+							}
 						} else if ('/' == lookahead1) {
 							// it's closing tag
 							if (textIndex < text.length() - 3) {
