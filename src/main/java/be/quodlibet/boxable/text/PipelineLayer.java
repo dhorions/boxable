@@ -31,6 +31,8 @@ public class PipelineLayer {
 	
 	private float widthTrimmedLastToken;
 	
+	private float widthCurrentText;
+	
 	public void push(final Token token) {
 		tokens.add(token);
 	}
@@ -42,6 +44,7 @@ public class PipelineLayer {
 		trimmedLastTextToken = whitespace.matcher(lastTextToken).replaceAll("");
 		widthLastToken = (font.getStringWidth(lastTextToken) / 1000f * fontSize);
 		widthTrimmedLastToken = (font.getStringWidth(trimmedLastTextToken) / 1000f * fontSize);
+		widthCurrentText = (font.getStringWidth(text.toString()) / 1000f * fontSize);
 		
 		push(token);
 	}
@@ -50,6 +53,9 @@ public class PipelineLayer {
 		text.append(lastTextToken);
 		width += widthLastToken;
 		text.append(pipeline.text);
+		if(pipeline.text.length()>0){
+			width += pipeline.widthCurrentText;
+		}
 		lastTextToken = pipeline.lastTextToken;
 		trimmedLastTextToken = pipeline.trimmedLastTextToken;
 		widthLastToken = pipeline.widthLastToken;
