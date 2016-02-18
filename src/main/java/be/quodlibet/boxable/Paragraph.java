@@ -141,9 +141,9 @@ public class Paragraph {
 				textInLine.push(sinceLastWrapPoint);
 				// this is our line
 				result.add(textInLine.trimmedText());
-				textInLine.reset();
 				lineWidths.put(lineCounter, textInLine.trimmedWidth());
 				mapLineTokens.put(lineCounter, textInLine.tokens());
+				textInLine.reset();
 				lineCounter++;
 				maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 				break;
