@@ -102,11 +102,28 @@ public class Paragraph {
 				if (isBold(token)) {
 					bold = false;
 					currentFont = getFont(bold, italic);
+					sinceLastWrapPoint.push(token);
 				} else if (isItalic(token)) {
 					italic = false;
 					currentFont = getFont(bold, italic);
+					sinceLastWrapPoint.push(token);
+				} else if("p".equals(token.getData())){
+					// store your text before closing p tag
+					textInLine.push(sinceLastWrapPoint);
+					// this is our line
+					result.add(textInLine.trimmedText());
+					lineWidths.put(lineCounter, textInLine.trimmedWidth());
+					mapLineTokens.put(lineCounter, textInLine.tokens());
+					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+					textInLine.reset();
+					lineCounter++;
+					// extra spacing after closing p tag
+					result.add(" "); 
+					lineWidths.put(lineCounter, 0.0f);
+					mapLineTokens.put(lineCounter, new ArrayList<Token>());
+					lineCounter++;
 				}
-				sinceLastWrapPoint.push(token);
+				
 				break;
 			case POSSIBLE_WRAP_POINT:
 				if (textInLine.width() + sinceLastWrapPoint.trimmedWidth() > width) {
@@ -146,6 +163,13 @@ public class Paragraph {
 				maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 				textInLine.reset();
 				lineCounter++;
+				if("p".equals(token.getData())){
+					// extra spacing
+					result.add(" "); 
+					lineWidths.put(lineCounter, 0.0f);
+					mapLineTokens.put(lineCounter, new ArrayList<Token>());
+					lineCounter++;
+				}
 				break;
 			case TEXT:
 				try {
