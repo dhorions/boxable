@@ -184,7 +184,7 @@ public final class Tokenizer {
 											tokens.add(new Token(TokenType.TEXT, sb.toString()));
 											sb.delete(0, sb.length());
 										}
-										tokens.add(new Token(TokenType.WRAP_POINT, "li"));
+										tokens.add(new Token(TokenType.CLOSE_TAG, "li"));
 										textIndex += 4;
 									}
 								}
