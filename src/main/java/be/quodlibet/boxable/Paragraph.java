@@ -17,6 +17,7 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 import be.quodlibet.boxable.text.PipelineLayer;
 import be.quodlibet.boxable.text.Token;
+import be.quodlibet.boxable.text.TokenType;
 import be.quodlibet.boxable.text.Tokenizer;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
@@ -34,14 +35,16 @@ public class Paragraph {
 	private final WrappingFunction wrappingFunction;
 	private HorizontalAlignment align;
 	private TextType textType;
-
 	private Color color;
-	
+
+	private final static int DEFAULT_TAB = 4;
+	private final static int DEFAULT_TAB_AND_BULLET = 6;
+
 	private boolean drawDebug;
 	private final Map<Integer, Float> lineWidths = new HashMap<>();
 	private Map<Integer, List<Token>> mapLineTokens = new HashMap<>();
 	private float maxLineWidth = Integer.MIN_VALUE;
-	
+
 	public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align) {
 		this(text, font, fontSize, width, align, null);
 	}
@@ -77,15 +80,16 @@ public class Paragraph {
 	public List<String> getLines() {
 		final List<String> result = new ArrayList<>();
 		final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
-		
-		int lineCounter = 0; 
+
+		int lineCounter = 0;
 		boolean italic = false;
 		boolean bold = false;
+		boolean listElement = false;
 		PDFont currentFont = font;
-		
+
 		final PipelineLayer textInLine = new PipelineLayer();
 		final PipelineLayer sinceLastWrapPoint = new PipelineLayer();
-		
+
 		for (final Token token : tokens) {
 			switch (token.getType()) {
 			case OPEN_TAG:
@@ -95,6 +99,16 @@ public class Paragraph {
 				} else if (isItalic(token)) {
 					italic = true;
 					currentFont = getFont(bold, italic);
+				} else if (isList(token)) {
+					// store your text before this closing tag
+					textInLine.push(sinceLastWrapPoint);
+					// this is our line
+					result.add(textInLine.trimmedText());
+					lineWidths.put(lineCounter, textInLine.trimmedWidth());
+					mapLineTokens.put(lineCounter, textInLine.tokens());
+					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+					textInLine.reset();
+					lineCounter++;
 				}
 				sinceLastWrapPoint.push(token);
 				break;
@@ -107,8 +121,8 @@ public class Paragraph {
 					italic = false;
 					currentFont = getFont(bold, italic);
 					sinceLastWrapPoint.push(token);
-				} else if("p".equals(token.getData())){
-					// store your text before closing p tag
+				} else if (isParagraph(token) || isList(token)) {
+					// store your text before this closing tag
 					textInLine.push(sinceLastWrapPoint);
 					// this is our line
 					result.add(textInLine.trimmedText());
@@ -117,13 +131,14 @@ public class Paragraph {
 					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 					textInLine.reset();
 					lineCounter++;
-					// extra spacing after closing p tag
-					result.add(" "); 
+					// add extra spacing
+					result.add(" ");
 					lineWidths.put(lineCounter, 0.0f);
 					mapLineTokens.put(lineCounter, new ArrayList<Token>());
 					lineCounter++;
+				} else if (isListElement(token)) {
+					listElement = false;
 				}
-				
 				break;
 			case POSSIBLE_WRAP_POINT:
 				if (textInLine.width() + sinceLastWrapPoint.trimmedWidth() > width) {
@@ -134,8 +149,10 @@ public class Paragraph {
 					mapLineTokens.put(lineCounter, textInLine.tokens());
 					lineCounter++;
 					textInLine.reset();
-					
 					// wrapping at last wrap point
+					if(listElement){
+						textInLine.push(new Token(TokenType.PADDING, indentLevel(DEFAULT_TAB_AND_BULLET)));
+					}
 					textInLine.push(sinceLastWrapPoint);
 				} else {
 					textInLine.push(sinceLastWrapPoint);
@@ -152,6 +169,9 @@ public class Paragraph {
 					textInLine.reset();
 					lineCounter++;
 					// wrapping at last wrap point
+					if(listElement){
+						textInLine.push(new Token(TokenType.PADDING, indentLevel(DEFAULT_TAB_AND_BULLET)));
+					}
 					textInLine.push(sinceLastWrapPoint);
 				}
 				// wrapping at this must-have wrap point
@@ -163,12 +183,21 @@ public class Paragraph {
 				maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 				textInLine.reset();
 				lineCounter++;
-				if("p".equals(token.getData())){
-					// extra spacing
-					result.add(" "); 
+				if (isParagraph(token)) {
+					// extra spacing because it's a paragraph
+					result.add(" ");
 					lineWidths.put(lineCounter, 0.0f);
 					mapLineTokens.put(lineCounter, new ArrayList<Token>());
 					lineCounter++;
+				} else if(isListElement(token)){
+					listElement = true;
+					// token padding, token bullet
+					try {
+						sinceLastWrapPoint.push(currentFont, fontSize, new Token(TokenType.PADDING, indentLevel(DEFAULT_TAB)));
+						sinceLastWrapPoint.push(currentFont, fontSize, new Token(TokenType.BULLET, " "));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 				break;
 			case TEXT:
@@ -187,7 +216,7 @@ public class Paragraph {
 			mapLineTokens.put(lineCounter, textInLine.tokens());
 			maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 		}
-		
+
 		return result;
 	}
 
@@ -199,6 +228,33 @@ public class Paragraph {
 		return "b".equals(token.getData());
 	}
 	
+	private boolean isParagraph(final Token token) {
+		return "p".equals(token.getData());
+	}
+	
+	private boolean isListElement(final Token token) {
+		return "li".equals(token.getData());
+	}
+	
+	private boolean isList(final Token token) {
+		return "ul".equals(token.getData()) || "ol".equals(token.getData()) ;
+	}
+	
+	private static String indentLevel(int numberOfSpaces)
+	{
+	    //String builder is efficient at concatenating strings together
+	    StringBuilder sb = new StringBuilder();
+
+	    //Loop as many times as specified; each time add a space to the string
+	    for(int i=0; i < numberOfSpaces; i++)
+	    {
+	        sb.append(" ");
+	    }
+
+	    //Return the string
+	    return sb.toString();
+	}
+
 	public PDFont getFont(boolean isBold, boolean isItalic) {
 		if (isBold) {
 			if (isItalic) {
@@ -341,10 +397,10 @@ public class Paragraph {
 	public float getFontSize() {
 		return fontSize;
 	}
-	
+
 	public PDFont getFont() {
-        return font;
-    }
+		return font;
+	}
 
 	public HorizontalAlignment getAlign() {
 		return align;
