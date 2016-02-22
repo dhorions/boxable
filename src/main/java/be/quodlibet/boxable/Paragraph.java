@@ -86,6 +86,8 @@ public class Paragraph {
 		boolean bold = false;
 		boolean listElement = false;
 		PDFont currentFont = font;
+		int orderListElement = 1;
+		boolean orderList = false;
 
 		final PipelineLayer textInLine = new PipelineLayer();
 		final PipelineLayer sinceLastWrapPoint = new PipelineLayer();
@@ -100,7 +102,9 @@ public class Paragraph {
 					italic = true;
 					currentFont = getFont(bold, italic);
 				} else if (isList(token)) {
-					// store your text before this closing tag
+					if(token.getData().equals("ol")){
+						orderList = true;
+					}
 					textInLine.push(sinceLastWrapPoint);
 					// this is our line
 					result.add(textInLine.trimmedText());
@@ -122,6 +126,11 @@ public class Paragraph {
 					currentFont = getFont(bold, italic);
 					sinceLastWrapPoint.push(token);
 				} else if (isParagraph(token) || isList(token)) {
+					if(token.getData().equals("ol")){
+						orderList = false;
+						// reset elements
+						orderListElement = 1;
+					}
 					// store your text before this closing tag
 					textInLine.push(sinceLastWrapPoint);
 					// this is our line
@@ -136,8 +145,6 @@ public class Paragraph {
 					lineWidths.put(lineCounter, 0.0f);
 					mapLineTokens.put(lineCounter, new ArrayList<Token>());
 					lineCounter++;
-				} else if (isListElement(token)) {
-					listElement = false;
 				}
 				break;
 			case POSSIBLE_WRAP_POINT:
@@ -151,7 +158,24 @@ public class Paragraph {
 					textInLine.reset();
 					// wrapping at last wrap point
 					if(listElement){
-						textInLine.push(new Token(TokenType.PADDING, indentLevel(DEFAULT_TAB_AND_BULLET)));
+						if(orderList){
+							String orderingNumber= String.valueOf(orderListElement) + ". ";
+							String tab = String.valueOf(indentLevel(DEFAULT_TAB));
+							String orderingNumberAndTab = orderingNumber + tab;
+							try {
+								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING, String.valueOf(font.getStringWidth(orderingNumberAndTab) / 1000 * getFontSize())));
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						} else {
+							try {
+								String tabBullet = indentLevel(DEFAULT_TAB_AND_BULLET);
+								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING, String.valueOf(font.getStringWidth(tabBullet) / 1000 * getFontSize())));
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
 					}
 					textInLine.push(sinceLastWrapPoint);
 				} else {
@@ -170,7 +194,24 @@ public class Paragraph {
 					lineCounter++;
 					// wrapping at last wrap point
 					if(listElement){
-						textInLine.push(new Token(TokenType.PADDING, indentLevel(DEFAULT_TAB_AND_BULLET)));
+						if(orderList){
+							String orderingNumber= String.valueOf(orderListElement) + ". ";
+							String tab = String.valueOf(indentLevel(DEFAULT_TAB));
+							String orderingNumberAndTab = orderingNumber + tab;
+							try {
+								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING, String.valueOf(font.getStringWidth(orderingNumberAndTab) / 1000 * getFontSize())));
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						} else {
+							try {
+								// tab + bullet
+								String tabBullet = indentLevel(DEFAULT_TAB_AND_BULLET);
+								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING, String.valueOf(font.getStringWidth(tabBullet) / 1000 * getFontSize())));
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
 					}
 					textInLine.push(sinceLastWrapPoint);
 				}
@@ -193,8 +234,18 @@ public class Paragraph {
 					listElement = true;
 					// token padding, token bullet
 					try {
-						sinceLastWrapPoint.push(currentFont, fontSize, new Token(TokenType.PADDING, indentLevel(DEFAULT_TAB)));
-						sinceLastWrapPoint.push(currentFont, fontSize, new Token(TokenType.BULLET, " "));
+						// you always go one tab ahead
+						String tab = indentLevel(DEFAULT_TAB);
+						sinceLastWrapPoint.push(currentFont, fontSize, new Token(TokenType.PADDING, String.valueOf(font.getStringWidth(tab) / 1000 * getFontSize())));
+						if(orderList){
+							// if it's ordering list then move depending on your: ordering number + ". "
+							String orderingNumber= String.valueOf(orderListElement) + ". ";
+							sinceLastWrapPoint.push(currentFont, fontSize, new Token(TokenType.ORDERING, orderingNumber));
+							orderListElement++;
+						} else {
+							// if it's unordered list then just move by bullet character
+							sinceLastWrapPoint.push(currentFont, fontSize, new Token(TokenType.BULLET, " "));
+						}
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
