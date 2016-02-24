@@ -39,7 +39,6 @@ public class PipelineLayer {
 	
 	public void push(final PDFont font, final float fontSize, final Token token) throws IOException {
 		if(token.getType().equals(TokenType.PADDING)){
-//			text.append(token.getData());
 			width += Float.parseFloat(token.getData());
 		}
 		if(token.getType().equals(TokenType.BULLET)){
