@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -25,7 +24,6 @@ import org.apache.pdfbox.util.Matrix;
 
 import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.page.PageProvider;
-import be.quodlibet.boxable.text.Token;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
 import be.quodlibet.boxable.utils.PDStreamUtils;
@@ -39,7 +37,6 @@ public abstract class Table<T extends PDPage> {
 	private PDPageContentStream tableContentStream;
 	private List<PDOutlineItem> bookmarks;
 	private List<Row<T>> header = new ArrayList<>();
-	private boolean removeTopBorders = false;
 	private List<Row<T>> rows = new ArrayList<>();
 
 	private final float yStartNewPage;
@@ -50,6 +47,7 @@ public abstract class Table<T extends PDPage> {
 	private float headerBottomMargin = 4f;
 
 	private boolean tableIsBroken = false;
+	private boolean removeTopBorders = false;
 
 	private PageProvider<T> pageProvider;
 
@@ -240,6 +238,15 @@ public abstract class Table<T extends PDPage> {
 		}
 		// if it is first row in the table, we have to draw the top border
 		if (row == rows.get(0)) {
+			removeTopBorders = false;
+		}
+
+		if (removeTopBorders) {
+			row.removeTopBorders();
+		}
+
+		// if it is header row or first row in the table, we have to draw the top border
+		if (row == header || row == rows.get(0)) {
 			removeTopBorders = false;
 		}
 
