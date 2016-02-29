@@ -47,6 +47,7 @@ public abstract class Table<T extends PDPage> {
 	private float headerBottomMargin = 4f;
 
 	private boolean tableIsBroken = false;
+	private boolean tableStartedAtNewPage = false;
 	private boolean removeTopBorders = false;
 
 	private PageProvider<T> pageProvider;
@@ -137,6 +138,7 @@ public abstract class Table<T extends PDPage> {
 		if (isEndOfPage(freeSpaceForPageBreak)) {
 			this.tableContentStream.close();
 			pageBreak();
+			tableStartedAtNewPage = true;
 		}
 
 		if (title == null) {
@@ -190,6 +192,7 @@ public abstract class Table<T extends PDPage> {
 				// if not draw them on another side
 				if (isEndOfPage(getMinimumHeight())) {
 					pageBreak();
+					tableStartedAtNewPage = true;
 				}
 			}
 			drawRow(row);
