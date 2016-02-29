@@ -273,4 +273,17 @@ public class Cell<T extends PDPage> {
 		return fontBold;
 	}
 
+	/**
+	 * <p>
+	 * Sets the {@linkplain PDFont font} used for bold text, for example in
+	 * {@linkplain #isHeaderCell() header cells}.
+	 * </p>
+	 * 
+	 * @param fontBold
+	 *            The {@linkplain PDFont font} to use for bold text
+	 */
+	public void setFontBold(final PDFont fontBold) {
+		this.fontBold = fontBold;
+	}
+
 }
