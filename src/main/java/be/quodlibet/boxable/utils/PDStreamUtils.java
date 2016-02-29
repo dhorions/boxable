@@ -6,6 +6,8 @@ import java.io.IOException;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 
+import be.quodlibet.boxable.line.LineStyle;
+
 /**
  * <p>
  * Utility methods for {@link PDPageContentStream}
@@ -22,15 +24,18 @@ public final class PDStreamUtils {
 
 	/**
 	 * <p>
-	 * Provides ability to write on a {@link PDPageContentStream}. The text will be written above Y coordinate.
+	 * Provides ability to write on a {@link PDPageContentStream}. The text will
+	 * be written above Y coordinate.
 	 * </p>
 	 * 
 	 * @param stream
 	 *            The {@link PDPageContentStream} where writing will be applied.
 	 * @param text
 	 *            The text which will be displayed.
-	 * @param font The font of the text
-	 * @param fontSize The font size of the text
+	 * @param font
+	 *            The font of the text
+	 * @param fontSize
+	 *            The font size of the text
 	 * @param x
 	 *            Start X coordinate for text.
 	 * @param y
@@ -86,13 +91,56 @@ public final class PDStreamUtils {
 			throw new IllegalStateException("Unable to draw rectangle", e);
 		}
 	}
-	
-	public static void rectFontMetrics(final PDPageContentStream stream, final float x, final float y, final PDFont font, final float fontSize) {
+
+	/**
+	 * <p>
+	 * Provides ability to draw font metrics (font height, font ascent, font
+	 * descent).
+	 * </p>
+	 * 
+	 * @param stream
+	 *            The {@link PDPageContentStream} where drawing will be applied.
+	 * @param x
+	 *            Start X coordinate for rectangle.
+	 * @param y
+	 *            Start Y coordinate for rectangle.
+	 * @param font
+	 *            {@link PDFont} from which will be obtained font metrics
+	 * @param fontSize
+	 *            Font size
+	 */
+	public static void rectFontMetrics(final PDPageContentStream stream, final float x, final float y,
+			final PDFont font, final float fontSize) {
 		// height
 		PDStreamUtils.rect(stream, x, y, 3, FontUtils.getHeight(font, fontSize), Color.BLUE);
 		// ascent
-		PDStreamUtils.rect(stream, x+3, y, 3, FontUtils.getAscent(font, fontSize), Color.CYAN);
+		PDStreamUtils.rect(stream, x + 3, y, 3, FontUtils.getAscent(font, fontSize), Color.CYAN);
 		// descent
-		PDStreamUtils.rect(stream, x+3, y - FontUtils.getHeight(font, fontSize), 3, FontUtils.getDescent(font, 14), Color.GREEN);
+		PDStreamUtils.rect(stream, x + 3, y - FontUtils.getHeight(font, fontSize), 3, FontUtils.getDescent(font, 14),
+				Color.GREEN);
+	}
+
+	/**
+	 * <p>
+	 * Provides ability to set different line styles (line width, dotted line,
+	 * dashed line)
+	 * </p>
+	 * 
+	 * @param stream
+	 *            The {@link PDPageContentStream} where drawing will be applied.
+	 * @param line
+	 *            The {@link LineStyle} that would be applied
+	 * @throws IOException
+	 */
+	public static void setLineStyles(final PDPageContentStream stream, final LineStyle line) throws IOException {
+		stream.setNonStrokingColor(line.getColor());
+		stream.setStrokingColor(line.getColor());
+		stream.setLineWidth(line.getWidth());
+		stream.setLineCapStyle(0);
+		if (line.getDashArray() != null) {
+			stream.setLineDashPattern(line.getDashArray(), line.getDashPhase());
+		} else {
+			stream.setLineDashPattern(new float[] {}, 0.0f);
+		}
 	}
 }

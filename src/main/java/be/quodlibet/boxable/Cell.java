@@ -11,6 +11,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
+import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.text.WrappingFunction;
 
 public class Cell<T extends PDPage> {
@@ -33,6 +34,12 @@ public class Cell<T extends PDPage> {
 	private float rightPadding = 5f;
 	private float topPadding = 5f;
 	private float bottomPadding = 5f;
+
+	// default border
+	private LineStyle leftBorderStyle = new LineStyle(Color.BLACK, 1);
+	private LineStyle rightBorderStyle = new LineStyle(Color.BLACK, 1);
+	private LineStyle topBorderStyle = new LineStyle(Color.BLACK, 1);
+	private LineStyle bottomBorderStyle = new LineStyle(Color.BLACK, 1);
 
 	private Paragraph paragraph = null;
 
@@ -121,11 +128,13 @@ public class Cell<T extends PDPage> {
 	}
 
 	public float getInnerWidth() {
-		return getWidth() - getLeftPadding() - getRightPadding();
+		return getWidth() - getLeftPadding() - getRightPadding() - (leftBorderStyle == null ? 0 : leftBorderStyle.getWidth())
+				- (rightBorderStyle == null ? 0 : rightBorderStyle.getWidth());
 	}
 
 	public float getInnerHeight() {
-		return getHeight() - getBottomPadding() - getTopPadding();
+		return getHeight() - getBottomPadding() - getTopPadding() - (topBorderStyle == null ? 0 : topBorderStyle.getWidth())
+				- (bottomBorderStyle == null ? 0 : bottomBorderStyle.getWidth());
 	}
 
 	public String getText() {
@@ -273,4 +282,46 @@ public class Cell<T extends PDPage> {
 		return fontBold;
 	}
 
+	public void setFontBold(final PDFont fontBold) {
+		this.fontBold = fontBold;
+	}
+
+	public LineStyle getLeftBorder() {
+		return leftBorderStyle;
+	}
+
+	public LineStyle getRightBorder() {
+		return rightBorderStyle;
+	}
+
+	public LineStyle getTopBorder() {
+		return topBorderStyle;
+	}
+
+	public LineStyle getBottomBorder() {
+		return bottomBorderStyle;
+	}
+
+	public void setLeftBorderStyle(LineStyle leftBorder) {
+		this.leftBorderStyle = leftBorder;
+	}
+
+	public void setRightBorderStyle(LineStyle rightBorder) {
+		this.rightBorderStyle = rightBorder;
+	}
+
+	public void setTopBorderStyle(LineStyle topBorder) {
+		this.topBorderStyle = topBorder;
+	}
+
+	public void setBottomBorderStyle(LineStyle bottomBorder) {
+		this.bottomBorderStyle = bottomBorder;
+	}
+
+	public void setBorderStyle(LineStyle border) {
+		this.leftBorderStyle = border;
+		this.rightBorderStyle = border;
+		this.topBorderStyle = border;
+		this.bottomBorderStyle = border;
+	}
 }
