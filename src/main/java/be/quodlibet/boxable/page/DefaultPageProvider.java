@@ -5,9 +5,12 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 
 public class DefaultPageProvider implements PageProvider<PDPage> {
-	
+
 	private final PDDocument document;
+
 	private final PDRectangle size;
+
+	private int currentPageIndex = -1;
 
 	public DefaultPageProvider(final PDDocument document, final PDRectangle size) {
 		this.document = document;
@@ -15,15 +18,41 @@ public class DefaultPageProvider implements PageProvider<PDPage> {
 	}
 
 	@Override
-	public PDPage createPage() {
-		final PDPage newPage = new PDPage(size);
-        document.addPage(newPage);
-        return newPage;
+	public PDDocument getDocument() {
+		return document;
 	}
 
 	@Override
-	public PDDocument getDocument() {
-		return document;
+	public PDPage createPage() {
+		currentPageIndex = document.getNumberOfPages();
+		return getCurrentPage();
+	}
+
+	@Override
+	public PDPage nextPage() {
+		currentPageIndex++;
+
+		return getCurrentPage();
+	}
+
+	@Override
+	public PDPage previousPage() {
+		currentPageIndex--;
+		if (currentPageIndex < 0) {
+			currentPageIndex = 0;
+		}
+
+		return getCurrentPage();
+	}
+
+	private PDPage getCurrentPage() {
+		if (currentPageIndex >= document.getNumberOfPages()) {
+			final PDPage newPage = new PDPage(size);
+			document.addPage(newPage);
+			return newPage;
+		}
+
+		return document.getPage(currentPageIndex);
 	}
 
 }

@@ -111,7 +111,7 @@ public abstract class Table<T extends PDPage> {
 
 		// Fonts needs to be loaded before page creation
 		loadFonts();
-		this.currentPage = pageProvider.createPage();
+		this.currentPage = pageProvider.nextPage();
 	}
 
 	protected abstract void loadFonts() throws IOException;
@@ -279,7 +279,7 @@ public abstract class Table<T extends PDPage> {
 	 */
 	private T createNewPage() {
 		if (pageProvider != null) {
-			return pageProvider.createPage();
+			return pageProvider.nextPage();
 		}
 
 		return createPage();
