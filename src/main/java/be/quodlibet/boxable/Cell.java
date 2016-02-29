@@ -282,6 +282,10 @@ public class Cell<T extends PDPage> {
 		return fontBold;
 	}
 
+	public void setFontBold(final PDFont fontBold) {
+		this.fontBold = fontBold;
+	}
+
 	public LineStyle getLeftBorder() {
 		return leftBorderStyle;
 	}
