@@ -9,7 +9,7 @@ public enum VerticalAlignment {
 			return TOP;
 		case "middle":
 			return MIDDLE;
-		case "BOTTOM":
+		case "bottom":
 			return BOTTOM;
 			default:
 				return TOP;
