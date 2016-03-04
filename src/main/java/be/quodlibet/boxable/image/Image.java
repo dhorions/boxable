@@ -23,7 +23,8 @@ public class Image {
 
 	private float height;
 
-	private float[] dpi;
+	// standard DPI
+	private float[] dpi = {72,72};
 	
 	/**
 	 * <p>
@@ -36,8 +37,8 @@ public class Image {
 	 */
 	public Image(final BufferedImage image) {
 		this.image = image;
-		width = image.getWidth();
-		height = image.getHeight();
+		this.width = image.getWidth();
+		this.height = image.getHeight();
 	}
 	
 	public Image(final BufferedImage image, float dpi) {
@@ -45,13 +46,10 @@ public class Image {
 	}
 	
 	public Image(final BufferedImage image, float dpiX, float dpiY) {
-		this.image = image;
-		width = image.getWidth();
-		height = image.getHeight();
+		this(image);
 		this.dpi[0] = dpiX;
 		this.dpi[1] = dpiY;
 	}
-
 
 	/**
 	 * <p>
@@ -85,11 +83,17 @@ public class Image {
 		float factorWidth = width / this.width;
 		return scale(width, this.height * factorWidth);
 	}
+	
+	public Image scaleImageFromPixelToPoints() {
+		float dpiX = dpi[0];
+		float dpiY = dpi[1];
+		return scale(getImageWidthInPoints(dpiX),getImageHeightInPoints(dpiY));
+	}
 
 	/**
 	 * <p>
 	 * Method which scale {@link Image} with designated height
-	 * </p>
+	 * 
 	 * @param width
 	 *            Maximal height where {@link Image} needs to be scaled
 	 * @return Scaled {@link Image}
@@ -98,11 +102,19 @@ public class Image {
 		float factorHeight = height / this.height;
 		return scale(this.width * factorHeight, height);
 	}
+	
+	public float getImageWidthInPoints(float dpiX) {
+		return this.width*72f/dpiX;
+	}
+
+	public float getImageHeightInPoints(float dpiY) {
+		return this.height*72f/dpiY;
+	}
 
 	/**
 	 * <p>
 	 * Method which scale {@link Image} with designated width und height
-	 * </p>
+	 * 
 	 * @param width
 	 *            Maximal width where {@link Image} needs to be scaled
 	 * @param height
