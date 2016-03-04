@@ -7,6 +7,7 @@ package be.quodlibet.boxable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.awt.Color;
+import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -19,9 +20,11 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageXYZDestination;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
+import org.apache.pdfbox.util.Matrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.page.PageProvider;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
@@ -92,7 +95,6 @@ public abstract class Table<T extends PDPage> {
 		this.currentPage = currentPage;
 		this.pageProvider = pageProvider;
 		loadFonts();
-//		this.tableContentStream = createPdPageContentStream();
 	}
 
 	public Table(float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width, float margin,
@@ -112,7 +114,6 @@ public abstract class Table<T extends PDPage> {
 		// Fonts needs to be loaded before page creation
 		loadFonts();
 		this.currentPage = pageProvider.createPage();
-//		this.tableContentStream = createPdPageContentStream();
 	}
 
 	protected abstract void loadFonts() throws IOException;
@@ -125,16 +126,17 @@ public abstract class Table<T extends PDPage> {
 		return document;
 	}
 
-	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment, float freeSpaceForPageBreak, boolean drawHeaderMargin)
-			throws IOException {
+	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
+			float freeSpaceForPageBreak, boolean drawHeaderMargin) throws IOException {
 		drawTitle(title, font, fontSize, tableWidth, height, alignment, freeSpaceForPageBreak, null, drawHeaderMargin);
 	}
 
-	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment, float freeSpaceForPageBreak,
-			WrappingFunction wrappingFunction, boolean drawHeaderMargin) throws IOException {
+	public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
+			float freeSpaceForPageBreak, WrappingFunction wrappingFunction, boolean drawHeaderMargin)
+					throws IOException {
 
 		ensureStreamIsOpen();
-		
+
 		if (isEndOfPage(freeSpaceForPageBreak)) {
 			this.tableContentStream.close();
 			pageBreak();
@@ -155,7 +157,7 @@ public abstract class Table<T extends PDPage> {
 			}
 
 			articleTitle.close();
-			
+
 			if (drawDebug) {
 				// margin
 				PDStreamUtils.rect(tableContentStream, margin, yStart, width, headerBottomMargin, Color.CYAN);
@@ -185,10 +187,11 @@ public abstract class Table<T extends PDPage> {
 
 	public float draw() throws IOException {
 		ensureStreamIsOpen();
-		
+
 		for (Row<T> row : rows) {
 			if (row == header) {
-				// check if header row height and first data row height can fit the page
+				// check if header row height and first data row height can fit
+				// the page
 				// if not draw them on another side
 				float headerHeightIncludingFirstDataRow = header.getHeight() + rows.get(1).getHeight();
 				if (isEndOfPage(headerHeightIncludingFirstDataRow)) {
@@ -203,6 +206,11 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	private void drawRow(Row<T> row) throws IOException {
+		// if it is not header row or first row in the table then remove row's
+		// top border
+		if (row != header && row != rows.get(0)) {
+			row.removeTopBorders();
+		}
 		// draw the bookmark
 		if (row.getBookmark() != null) {
 			PDPageXYZDestination bookmarkDestination = new PDPageXYZDestination();
@@ -275,62 +283,32 @@ public abstract class Table<T extends PDPage> {
 
 		// position into first cell (horizontal)
 		float cursorX = margin;
-
+		float cursorY;
+		
 		for (Cell<T> cell : row.getCells()) {
-			// no text without font
-			if (cell.getFont() == null) {
-				throw new IllegalArgumentException("Font is null on Cell=" + cell.getText());
-			}
-
-			// position at top of current cell
-			// descending by font height - font descent, because we are
-			// positioning the base line here
-			float cursorY = yStart - cell.getTopPadding() - FontUtils.getHeight(cell.getFont(), cell.getFontSize())
-					- FontUtils.getDescent(cell.getFont(), cell.getFontSize());
-
-			switch (cell.getValign()) {
-			case TOP:
-				break;
-			case MIDDLE:
-				cursorY -= cell.getVerticalFreeSpace() / 2;
-				break;
-			case BOTTOM:
-				cursorY -= cell.getVerticalFreeSpace();
-				break;
-			}
-
-			// remember horizontal cursor position, so we can advance to the
-			// next cell easily later
+			// remember horizontal cursor position, so we can advance to the next cell easily later
 			float cellStartX = cursorX;
+			if (cell instanceof ImageCell) {
+				final ImageCell<T> imageCell = (ImageCell<T>) cell;
 
-			// respect left padding
-			cursorX += cell.getLeftPadding();
+				cursorY = yStart - cell.getTopPadding()
+						- (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth());
 
-			// remember this horizontal position, as it is the anchor for each
-			// new line
-			float lineStartX = cursorX;
+				// image cell vertical alignment
+				switch (cell.getValign()) {
+				case TOP:
+					break;
+				case MIDDLE:
+					cursorY -= cell.getVerticalFreeSpace() / 2;
+					break;
+				case BOTTOM:
+					cursorY -= cell.getVerticalFreeSpace();
+					break;
+				}
 
-			// font settings
-			this.tableContentStream.setFont(cell.getFont(), cell.getFontSize());
+				cursorX += cell.getLeftPadding() + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth());
 
-			// if it is head row or if it is header cell then please use bold
-			// font
-			if (row.equals(header) || cell.isHeaderCell()) {
-				this.tableContentStream.setFont(cell.getFontBold(), cell.getFontSize());
-			}
-			this.tableContentStream.setNonStrokingColor(cell.getTextColor());
-
-			// print all lines of the cell
-			float tw = 0.0f;
-			for (String line : cell.getParagraph().getLines()) {
-				// screw you, whitespace!
-				line = line.trim();
-
-				// we start at the line start ... seems legit
-				cursorX = lineStartX;
-
-				// the widest text does not fill the inner width of the cell? no
-				// problem, just add it ;)
+				// image cell horizontal alignment
 				switch (cell.getAlign()) {
 				case CENTER:
 					cursorX += cell.getHorizontalFreeSpace() / 2;
@@ -342,42 +320,179 @@ public abstract class Table<T extends PDPage> {
 					break;
 				}
 
-				// calculate the width of this line
-				tw = Math.max(tw, cell.getFont().getStringWidth(line));
-				tw = tw / 1000 * cell.getFontSize();
-				float freeSpaceWithinLine = cell.getInnerWidth() - cell.getHorizontalFreeSpace() - tw;
-				switch (cell.getAlign()) {
-				case CENTER:
-					cursorX += freeSpaceWithinLine / 2;
-					break;
-				case LEFT:
-					// it doesn't matter because X position is always the same
-					// as row above
-					break;
-				case RIGHT:
-					cursorX += freeSpaceWithinLine;
-					break;
+				imageCell.getImage().draw(document, tableContentStream, cursorX, cursorY);
+				
+			} else {
+				// no text without font
+				if (cell.getFont() == null) {
+					throw new IllegalArgumentException("Font is null on Cell=" + cell.getText());
 				}
+				
+				// font settings
+				this.tableContentStream.setFont(cell.getFont(), cell.getFontSize());
+
+				if (cell.isTextRotated()) {
+					// debugging mode - drawing (default!) padding of rotated cells
+					//left
+//					PDStreamUtils.rect(tableContentStream, cursorX, yStart, 5, cell.getHeight(), Color.GREEN);
+					//top
+//					PDStreamUtils.rect(tableContentStream, cursorX, yStart, cell.getWidth(), 5 , Color.GREEN);
+					// bottom
+//					PDStreamUtils.rect(tableContentStream, cursorX, yStart - cell.getHeight(), cell.getWidth(), -5 , Color.GREEN);
+					//right 
+//					PDStreamUtils.rect(tableContentStream, cursorX + cell.getWidth() - 5, yStart, 5, cell.getHeight(), Color.GREEN);
+					
+					cursorY = yStart - cell.getInnerHeight() - cell.getTopPadding() - (cell.getTopBorder() != null ? cell.getTopBorder().getWidth() : 0);
+					
+					switch (cell.getAlign()) {
+					case CENTER:
+						cursorY += cell.getVerticalFreeSpace() / 2;
+						break;
+					case LEFT:
+						break;
+					case RIGHT:
+						cursorY += cell.getVerticalFreeSpace();
+						break;
+					}
+					// respect left padding and descend by font height to get position of the base line
+					cursorX += cell.getLeftPadding()
+							+ (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth())
+							+ FontUtils.getHeight(cell.getFont(), cell.getFontSize()) + FontUtils.getDescent(cell.getFont(), cell.getFontSize());
+				
+					switch (cell.getValign()) {
+					case TOP:
+						break;
+					case MIDDLE:
+						cursorX += cell.getHorizontalFreeSpace() / 2;
+						break;
+					case BOTTOM:
+						cursorX += cell.getHorizontalFreeSpace();
+						break;
+					}
+					
+				} else {
+					// debugging mode - drawing (default!) padding of rotated cells
+					//left
+//					PDStreamUtils.rect(tableContentStream, cursorX, yStart, 5, cell.getHeight(), Color.RED);
+					//top
+//					PDStreamUtils.rect(tableContentStream, cursorX, yStart, cell.getWidth(), 5 , Color.RED);
+					// bottom
+//					PDStreamUtils.rect(tableContentStream, cursorX, yStart - cell.getHeight(), cell.getWidth(), -5 , Color.RED);
+					//right 
+//					PDStreamUtils.rect(tableContentStream, cursorX + cell.getWidth() - 5, yStart, 5, cell.getHeight(), Color.RED);
+					
+					// position at top of current cell descending by font height - font descent, because we are
+					// positioning the base line here
+					cursorY = yStart - cell.getTopPadding() - FontUtils.getHeight(cell.getFont(), cell.getFontSize())
+							- FontUtils.getDescent(cell.getFont(), cell.getFontSize())
+							- (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth());
+
+					// respect left padding
+					cursorX += cell.getLeftPadding() + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth());
+					
+					switch (cell.getAlign()) {
+					case CENTER:
+						cursorX += cell.getHorizontalFreeSpace() / 2;
+						break;
+					case LEFT:
+						break;
+					case RIGHT:
+						cursorX += cell.getHorizontalFreeSpace();
+						break;
+					}
+					
+					switch (cell.getValign()) {
+					case TOP:
+						break;
+					case MIDDLE:
+						cursorY -= cell.getVerticalFreeSpace() / 2;
+						break;
+					case BOTTOM:
+						cursorY -= cell.getVerticalFreeSpace();
+						break;
+					}
+				
+				
+				}
+				
+				// remember this horizontal position, as it is the anchor for
+				// each new line
+				float lineStartX = cursorX;
+				float lineStartY = cursorY;
+
+				this.tableContentStream.setNonStrokingColor(cell.getTextColor());
+				// print all lines of the cell
+				float tw = 0.0f;
+				for (String line : cell.getParagraph().getLines()) {
+					// screw you, whitespace!
+					line = line.trim();
+					tw = Math.max(tw, cell.getFont().getStringWidth(line));
+					tw = tw / 1000 * cell.getFontSize();
+					
+					if (cell.isTextRotated()) {
+						cursorY = lineStartY;
+						float freeSpaceWithinLine = cell.getInnerHeight() - cell.getVerticalFreeSpace() - tw;
+						switch (cell.getAlign()) {
+						case CENTER:
+							cursorY += freeSpaceWithinLine / 2;
+							break;
+						case LEFT:
+							break;
+						case RIGHT:
+							cursorY += freeSpaceWithinLine;
+							break;
+						}
+					} else {
+						// we start at the line start ... seems legit
+						cursorX = lineStartX;
+						float freeSpaceWithinLine = cell.getInnerWidth() - cell.getHorizontalFreeSpace() - tw;
+						switch (cell.getAlign()) {
+						case CENTER:
+							cursorX += freeSpaceWithinLine / 2;
+							break;
+						case LEFT:
+							break;
+						case RIGHT:
+							cursorX += freeSpaceWithinLine;
+							break;
+						}
+				}
+				
 
 				// finally draw the line
 				this.tableContentStream.beginText();
-				this.tableContentStream.newLineAtOffset(cursorX, cursorY);
 
-				this.tableContentStream.showText(line);
+				if (cell.isTextRotated()) {
+					final AffineTransform transform = AffineTransform.getTranslateInstance(cursorX, cursorY);
+					transform.concatenate(AffineTransform.getRotateInstance(Math.PI * 0.5f));
+					transform.concatenate(AffineTransform.getTranslateInstance(-cursorX, -cursorY));
+					tableContentStream.setTextMatrix(new Matrix(transform));
+					tableContentStream.newLineAtOffset(cursorX, cursorY);
+					tableContentStream.setFont(cell.getFont(), cell.getFontSize());
+					tableContentStream.showText(line);
+				} else {
+					this.tableContentStream.newLineAtOffset(cursorX, cursorY);
+					this.tableContentStream.showText(line);
+				}
 				this.tableContentStream.endText();
 				this.tableContentStream.closePath();
 
-				// advance a line vertically
-				cursorY = cursorY - cell.getParagraph().getFontHeight();
+				if(cell.isTextRotated()){
+					//advance a line horizontally
+					cursorX = cursorX + cell.getParagraph().getFontHeight();
+				} else {
+					// advance a line vertically
+					cursorY = cursorY - cell.getParagraph().getFontHeight();
+				}
 			}
-
-			// set cursor to the start of this cell plus its width to advance to
-			// the next cell
-			cursorX = cellStartX + cell.getWidth();
-
 		}
-		// Set Y position for next row
-		yStart = yStart - row.getHeight();
+
+		// set cursor to the start of this cell plus its width to advance to the next cell
+		cursorX = cellStartX + cell.getWidth();
+	}
+	// Set Y position for next row
+	yStart=yStart-row.getHeight();
+	
 	}
 
 	private void drawVerticalLines(Row<T> row) throws IOException {
@@ -385,50 +500,72 @@ public abstract class Table<T extends PDPage> {
 
 		// give an extra margin to the latest cell
 		float xEnd = row.xEnd();
-
-		// Draw Row upper border
-		drawLine("Row Upper Border ", xStart, yStart, xEnd, yStart);
-
+		
 		Iterator<Cell<T>> cellIterator = row.getCells().iterator();
 		while (cellIterator.hasNext()) {
 			Cell<T> cell = cellIterator.next();
 
 			fillCellColor(cell, yStart, xStart, cellIterator);
 
-			float yEnd = yStart - row.getHeight();
-
-			// draw the vertical line to separate cells
-			drawLine("Cell Separator ", xStart, yStart, xStart, yEnd);
+			drawCellBorders(row, cell, xStart, xEnd);
 
 			xStart += getWidth(cell, cellIterator);
 		}
 
-		// draw the last vertical line at the right of the table
-		float yEnd = yStart - row.getHeight();
-
-		drawLine("Last Cell ", xEnd, yStart, xEnd, yEnd);
 	}
 
-	private void drawLine(String type, float xStart, float yStart, float xEnd, float yEnd) throws IOException {
+	private void drawCellBorders(Row<T> row, Cell<T> cell, float xStart, float xEnd) throws IOException {
 
-		this.tableContentStream.setNonStrokingColor(Color.BLACK);
-		this.tableContentStream.setStrokingColor(Color.BLACK);
+		float yEnd = yStart - row.getHeight();
 
-		this.tableContentStream.moveTo(xStart, yStart);
-		this.tableContentStream.lineTo(xEnd, yEnd);
-		this.tableContentStream.stroke();
-		this.tableContentStream.closePath();
+		// top
+		LineStyle topBorder = cell.getTopBorder();
+		if (topBorder != null) {
+			float y = yStart - topBorder.getWidth() / 2;
+			drawLine(xStart, y, xStart + cell.getWidth(), y, topBorder);
+		}
+
+		// right
+		LineStyle rightBorder = cell.getRightBorder();
+		if (rightBorder != null) {
+			float x = xStart + cell.getWidth() - rightBorder.getWidth() / 2;
+			drawLine(x, yStart - (topBorder == null ? 0 : topBorder.getWidth()), x, yEnd, rightBorder);
+		}
+
+		// bottom
+		LineStyle bottomBorder = cell.getBottomBorder();
+		if (bottomBorder != null) {
+			float y = yEnd + bottomBorder.getWidth() / 2;
+			drawLine(xStart, y, xStart + cell.getWidth() - (rightBorder == null ? 0 : rightBorder.getWidth()), y,
+					bottomBorder);
+		}
+
+		// left
+		LineStyle leftBorder = cell.getLeftBorder();
+		if (leftBorder != null) {
+			float x = xStart + leftBorder.getWidth() / 2;
+			drawLine(x, yStart, x, yEnd + (bottomBorder == null ? 0 : bottomBorder.getWidth()), leftBorder);
+		}
+
+	}
+
+	private void drawLine(float xStart, float yStart, float xEnd, float yEnd, LineStyle border) throws IOException {
+		PDStreamUtils.setLineStyles(tableContentStream, border);
+		tableContentStream.moveTo(xStart, yStart);
+		tableContentStream.lineTo(xEnd, yEnd);
+		tableContentStream.stroke();
+		tableContentStream.closePath();
 	}
 
 	private void fillCellColor(Cell<T> cell, float yStart, float xStart, Iterator<Cell<T>> cellIterator)
 			throws IOException {
-		// Fill Cell Color
+
 		if (cell.getFillColor() != null) {
 			this.tableContentStream.setNonStrokingColor(cell.getFillColor());
 
 			// y start is bottom pos
 			yStart = yStart - cell.getHeight();
-			float height = cell.getHeight() - 1f;
+			float height = cell.getHeight() - (cell.getTopBorder() == null  ? 0 : cell.getTopBorder().getWidth()) ;
 
 			float cellWidth = getWidth(cell, cellIterator);
 			this.tableContentStream.addRect(xStart, yStart, cellWidth, height);
@@ -449,7 +586,7 @@ public abstract class Table<T extends PDPage> {
 		}
 		return width;
 	}
-	
+
 	private void ensureStreamIsOpen() throws IOException {
 		if (tableContentStream == null) {
 			tableContentStream = createPdPageContentStream();
@@ -457,10 +594,6 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	private void endTable() throws IOException {
-		if (drawLines) {
-			// Draw line at bottom
-			drawLine("Row Bottom Border ", this.margin, this.yStart, this.margin + width, this.yStart);
-		}
 		this.tableContentStream.close();
 	}
 
@@ -474,7 +607,6 @@ public abstract class Table<T extends PDPage> {
 		boolean isEndOfPage = currentY <= pageBottomMargin;
 		if (isEndOfPage) {
 			setTableIsBroken(true);
-			System.out.println("Its end of page. Table row height caused the problem.");
 		}
 
 		// If we are closer than bottom margin, consider this as
@@ -490,7 +622,6 @@ public abstract class Table<T extends PDPage> {
 		boolean isEndOfPage = currentY <= pageBottomMargin;
 		if (isEndOfPage) {
 			setTableIsBroken(true);
-			System.out.println("Its end of the page. Table title caused this problem.");
 		}
 		return isEndOfPage;
 	}
@@ -501,7 +632,7 @@ public abstract class Table<T extends PDPage> {
 		this.currentPage = createNewPage();
 		this.tableContentStream = createPdPageContentStream();
 	}
-	
+
 	private void addBookmark(PDOutlineItem bookmark) {
 		if (bookmarks == null)
 			bookmarks = new ArrayList<>();
@@ -542,11 +673,10 @@ public abstract class Table<T extends PDPage> {
 	public boolean tableIsBroken() {
 		return tableIsBroken;
 	}
-	
+
 	public float getHeaderAndDataHeight() {
 		return header == null ? 0 : header.getHeight() + rows.get(header == null ? 0 : 1).getHeight();
 	}
-	
 
 	public void setTableIsBroken(boolean tableIsBroken) {
 		this.tableIsBroken = tableIsBroken;

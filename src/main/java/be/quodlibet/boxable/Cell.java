@@ -11,11 +11,13 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
+import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.text.WrappingFunction;
 
 public class Cell<T extends PDPage> {
 
 	private float width;
+	private Float height;
 	private String text;
 
 	private PDFont font = PDType1Font.HELVETICA;
@@ -34,7 +36,15 @@ public class Cell<T extends PDPage> {
 	private float topPadding = 5f;
 	private float bottomPadding = 5f;
 
+	// default border
+	private LineStyle leftBorderStyle = new LineStyle(Color.BLACK, 1);
+	private LineStyle rightBorderStyle = new LineStyle(Color.BLACK, 1);
+	private LineStyle topBorderStyle = new LineStyle(Color.BLACK, 1);
+	private LineStyle bottomBorderStyle = new LineStyle(Color.BLACK, 1);
+
 	private Paragraph paragraph = null;
+
+	private boolean textRotated = false;
 
 	private final HorizontalAlignment align;
 	private final VerticalAlignment valign;
@@ -100,38 +110,106 @@ public class Cell<T extends PDPage> {
 		this.wrappingFunction = null;
 	}
 
+	/**
+	 * <p>
+	 * Retrieves cell's text {@link Color}. Default color is black.
+	 * </p>
+	 * 
+	 * @return {@link Color} of the cell's text
+	 */
 	public Color getTextColor() {
 		return textColor;
 	}
 
+	/**
+	 * <p>
+	 * Sets cell's text {@link Color}.
+	 * </p>
+	 * 
+	 * @param textColor
+	 *            designated text {@link Color}
+	 */
 	public void setTextColor(Color textColor) {
 		this.textColor = textColor;
 	}
 
+	/**
+	 * <p>
+	 * Gets fill (background) {@link Color} for the current cell.
+	 * </p>
+	 * 
+	 * @return Fill {@link Color} for the cell
+	 */
 	public Color getFillColor() {
 		return fillColor;
 	}
 
+	/**
+	 * <p>
+	 * Sets fill (background) {@link Color} for the current cell.
+	 * </p>
+	 * 
+	 * @param fillColor
+	 *            Fill {@link Color} for the cell
+	 */
 	public void setFillColor(Color fillColor) {
 		this.fillColor = fillColor;
 	}
 
+	/**
+	 * <p>
+	 * Gets cell's width.
+	 * </p>
+	 * 
+	 * @return Cell's width
+	 */
 	public float getWidth() {
 		return width;
 	}
 
+	/**
+	 * <p>
+	 * Gets cell's width without (left,right) padding.
+	 * 
+	 * @return Inner cell's width
+	 */
 	public float getInnerWidth() {
-		return getWidth() - getLeftPadding() - getRightPadding();
+		return getWidth() - getLeftPadding() - getRightPadding()
+				- (leftBorderStyle == null ? 0 : leftBorderStyle.getWidth())
+				- (rightBorderStyle == null ? 0 : rightBorderStyle.getWidth());
 	}
 
+	/**
+	 * <p>
+	 * Gets cell's height without (top,bottom) padding.
+	 * 
+	 * @return Inner cell's height
+	 */
 	public float getInnerHeight() {
-		return getHeight() - getBottomPadding() - getTopPadding();
+		return getHeight() - getBottomPadding() - getTopPadding()
+				- (topBorderStyle == null ? 0 : topBorderStyle.getWidth())
+				- (bottomBorderStyle == null ? 0 : bottomBorderStyle.getWidth());
 	}
 
+	/**
+	 * <p>
+	 * Retrieves text from current cell
+	 * </p>
+	 * 
+	 * @return cell's text
+	 */
 	public String getText() {
 		return text;
 	}
 
+	/**
+	 * <p>
+	 * Sets cell's text value
+	 * </p>
+	 * 
+	 * @param text
+	 *            Text value of the cell
+	 */
 	public void setText(String text) {
 		this.text = text;
 
@@ -139,13 +217,34 @@ public class Cell<T extends PDPage> {
 		paragraph = null;
 	}
 
+	/**
+	 * <p>
+	 * Gets appropriate {@link PDFont} for current cell.
+	 * </p>
+	 * 
+	 * @return {@link PDFont} for current cell
+	 * @throws IllegalArgumentException
+	 *             if <code>font</code> is not set.
+	 */
 	public PDFont getFont() {
 		if (font == null) {
 			throw new IllegalArgumentException("Font not set.");
 		}
-		return font;
+		if (isHeaderCell) {
+			return fontBold;
+		} else {
+			return font;
+		}
 	}
 
+	/**
+	 * <p>
+	 * Sets appropriate {@link PDFont} for current cell.
+	 * </p>
+	 * 
+	 * @param font
+	 *            {@link PDFont} for current cell
+	 */
 	public void setFont(PDFont font) {
 		this.font = font;
 
@@ -153,10 +252,25 @@ public class Cell<T extends PDPage> {
 		paragraph = null;
 	}
 
+	/**
+	 * <p>
+	 * Gets {@link PDFont} size for current cell (in points).
+	 * </p>
+	 * 
+	 * @return {@link PDFont} size for current cell (in points).
+	 */
 	public float getFontSize() {
 		return fontSize;
 	}
 
+	/**
+	 * <p>
+	 * Sets {@link PDFont} size for current cell (in points).
+	 * </p>
+	 * 
+	 * @param fontSize
+	 *            {@link PDFont} size for current cell (in points).
+	 */
 	public void setFontSize(float fontSize) {
 		this.fontSize = fontSize;
 
@@ -164,12 +278,39 @@ public class Cell<T extends PDPage> {
 		paragraph = null;
 	}
 
+	/**
+	 * <p>
+	 * Retrieves a valid {@link Paragraph} depending of cell's {@link PDFont}
+	 * and value rotation.
+	 * </p>
+	 * 
+	 * <p>
+	 * If cell has rotated value then {@link Paragraph} width is depending of
+	 * {@link Cell#getInnerHeight()} otherwise {@link Cell#getInnerWidth()}
+	 * </p>
+	 * 
+	 * 
+	 * @return Cell's {@link Paragraph}
+	 */
 	public Paragraph getParagraph() {
 		if (paragraph == null) {
+			// if it is header cell then use font bold
 			if (isHeaderCell) {
-				paragraph = new Paragraph(text, fontBold, fontSize, getInnerWidth(), align, textColor, null, wrappingFunction);
+				if (isTextRotated()) {
+					paragraph = new Paragraph(text, fontBold, fontSize, getInnerHeight(), align, textColor, null,
+							wrappingFunction);
+				} else {
+					paragraph = new Paragraph(text, fontBold, fontSize, getInnerWidth(), align, textColor, null,
+							wrappingFunction);
+				}
 			} else {
-				paragraph = new Paragraph(text, font, fontSize, getInnerWidth(), align, textColor, null, wrappingFunction);
+				if (isTextRotated()) {
+					paragraph = new Paragraph(text, font, fontSize, getInnerHeight(), align, textColor, null,
+							wrappingFunction);
+				} else {
+					paragraph = new Paragraph(text, font, fontSize, getInnerWidth(), align, textColor, null,
+							wrappingFunction);
+				}
 			}
 		}
 		return paragraph;
@@ -179,18 +320,109 @@ public class Cell<T extends PDPage> {
 		return this.row.getLastCellExtraWidth() + getWidth();
 	}
 
+	/**
+	 * <p>
+	 * Gets the cell's height according to {@link Row}'s height
+	 * </p>
+	 * 
+	 * @return {@link Row}'s height
+	 * @see {@link Row#getHeight()}
+	 */
 	public float getHeight() {
 		return row.getHeight();
 	}
 
+	/**
+	 * <p>
+	 * Gets the height of the single cell, opposed to {@link #getHeight()},
+	 * which returns the row's height.
+	 * </p>
+	 * <p>
+	 * Depending of rotated/normal cell's value there is two cases for calculation:
+	 * <ol>
+	 * <li>Rotated value - cell's height is equal to overall text length in the cell with necessery paddings (top,bottom)</li>
+	 * <li>Normal value - cell's height is equal to {@link Paragraph}'s height with
+	 * necessery paddings (top,bottom)</li>
+	 * </ol>
+	 * </p>
+	 * 
+	 * @return Cell's height
+	 * @throws IllegalStateException
+	 *             if <code>font</code> is not set.
+	 */
+	public float getCellHeight() {
+		if (height != null) {
+			return height;
+		}
+
+		if (isTextRotated()) {
+			try {
+				// TODO: maybe find more optimal way then this
+				return getFont().getStringWidth(getText()) / 1000 * getFontSize() + getTopPadding()
+						+ (getTopBorder() == null ? 0 : getTopBorder().getWidth()) + getBottomPadding()
+						+ (getBottomBorder() == null ? 0 : getBottomBorder().getWidth());
+			} catch (final IOException e) {
+				throw new IllegalStateException("Font not set.", e);
+			}
+		} else {
+			return getTextHeight() + getTopPadding() + getBottomPadding()
+					+ (getTopBorder() == null ? 0 : getTopBorder().getWidth())
+					+ (getBottomBorder() == null ? 0 : getBottomBorder().getWidth());
+		}
+	}
+
+	/**
+	 * <p>
+	 * Sets the height of the single cell.
+	 * </p>
+	 * 
+	 * @param height Cell's height
+	 */
+	public void setHeight(final Float height) {
+		this.height = height;
+	}
+
+	/**
+	 * <p>
+	 * Gets {@link Paragraph}'s height
+	 * </p>
+	 * 
+	 * @return {@link Paragraph}'s height
+	 */
 	public float getTextHeight() {
 		return getParagraph().getHeight();
 	}
 
+	/**
+	 * <p>
+	 * Gets {@link Paragraph}'s width
+	 * </p>
+	 * 
+	 * @return {@link Paragraph}'s width
+	 */
+	public float getTextWidth() {
+		return getParagraph().getWidth();
+	}
+
+	/**
+	 * <p>
+	 * Gets cell's left padding (in points).
+	 * </p>
+	 * 
+	 * @return Cell's left padding (in points).
+	 */
 	public float getLeftPadding() {
 		return leftPadding;
 	}
 
+	/**
+	 * <p>
+	 * Sets cell's left padding (in points)
+	 * </p>
+	 * 
+	 * @param cellLeftPadding
+	 *            Cell's left padding (in points).
+	 */
 	public void setLeftPadding(float cellLeftPadding) {
 		this.leftPadding = cellLeftPadding;
 
@@ -198,10 +430,25 @@ public class Cell<T extends PDPage> {
 		paragraph = null;
 	}
 
+	/**
+	 * <p>
+	 * Gets cell's right padding (in points).
+	 * </p>
+	 * 
+	 * @return Cell's right padding (in points).
+	 */
 	public float getRightPadding() {
 		return rightPadding;
 	}
 
+	/**
+	 * <p>
+	 * Sets cell's right padding (in points)
+	 * </p>
+	 * 
+	 * @param cellRightPadding
+	 *            Cell's right padding (in points).
+	 */
 	public void setRightPadding(float cellRightPadding) {
 		this.rightPadding = cellRightPadding;
 
@@ -209,27 +456,101 @@ public class Cell<T extends PDPage> {
 		paragraph = null;
 	}
 
+	/**
+	 * <p>
+	 * Gets cell's top padding (in points).
+	 * </p>
+	 * 
+	 * @return Cell's top padding (in points).
+	 */
 	public float getTopPadding() {
 		return topPadding;
 	}
 
+	/**
+	 * <p>
+	 * Sets cell's top padding (in points)
+	 * </p>
+	 * 
+	 * @param cellTopPadding
+	 *            Cell's top padding (in points).
+	 */
 	public void setTopPadding(float cellTopPadding) {
 		this.topPadding = cellTopPadding;
 	}
 
+	/**
+	 * <p>
+	 * Gets cell's bottom padding (in points).
+	 * </p>
+	 * 
+	 * @return Cell's bottom padding (in points).
+	 */
 	public float getBottomPadding() {
 		return bottomPadding;
 	}
 
+	/**
+	 * <p>
+	 * Sets cell's bottom padding (in points)
+	 * </p>
+	 * 
+	 * @param cellBottomPadding
+	 *            Cell's bottom padding (in points).
+	 */
 	public void setBottomPadding(float cellBottomPadding) {
 		this.bottomPadding = cellBottomPadding;
 	}
 
+	/**
+	 * <p>
+	 * Gets free vertical space of cell.
+	 * </p>
+	 * 
+	 * <p>
+	 * If cell has rotated value then free vertical space is equal inner cell's height
+	 * ({@link #getInnerHeight()}) subtracted to the longest line of rotated
+	 * {@link Paragraph} otherwise it's just cell's inner height ({@link #getInnerHeight()})
+	 * subtracted with width of the normal {@link Paragraph}.
+	 * </p>
+	 * 
+	 * @return Free vertical space of the cell's.
+	 */
 	public float getVerticalFreeSpace() {
-		return getInnerHeight() - getTextHeight();
+		if (isTextRotated()) {
+			float tw = 0.0f;
+			try {
+				for (final String line : getParagraph().getLines()) {
+					tw = Math.max(tw, getFont().getStringWidth(line.trim()));
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			tw = tw / 1000 * getFontSize();
+			return getInnerHeight() - tw;
+		} else {
+			return getInnerHeight() - getTextHeight();
+		}
 	}
 
+	/**
+	 * <p>
+	 * Gets free horizontal space of cell.
+	 * </p>
+	 * 
+	 * <p>
+	 * If cell has rotated value then free horizontal space is equal cell's inner width
+	 * ({@link #getInnerWidth()}) subtracted to the {@link Paragraph}'s height
+	 * otherwise it's just cell's {@link #getInnerWidth()} subtracted with width
+	 * of longest line in normal {@link Paragraph}.
+	 * </p>
+	 * </p>
+	 * 
+	 * @return Free vertical space of the cell's.
+	 * @see {@link #getTextHeight}
+	 */
 	public float getHorizontalFreeSpace() {
+
 		float tw = 0.0f;
 		try {
 			for (final String line : getParagraph().getLines()) {
@@ -239,7 +560,11 @@ public class Cell<T extends PDPage> {
 			e.printStackTrace();
 		}
 		tw = tw / 1000 * getFontSize();
-		return getInnerWidth() - tw;
+		if (isTextRotated()) {
+			return getInnerWidth() - getTextHeight();
+		} else {
+			return getInnerWidth() - tw;
+		}
 	}
 
 	public HorizontalAlignment getAlign() {
@@ -269,8 +594,55 @@ public class Cell<T extends PDPage> {
 		paragraph = null;
 	}
 
-	public PDFont getFontBold() {
-		return fontBold;
+	public LineStyle getLeftBorder() {
+		return leftBorderStyle;
 	}
 
+	public LineStyle getRightBorder() {
+		return rightBorderStyle;
+	}
+
+	public LineStyle getTopBorder() {
+		return topBorderStyle;
+	}
+
+	public LineStyle getBottomBorder() {
+		return bottomBorderStyle;
+	}
+
+	public void setLeftBorderStyle(LineStyle leftBorder) {
+		this.leftBorderStyle = leftBorder;
+	}
+
+	public void setRightBorderStyle(LineStyle rightBorder) {
+		this.rightBorderStyle = rightBorder;
+	}
+
+	public void setTopBorderStyle(LineStyle topBorder) {
+		this.topBorderStyle = topBorder;
+	}
+
+	public void setBottomBorderStyle(LineStyle bottomBorder) {
+		this.bottomBorderStyle = bottomBorder;
+	}
+
+	/**
+	 * <p> Easy setting for cell border style. 
+	 * @param border It is {@link LineStyle} for all borders
+	 * @see {@link LineStyle} for rendering line attributes
+	 */
+	public void setBorderStyle(LineStyle border) {
+		this.leftBorderStyle = border;
+		this.rightBorderStyle = border;
+		this.topBorderStyle = border;
+		this.bottomBorderStyle = border;
+	}
+
+	public boolean isTextRotated() {
+		return textRotated;
+	}
+
+	public void setTextRotated(boolean textRotated) {
+		this.textRotated = textRotated;
+	}
 }
