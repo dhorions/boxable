@@ -1,12 +1,7 @@
 package be.quodlibet.boxable.image;
 
-import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-
-import javax.imageio.ImageIO;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -46,9 +41,12 @@ public class Image {
 	}
 	
 	public Image(final BufferedImage image, float dpiX, float dpiY) {
-		this(image);
+		this.image = image;
+		this.width = image.getWidth();
+		this.height = image.getHeight();
 		this.dpi[0] = dpiX;
 		this.dpi[1] = dpiY;
+		scaleImageFromPixelToPoints();
 	}
 
 	/**
@@ -84,10 +82,10 @@ public class Image {
 		return scale(width, this.height * factorWidth);
 	}
 	
-	public Image scaleImageFromPixelToPoints() {
+	private void scaleImageFromPixelToPoints() {
 		float dpiX = dpi[0];
 		float dpiY = dpi[1];
-		return scale(getImageWidthInPoints(dpiX),getImageHeightInPoints(dpiY));
+		scale(getImageWidthInPoints(dpiX),getImageHeightInPoints(dpiY));
 	}
 
 	/**
@@ -121,12 +119,10 @@ public class Image {
 	 *            Maximal height where {@link Image} needs to be scaled
 	 * @return
 	 */
-	public Image scale(float width, float height) {
-		Dimension imageDim = new Dimension((int) image.getWidth(), (int) image.getHeight());
-		Dimension newImageDim = new Dimension((int) width, (int) height);
-		Dimension scaledImageDim = ImageUtils.getScaledDimension(imageDim, newImageDim);
-		this.width = scaledImageDim.width;
-		this.height = scaledImageDim.height;
+	public Image scale(float boundWidth, float boundHeight) {
+		float[] imageDimension = ImageUtils.getScaledDimension(this.width, this.height, boundWidth, boundHeight);
+		this.width = imageDimension[0];
+		this.height = imageDimension[1];
 		return this;
 	}
 
