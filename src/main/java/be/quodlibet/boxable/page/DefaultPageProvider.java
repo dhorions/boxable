@@ -30,7 +30,11 @@ public class DefaultPageProvider implements PageProvider<PDPage> {
 
 	@Override
 	public PDPage nextPage() {
-		currentPageIndex++;
+		if (currentPageIndex == -1) {
+			currentPageIndex = document.getNumberOfPages();
+		} else {
+			currentPageIndex++;
+		}
 
 		return getCurrentPage();
 	}
