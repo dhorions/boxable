@@ -4,6 +4,8 @@
  */
 package be.quodlibet.boxable;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
@@ -20,8 +22,6 @@ import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageXYZDestination;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 import org.apache.pdfbox.util.Matrix;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.page.PageProvider;
@@ -251,7 +251,7 @@ public abstract class Table<T extends PDPage> {
 		}
 
 		// if it is header row or first row in the table, we have to draw the top border
-		if (row == header || row == rows.get(0)) {
+		if (row == rows.get(0)) {
 			removeTopBorders = false;
 		}
 
@@ -487,7 +487,6 @@ public abstract class Table<T extends PDPage> {
 						}
 					} else {
 						cursorX = lineStartX;
-
 						switch (cell.getAlign()) {
 						case CENTER:
 							cursorX += freeSpaceWithinLine / 2;
@@ -868,5 +867,4 @@ public abstract class Table<T extends PDPage> {
 	public void setTableIsBroken(boolean tableIsBroken) {
 		this.tableIsBroken = tableIsBroken;
 	}
-
 }

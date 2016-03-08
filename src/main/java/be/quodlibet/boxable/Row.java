@@ -45,6 +45,10 @@ public class Row<T extends PDPage> {
 	 */
 	public Cell<T> createCell(float width, String value) {
 		Cell<T> cell = new Cell<T>(this, width, value, true);
+		if(headerRow){
+			// set all cell as header cell
+			cell.setHeaderCell(true);
+		}
 		setBorders(cell, cells.isEmpty());
 		if(headerRow){
 			// set all cell as header cell
@@ -93,6 +97,10 @@ public class Row<T extends PDPage> {
 	 */
 	public Cell<T> createCell(float width, String value, HorizontalAlignment align, VerticalAlignment valign) {
 		Cell<T> cell = new Cell<T>(this, width, value, true, align, valign);
+		if(headerRow){
+			// set all cell as header cell
+			cell.setHeaderCell(true);
+		}
 		setBorders(cell, cells.isEmpty());
 		if(headerRow){
 			// set all cell as header cell
@@ -144,7 +152,7 @@ public class Row<T extends PDPage> {
 			cell.setTopBorderStyle(null);
 		}
 	}
-
+	
 	/**
 	 * <p>
 	 * Gets maximal height of the cells in current row therefore row's height.
@@ -220,6 +228,4 @@ public class Row<T extends PDPage> {
 	public void setHeaderRow(boolean headerRow) {
 		this.headerRow = headerRow;
 	}
-
-
 }
