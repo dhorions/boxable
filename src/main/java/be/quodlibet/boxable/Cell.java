@@ -516,16 +516,10 @@ public class Cell<T extends PDPage> {
 	 */
 	public float getVerticalFreeSpace() {
 		if (isTextRotated()) {
-			float tw = 0.0f;
-			try {
-				for (final String line : getParagraph().getLines()) {
-					tw = Math.max(tw, getFont().getStringWidth(line.trim()));
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+			// need to calculate max line width so we just iterating through lines
+			for(String line : getParagraph().getLines()){
 			}
-			tw = tw / 1000 * getFontSize();
-			return getInnerHeight() - tw;
+			return getInnerHeight() - getParagraph().getMaxLineWidth();
 		} else {
 			return getInnerHeight() - getTextHeight();
 		}
@@ -548,7 +542,11 @@ public class Cell<T extends PDPage> {
 	 * @see {@link #getTextHeight}
 	 */
 	public float getHorizontalFreeSpace() {
-		return getInnerWidth() - getParagraph().getMaxLineWidth();
+		if (isTextRotated()) {
+			return getInnerWidth() - getTextHeight();
+		} else {
+			return getInnerWidth() - getParagraph().getMaxLineWidth();
+		}
 	}
 
 	public HorizontalAlignment getAlign() {
