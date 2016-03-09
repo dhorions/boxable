@@ -192,13 +192,32 @@ public class Paragraph {
 					textInLine.reset();
 					lineCounter++;
 					listElement = false;
-					if (isParagraph(token)) {
-						//ensure extra space after each paragraph
-						result.add(" ");
-						lineWidths.put(lineCounter, 0.0f);
-						mapLineTokens.put(lineCounter, new ArrayList<Token>());
+				}
+				if (isParagraph(token)) {
+					if (textInLine.width() + sinceLastWrapPoint.trimmedWidth() > width) {
+						// this is our line
+						result.add(textInLine.trimmedText());
+						lineWidths.put(lineCounter, textInLine.trimmedWidth());
+						maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+						mapLineTokens.put(lineCounter, textInLine.tokens());
 						lineCounter++;
+						textInLine.reset();
 					}
+					// wrapping at this must-have wrap point
+					textInLine.push(sinceLastWrapPoint);
+					// this is our line
+					result.add(textInLine.trimmedText());
+					lineWidths.put(lineCounter, textInLine.trimmedWidth());
+					mapLineTokens.put(lineCounter, textInLine.tokens());
+					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+					textInLine.reset();
+					lineCounter++;
+					
+					// extra spacing because it's a paragraph
+					result.add(" ");
+					lineWidths.put(lineCounter, 0.0f);
+					mapLineTokens.put(lineCounter, new ArrayList<Token>());
+					lineCounter++;
 				}
 				break;
 			case POSSIBLE_WRAP_POINT:
