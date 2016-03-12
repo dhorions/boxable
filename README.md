@@ -5,12 +5,13 @@ Create tables in pdf documents using [PDFBox](http://pdfbox.apache.org)
 
 Here are a few examples of the type of tables boxable can created :
 
-* [example 1](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/BoxableSample1.pdf)
-* [example 2](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/BoxableSample2.pdf)
-* [example 3](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/BoxableSample3.pdf)
-* [example 4](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/BoxableSample4.pdf)
+* [Table with text and images](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/BoxableSample1.pdf)
+![alt text](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/sample1_preview.png)
+* [Vertical and Horizontal text](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/BoxableSample3.pdf)
+![alt text](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/sample3_preview.png)
 
-- Example code can be found at [SampleCode](https://github.com/dhorions/boxable/blob/master/src/test/java/be/quodlibet/boxable/TableTest.java)
+
+Example code can be found [here](https://github.com/dhorions/boxable/blob/master/src/test/java/be/quodlibet/boxable/TableTest.java)
 
 The project is Java 7 compliant.
 
