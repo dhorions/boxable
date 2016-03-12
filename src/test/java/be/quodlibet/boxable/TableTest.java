@@ -3,23 +3,20 @@
  */
 package be.quodlibet.boxable;
 
+import be.quodlibet.boxable.utils.ImageUtils;
+import com.google.common.io.Files;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDocumentOutline;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 import org.junit.Test;
-
-import com.google.common.io.Files;
-
-import be.quodlibet.boxable.utils.ImageUtils;
 
 public class TableTest {
 
@@ -51,7 +48,7 @@ public class TableTest {
 		cell.setFillColor(Color.BLACK);
 		cell.setTextColor(Color.WHITE);
 
-		table.setHeader(headerRow);
+            table.addHeaderRow(headerRow);
 
 		//Create 2 column row
 		Row<PDPage> row = table.createRow(15f);
@@ -208,7 +205,7 @@ public class TableTest {
 		cell.setFillColor(Color.BLACK);
 		cell.setTextColor(Color.WHITE);
 
-		table.setHeader(headerRow);
+            table.addHeaderRow(headerRow);
 
 		//Create 2 column row
 		Row<PDPage> row = table.createRow(15f);
@@ -295,7 +292,7 @@ public class TableTest {
 	 * <p>
 	 * Sample test for text rotation
 	 * </p>
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	@Test
@@ -368,7 +365,7 @@ public class TableTest {
 	 * <p>
 	 * Multiple header rows in the table
 	 * </p>
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	@Test
