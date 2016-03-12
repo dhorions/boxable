@@ -18,6 +18,7 @@ public class Row<T extends PDPage> {
 	private final Table<T> table;
 	PDOutlineItem bookmark;
 	List<Cell<T>> cells;
+	private boolean headerRow = false;
 	float height;
 
 	Row(Table<T> table, List<Cell<T>> cells, float height) {
@@ -45,6 +46,10 @@ public class Row<T extends PDPage> {
 	public Cell<T> createCell(float width, String value) {
 		Cell<T> cell = new Cell<T>(this, width, value, true);
 		setBorders(cell, cells.isEmpty());
+		if(headerRow){
+			// set all cell as header cell
+			cell.setHeaderCell(true);
+		}
 		cells.add(cell);
 		return cell;
 	}
@@ -89,6 +94,10 @@ public class Row<T extends PDPage> {
 	public Cell<T> createCell(float width, String value, HorizontalAlignment align, VerticalAlignment valign) {
 		Cell<T> cell = new Cell<T>(this, width, value, true, align, valign);
 		setBorders(cell, cells.isEmpty());
+		if(headerRow){
+			// set all cell as header cell
+			cell.setHeaderCell(true);
+		}
 		cells.add(cell);
 		return cell;
 	}
@@ -203,5 +212,14 @@ public class Row<T extends PDPage> {
 	public float xEnd() {
 		return table.getMargin() + getWidth();
 	}
+	
+	public boolean isHeaderRow() {
+		return headerRow;
+	}
+
+	public void setHeaderRow(boolean headerRow) {
+		this.headerRow = headerRow;
+	}
+
 
 }
