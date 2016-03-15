@@ -34,7 +34,7 @@ public class Cell<T extends PDPage> {
 	private float topPadding = 5f;
 	private float bottomPadding = 5f;
 
-	private Paragraph paragraph = null;
+	protected Paragraph paragraph = null;
 
 	private final HorizontalAlignment align;
 	private final VerticalAlignment valign;
@@ -163,6 +163,10 @@ public class Cell<T extends PDPage> {
 		// paragraph invalidated
 		paragraph = null;
 	}
+
+  public void setParagraph(Paragraph paragraph) {
+    this.paragraph = paragraph;
+  }
 
 	public Paragraph getParagraph() {
 		if (paragraph == null) {
