@@ -27,6 +27,7 @@ public class Cell<T extends PDPage> {
 	private final Row<T> row;
 	private WrappingFunction wrappingFunction;
 	private boolean isHeaderCell = false;
+	private boolean isColspanCell = false;
 
 	// default padding
 	private float leftPadding = 5f;
@@ -626,6 +627,7 @@ public class Cell<T extends PDPage> {
 
 	public void setTextRotated(boolean textRotated) {
 		this.textRotated = textRotated;
+<<<<<<< HEAD
     }
 
     public PDFont getFontBold()
@@ -646,4 +648,15 @@ public class Cell<T extends PDPage> {
     {
         this.fontBold = fontBold;
     }
+=======
+	}
+
+	public boolean isColspanCell() {
+		return isColspanCell;
+	}
+
+	public void setColspanCell(boolean isColspanCell) {
+		this.isColspanCell = isColspanCell;
+	}
+>>>>>>> e34084c... Added boolean for colspan cell and getter for table rows
 }

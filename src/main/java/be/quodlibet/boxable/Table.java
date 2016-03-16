@@ -844,6 +844,7 @@ public abstract class Table<T extends PDPage> {
 		if (header == null) {
 			throw new IllegalArgumentException("Header Row not set on table");
 		}
+		
 		return header.get(header.size() - 1);
 	}
 
@@ -870,4 +871,9 @@ public abstract class Table<T extends PDPage> {
 	public void setTableIsBroken(boolean tableIsBroken) {
 		this.tableIsBroken = tableIsBroken;
 	}
+
+	public List<Row<T>> getRows() {
+		return rows;
+	}
+
 }
