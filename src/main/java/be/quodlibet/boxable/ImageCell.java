@@ -23,7 +23,7 @@ public class ImageCell<T extends PDPage> extends Cell<T> {
 	}
 
 	public void scaleToFit() {
-		img = img.scale(getInnerWidth());
+		img = img.scaleByWidth(getInnerWidth());
 	}
 
 	ImageCell(Row<T> row, float width, Image image, boolean isCalculated, HorizontalAlignment align,

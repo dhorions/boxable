@@ -50,9 +50,19 @@ public class Image {
 	 * @param width Maximal width where {@link Image} needs to be scaled
 	 * @return Scaled {@link Image}
 	 */
-	public Image scale(float width) {
+	public Image scaleByWidth(float width) {
 		float factorWidth = width / this.width;
 		return scale(width, this.height * factorWidth);
+	}
+	
+	/**
+	 * <p> Method which scale {@link Image} with designated height
+	 * @param width Maximal height where {@link Image} needs to be scaled
+	 * @return Scaled {@link Image}
+	 */
+	public Image scaleByHeight(float height) {
+		float factorHeight = height / this.height;
+		return scale(this.width * factorHeight, height);
 	}
 	
 	/**
