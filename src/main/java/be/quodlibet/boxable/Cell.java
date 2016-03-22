@@ -627,7 +627,6 @@ public class Cell<T extends PDPage> {
 
 	public void setTextRotated(boolean textRotated) {
 		this.textRotated = textRotated;
-<<<<<<< HEAD
     }
 
     public PDFont getFontBold()
@@ -648,8 +647,6 @@ public class Cell<T extends PDPage> {
     {
         this.fontBold = fontBold;
     }
-=======
-	}
 
 	public boolean isColspanCell() {
 		return isColspanCell;
@@ -658,5 +655,4 @@ public class Cell<T extends PDPage> {
 	public void setColspanCell(boolean isColspanCell) {
 		this.isColspanCell = isColspanCell;
 	}
->>>>>>> e34084c... Added boolean for colspan cell and getter for table rows
 }
