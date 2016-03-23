@@ -19,3 +19,4 @@ target
 .settings
 .gradle
 .metadata
+settings.xml

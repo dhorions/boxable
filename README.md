@@ -10,7 +10,17 @@ Create tables in pdf documents using [PDFBox](http://pdfbox.apache.org)
 The project is Java 7 compliant.
 
 Maven : 
-The project can be used as a Maven dependency by using jitpack.io.
+The project can be used as a Maven dependency : 
+```xml
+<dependency>
+    <groupId>com.github.dhorions</groupId>
+    <artifactId>boxable</artifactId>
+    <version>1.3</version>
+</dependency>
+```
+
+
+The project can also be used as a Maven dependency by using jitpack.io.
 * add the repository : 
 ```xml
 <repository>
