@@ -3,9 +3,15 @@ boxable
 
 Create tables in pdf documents using [PDFBox](http://pdfbox.apache.org)
 
-- Example pdf can be found at [examples](http://goo.gl/a7QvRM)
+Here are a few examples of the type of tables boxable can created :
 
-- Example code can be found at [SampleCode](https://github.com/dhorions/boxable/blob/master/src/test/java/be/quodlibet/boxable/TableTest.java)
+* [Table with text and images](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/BoxableSample1.pdf)
+![alt text](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/sample1_preview.png)
+* [Vertical and Horizontal text](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/BoxableSample3.pdf)
+![alt text](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/sample3_preview.png)
+
+
+Example code can be found [here](https://github.com/dhorions/boxable/blob/master/src/test/java/be/quodlibet/boxable/TableTest.java)
 
 The project is Java 7 compliant.
 
@@ -34,16 +40,16 @@ The project can also be used as a Maven dependency by using jitpack.io.
   <dependency>
     <groupId>com.github.dhorions</groupId>
     <artifactId>boxable</artifactId>
-    <version>1.2</version>
+    <version>1.3</version>
   </dependency>
 </dependencies>
 ```
 
-Special Thanks to [dgautier](https://github.com/dgautier) and [ZeerDonker](https://github.com/ZeerDonker) for their valuable contributions.
+Special Thanks to [dgautier](https://github.com/dgautier),[ZeerDonker](https://github.com/ZeerDonker),[Frulenzo](https://github.com/Frulenzo),[dobluth](https://github.com/dobluth) and [schmitzhermes](https://github.com/schmitzhermes) for their valuable contributions.
 
 =======
 
-Copyright [2015] [Quodlibet.be]
+Copyright [2016] [Quodlibet.be]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
