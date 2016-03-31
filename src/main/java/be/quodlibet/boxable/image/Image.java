@@ -8,6 +8,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
+import be.quodlibet.boxable.Row;
 import be.quodlibet.boxable.utils.ImageUtils;
 
 public class Image {
@@ -69,6 +70,21 @@ public class Image {
 		stream.drawImage(imageXObject, x, y - height, width, height);
 	}
 
+	
+	/**
+	 * <p>
+	 * Method which scale {@link Image} with designated width
+	 * </p>
+	 * @deprecated Use {@link #scaleByWidth(width)}
+	 * @param width
+	 *            Maximal height where {@link Image} needs to be scaled
+	 * @return Scaled {@link Image}
+	 */
+	public Image scale(float width) {
+		return scaleByWidth(width);
+	}
+	
+	
 	/**
 	 * <p>
 	 * Method which scale {@link Image} with designated width
