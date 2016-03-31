@@ -169,9 +169,9 @@ public final class FontUtils {
 	 * @throws IOException
 	 */
 	private static void createFontMetrics(final PDFont font) throws IOException {
-		final float base = font.getHeight("a".codePointAt(0)) / 1000;
-		final float ascent = font.getHeight("d".codePointAt(0)) / 1000 - base;
-		final float descent = font.getHeight("g".codePointAt(0)) / 1000 - base;
-		fontMetrics.put(font.getName(), new FontMetrics(base + ascent + descent, ascent, -descent));
+		final float base = font.getFontDescriptor().getXHeight() / 1000;
+		final float ascent = font.getFontDescriptor().getAscent() / 1000 - base;
+		final float descent = font.getFontDescriptor().getDescent() / 1000;
+		fontMetrics.put(font.getName(), new FontMetrics(base + ascent - descent, ascent, descent));
 	}
 }
