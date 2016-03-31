@@ -46,7 +46,7 @@ public class Row<T extends PDPage> {
 	public Cell<T> createCell(float width, String value) {
 		Cell<T> cell = new Cell<T>(this, width, value, true);
 		setBorders(cell, cells.isEmpty());
-		if(headerRow){
+		if (headerRow) {
 			// set all cell as header cell
 			cell.setHeaderCell(true);
 		}
@@ -94,7 +94,7 @@ public class Row<T extends PDPage> {
 	public Cell<T> createCell(float width, String value, HorizontalAlignment align, VerticalAlignment valign) {
 		Cell<T> cell = new Cell<T>(this, width, value, true, align, valign);
 		setBorders(cell, cells.isEmpty());
-		if(headerRow){
+		if (headerRow) {
 			// set all cell as header cell
 			cell.setHeaderCell(true);
 		}
@@ -148,12 +148,11 @@ public class Row<T extends PDPage> {
 	/**
 	 * <p>
 	 * Gets maximal height of the cells in current row therefore row's height.
-	 * </p> 
+	 * </p>
 	 * 
 	 * @return Row's height
 	 */
 	public float getHeight() {
-
 		float maxheight = 0.0f;
 		for (Cell<T> cell : this.cells) {
 			float cellHeight = cell.getCellHeight();
@@ -163,12 +162,14 @@ public class Row<T extends PDPage> {
 			}
 		}
 
-		return maxheight;
+		if (maxheight > height) {
+			this.height = maxheight;
+		}
+		return height;
 	}
 
 	public float getLineHeight() throws IOException {
 		return height;
-
 	}
 
 	public void setHeight(float height) {
@@ -212,7 +213,7 @@ public class Row<T extends PDPage> {
 	public float xEnd() {
 		return table.getMargin() + getWidth();
 	}
-	
+
 	public boolean isHeaderRow() {
 		return headerRow;
 	}
