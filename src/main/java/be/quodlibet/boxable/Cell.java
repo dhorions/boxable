@@ -674,7 +674,7 @@ public class Cell<T extends PDPage> {
         this.fontBold = sourceCell.getFontBold();
         setFillColor(sourceCell.getFillColor());
         setTextColor(sourceCell.getTextColor());
-        setHeight(sourceCell.getHeight());
+        //setHeight(sourceCell.getHeight());
     }
 
     public void setWidth(float width)
