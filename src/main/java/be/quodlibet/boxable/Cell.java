@@ -654,5 +654,28 @@ public class Cell<T extends PDPage> {
 
 	public void setColspanCell(boolean isColspanCell) {
 		this.isColspanCell = isColspanCell;
-	}
+    }
+
+    /**
+     * <p>
+     * Copies the style of an existing cell to this cell
+     * </p>
+     *
+     * @param sourceCell
+     */
+    public void copyCellStyle(Cell sourceCell)
+    {
+        setBorderStyle(sourceCell.getTopBorder());
+        setFont(sourceCell.getFont());
+        setFontBold(sourceCell.getFontBold());
+        setFillColor(sourceCell.getFillColor());
+        setTextColor(sourceCell.getTextColor());
+        setHeight(sourceCell.getHeight());
+    }
+
+    public void setWidth(float width)
+    {
+        this.width = width;
+    }
+
 }
