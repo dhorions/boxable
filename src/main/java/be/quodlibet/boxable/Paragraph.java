@@ -7,11 +7,18 @@ package be.quodlibet.boxable;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
+import be.quodlibet.boxable.text.PipelineLayer;
+import be.quodlibet.boxable.text.Token;
+import be.quodlibet.boxable.text.TokenType;
+import be.quodlibet.boxable.text.Tokenizer;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
 import be.quodlibet.boxable.utils.PDStreamUtils;
@@ -21,15 +28,23 @@ public class Paragraph {
 	private float width = 500;
 	private String text;
 	private float fontSize;
-	private PDFont font;
+	private PDFont font = PDType1Font.HELVETICA;
+	private PDFont fontBold = PDType1Font.HELVETICA_BOLD;
+	private PDFont fontItalic = PDType1Font.HELVETICA_OBLIQUE;
+	private PDFont fontBoldItalic = PDType1Font.HELVETICA_BOLD_OBLIQUE;
 	private final WrappingFunction wrappingFunction;
 	private HorizontalAlignment align;
 	private TextType textType;
-
 	private Color color;
 
+	private final static int DEFAULT_TAB = 4;
+	private final static int DEFAULT_TAB_AND_BULLET = 6;
+
 	private boolean drawDebug;
-	
+	private final Map<Integer, Float> lineWidths = new HashMap<>();
+	private Map<Integer, List<Token>> mapLineTokens = new HashMap<>();
+	private float maxLineWidth = Integer.MIN_VALUE;
+
 	public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align) {
 		this(text, font, fontSize, width, align, null);
 	}
@@ -63,36 +78,332 @@ public class Paragraph {
 	}
 
 	public List<String> getLines() {
-		List<String> result = new ArrayList<>();
+		final List<String> result = new ArrayList<>();
+		final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
 
-		String[] split = wrappingFunction.getLines(text);
+		int lineCounter = 0;
+		boolean italic = false;
+		boolean bold = false;
+		boolean listElement = false;
+		PDFont currentFont = font;
+		int orderListElement = 1;
+		boolean orderList = false;
 
-		int[] possibleWrapPoints = new int[split.length];
+		final PipelineLayer textInLine = new PipelineLayer();
+		final PipelineLayer sinceLastWrapPoint = new PipelineLayer();
 
-		possibleWrapPoints[0] = split[0].length();
+		for (final Token token : tokens) {
+			switch (token.getType()) {
+			case OPEN_TAG:
+				if (isBold(token)) {
+					bold = true;
+					currentFont = getFont(bold, italic);
+				} else if (isItalic(token)) {
+					italic = true;
+					currentFont = getFont(bold, italic);
+				} else if (isList(token)) {
+					if (token.getData().equals("ol")) {
+						orderList = true;
+						textInLine.push(sinceLastWrapPoint);
+						// this is our line
+						result.add(textInLine.trimmedText());
+						lineWidths.put(lineCounter, textInLine.trimmedWidth());
+						mapLineTokens.put(lineCounter, textInLine.tokens());
+						maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+						textInLine.reset();
+						lineCounter++;
+					} else if (token.getData().equals("ul")) {
+						textInLine.push(sinceLastWrapPoint);
+						// check if you have some text before this list, if you don't then you really don't need extra line break for that
+						if (textInLine.trimmedWidth() > 0) {
+							// this is our line
+							result.add(textInLine.trimmedText());
+							lineWidths.put(lineCounter, textInLine.trimmedWidth());
+							mapLineTokens.put(lineCounter, textInLine.tokens());
+							maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+							textInLine.reset();
+							lineCounter++;
+						}
+					}
+				}
+				sinceLastWrapPoint.push(token);
+				break;
+			case CLOSE_TAG:
+				if (isBold(token)) {
+					bold = false;
+					currentFont = getFont(bold, italic);
+					sinceLastWrapPoint.push(token);
+				} else if (isItalic(token)) {
+					italic = false;
+					currentFont = getFont(bold, italic);
+					sinceLastWrapPoint.push(token);
+				} else if (isList(token)) {
+					if (token.getData().equals("ol")) {
+						orderList = false;
+						// reset elements
+						orderListElement = 1;
+					}
+					// ensure extra space after each lists
+					// no need to worry about current line text because last closing <li> tag already done that
+					result.add(" ");
+					lineWidths.put(lineCounter, 0.0f);
+					mapLineTokens.put(lineCounter, new ArrayList<Token>());
+					lineCounter++;
+				} else if (isListElement(token)) {
+					// wrap at last wrap point?
+					if (textInLine.width() + sinceLastWrapPoint.trimmedWidth() > width) {
+						// this is our line
+						result.add(textInLine.trimmedText());
+						lineWidths.put(lineCounter, textInLine.trimmedWidth());
+						mapLineTokens.put(lineCounter, textInLine.tokens());
+						maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+						textInLine.reset();
+						lineCounter++;
+						// wrapping at last wrap point
+						if (orderList) {
+							String orderingNumber = String.valueOf(orderListElement) + ". ";
+							String tab = String.valueOf(indentLevel(DEFAULT_TAB));
+							String orderingNumberAndTab = orderingNumber + tab;
+							try {
+								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING, String
+										.valueOf(font.getStringWidth(orderingNumberAndTab) / 1000 * getFontSize())));
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						} else {
+							try {
+								// tab + bullet
+								String tabBullet = indentLevel(DEFAULT_TAB_AND_BULLET);
+								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
+										String.valueOf(font.getStringWidth(tabBullet) / 1000 * getFontSize())));
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+						textInLine.push(sinceLastWrapPoint);
+					}
+					// wrapping at this must-have wrap point
+					textInLine.push(sinceLastWrapPoint);
+					// this is our line
+					result.add(textInLine.trimmedText());
+					lineWidths.put(lineCounter, textInLine.trimmedWidth());
+					mapLineTokens.put(lineCounter, textInLine.tokens());
+					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+					textInLine.reset();
+					lineCounter++;
+					listElement = false;
+				}
+				if (isParagraph(token)) {
+					if (textInLine.width() + sinceLastWrapPoint.trimmedWidth() > width) {
+						// this is our line
+						result.add(textInLine.trimmedText());
+						lineWidths.put(lineCounter, textInLine.trimmedWidth());
+						maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+						mapLineTokens.put(lineCounter, textInLine.tokens());
+						lineCounter++;
+						textInLine.reset();
+					}
+					// wrapping at this must-have wrap point
+					textInLine.push(sinceLastWrapPoint);
+					// this is our line
+					result.add(textInLine.trimmedText());
+					lineWidths.put(lineCounter, textInLine.trimmedWidth());
+					mapLineTokens.put(lineCounter, textInLine.tokens());
+					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+					textInLine.reset();
+					lineCounter++;
+					
+					// extra spacing because it's a paragraph
+					result.add(" ");
+					lineWidths.put(lineCounter, 0.0f);
+					mapLineTokens.put(lineCounter, new ArrayList<Token>());
+					lineCounter++;
+				}
+				break;
+			case POSSIBLE_WRAP_POINT:
+				if (textInLine.width() + sinceLastWrapPoint.trimmedWidth() > width) {
+					// this is our line
+					if (!textInLine.isEmpty()) {
+						result.add(textInLine.trimmedText());
+						lineWidths.put(lineCounter, textInLine.trimmedWidth());
+						maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+						mapLineTokens.put(lineCounter, textInLine.tokens());
+						lineCounter++;
+						textInLine.reset();
+					}
+					// wrapping at last wrap point
+					if (listElement) {
+						if (orderList) {
+							String orderingNumber = String.valueOf(orderListElement) + ". ";
+							String tab = String.valueOf(indentLevel(DEFAULT_TAB));
+							String orderingNumberAndTab = orderingNumber + tab;
+							try {
+								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING, String
+										.valueOf(font.getStringWidth(orderingNumberAndTab) / 1000 * getFontSize())));
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						} else {
+							try {
+								String tabBullet = indentLevel(DEFAULT_TAB_AND_BULLET);
+								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
+										String.valueOf(font.getStringWidth(tabBullet) / 1000 * getFontSize())));
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}
+					textInLine.push(sinceLastWrapPoint);
+				} else {
+					textInLine.push(sinceLastWrapPoint);
+				}
+				break;
+			case WRAP_POINT:
+				// wrap at last wrap point?
+				if (textInLine.width() + sinceLastWrapPoint.trimmedWidth() > width) {
+					// this is our line
+					result.add(textInLine.trimmedText());
+					lineWidths.put(lineCounter, textInLine.trimmedWidth());
+					mapLineTokens.put(lineCounter, textInLine.tokens());
+					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+					textInLine.reset();
+					lineCounter++;
+					// wrapping at last wrap point
+					if (listElement) {
+						if (orderList) {
+							String orderingNumber = String.valueOf(orderListElement) + ". ";
+							String tab = String.valueOf(indentLevel(DEFAULT_TAB));
+							String orderingNumberAndTab = orderingNumber + tab;
+							try {
+								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING, String
+										.valueOf(font.getStringWidth(orderingNumberAndTab) / 1000 * getFontSize())));
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						} else {
+							try {
+								// tab + bullet
+								String tabBullet = indentLevel(DEFAULT_TAB_AND_BULLET);
+								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
+										String.valueOf(font.getStringWidth(tabBullet) / 1000 * getFontSize())));
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+					textInLine.push(sinceLastWrapPoint);
+				}
+				if (isParagraph(token)) {
+					// check if you have some text before this paragraph, if you don't then you really don't need extra line break for that
+					if (textInLine.trimmedWidth() > 0) {
+						// extra spacing because it's a paragraph
+						result.add(" ");
+						lineWidths.put(lineCounter, 0.0f);
+						mapLineTokens.put(lineCounter, new ArrayList<Token>());
+						lineCounter++;
+					}
+				} else if (isListElement(token)) {
+					listElement = true;
+					// token padding, token bullet
+					try {
+						// you always go one tab ahead
+						String tab = indentLevel(DEFAULT_TAB);
+						//						sinceLastWrapPoint.push(currentFont, fontSize, new Token(TokenType.PADDING, String.valueOf(font.getStringWidth(tab) / 1000 * getFontSize())));
+						textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
+								String.valueOf(font.getStringWidth(tab) / 1000 * getFontSize())));
+						if (orderList) {
+							// if it's ordering list then move depending on your: ordering number + ". "
+							String orderingNumber = String.valueOf(orderListElement) + ". ";
+							textInLine.push(currentFont, fontSize, new Token(TokenType.ORDERING, orderingNumber));
+							orderListElement++;
+						} else {
+							// if it's unordered list then just move by bullet character
+							textInLine.push(currentFont, fontSize, new Token(TokenType.BULLET, " "));
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				} else {
+					// wrapping at this must-have wrap point
+					textInLine.push(sinceLastWrapPoint);
+					// this is our line
+					result.add(textInLine.trimmedText());
+					lineWidths.put(lineCounter, textInLine.trimmedWidth());
+					mapLineTokens.put(lineCounter, textInLine.tokens());
+					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+					textInLine.reset();
+					lineCounter++;
+				}
+				break;
+			case TEXT:
+				try {
+					sinceLastWrapPoint.push(currentFont, fontSize, token);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				break;
+			}
+		}
+		if (sinceLastWrapPoint.trimmedWidth() + textInLine.trimmedWidth() > 0)
 
-		for (int i = 1; i < split.length; i++) {
-			possibleWrapPoints[i] = possibleWrapPoints[i - 1] + split[i].length();
+		{
+			textInLine.push(sinceLastWrapPoint);
+			result.add(textInLine.trimmedText());
+			lineWidths.put(lineCounter, textInLine.trimmedWidth());
+			mapLineTokens.put(lineCounter, textInLine.tokens());
+			maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 		}
 
-		int start = 0;
-		int end = 0;
-		for (int i : possibleWrapPoints) {
-			float width = 0;
-			try {
-				width = font.getStringWidth(text.substring(start, i)) / 1000 * fontSize;
-			} catch (IOException e) {
-				throw new IllegalArgumentException(e.getMessage(), e);
-			}
-			if (start < end && width > this.width) {
-				result.add(text.substring(start, end));
-				start = end;
-			}
-			end = i;
-		}
-		// Last piece of text
-		result.add(text.substring(start));
 		return result;
+
+	}
+
+	private boolean isItalic(final Token token) {
+		return "i".equals(token.getData());
+	}
+
+	private boolean isBold(final Token token) {
+		return "b".equals(token.getData());
+	}
+
+	private boolean isParagraph(final Token token) {
+		return "p".equals(token.getData());
+	}
+
+	private boolean isListElement(final Token token) {
+		return "li".equals(token.getData());
+	}
+
+	private boolean isList(final Token token) {
+		return "ul".equals(token.getData()) || "ol".equals(token.getData());
+	}
+
+	private static String indentLevel(int numberOfSpaces) {
+		//String builder is efficient at concatenating strings together
+		StringBuilder sb = new StringBuilder();
+
+		//Loop as many times as specified; each time add a space to the string
+		for (int i = 0; i < numberOfSpaces; i++) {
+			sb.append(" ");
+		}
+
+		//Return the string
+		return sb.toString();
+	}
+
+	public PDFont getFont(boolean isBold, boolean isItalic) {
+		if (isBold) {
+			if (isItalic) {
+				return fontBoldItalic;
+			} else {
+				return fontBold;
+			}
+		} else if (isItalic) {
+			return fontItalic;
+		} else {
+			return font;
+		}
 	}
 
 	public float write(final PDPageContentStream stream, float cursorX, float cursorY) {
@@ -223,10 +534,10 @@ public class Paragraph {
 	public float getFontSize() {
 		return fontSize;
 	}
-	
+
 	public PDFont getFont() {
-        return font;
-    }
+		return font;
+	}
 
 	public HorizontalAlignment getAlign() {
 		return align;
@@ -246,6 +557,18 @@ public class Paragraph {
 
 	public WrappingFunction getWrappingFunction() {
 		return wrappingFunction;
+	}
+
+	public float getMaxLineWidth() {
+		return maxLineWidth;
+	}
+
+	public float getLineWidth(int key) {
+		return lineWidths.get(key);
+	}
+
+	public Map<Integer, List<Token>> getMapLineTokens() {
+		return mapLineTokens;
 	}
 
 }
