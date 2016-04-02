@@ -50,27 +50,25 @@ public class ImageUtils {
 	 * @return Appropriate scaled image {@link Dimension} based on boundary
 	 *         {@link Dimension}
 	 */
-	public static Dimension getScaledDimension(Dimension imgDim, Dimension boundary) {
-		int imgWidth = imgDim.width;
-		int imgHeight = imgDim.height;
-		int boundWidth = boundary.width;
-		int boundHeight = boundary.height;
-		int newImgWidth = imgWidth;
-		int newImgHeight = imgHeight;
-
+	public static float[] getScaledDimension(float imageWidth, float imageHeight, float boundWidth, float boundHeight) {
+		float newImageWidth = imageWidth;
+		float newImageHeight = imageHeight;
+		
 		// first check if we need to scale width
-		if (imgWidth > boundWidth) {
-			newImgWidth = boundWidth;
+		if (imageWidth > boundWidth) {
+			newImageWidth = boundWidth;
 			// scale height to maintain aspect ratio
-			newImgHeight = (newImgWidth * imgHeight) / imgWidth;
+			newImageHeight = (newImageWidth * imageHeight) / imageWidth;
 		}
 
 		// then check if the new height is also bigger than expected
-		if (newImgHeight > boundHeight) {
-			newImgHeight = boundHeight;
+		if (newImageHeight > boundHeight) {
+			newImageHeight = boundHeight;
 			// scale width to maintain aspect ratio
-			newImgWidth = (newImgHeight * imgWidth) / imgHeight;
+			newImageWidth = (newImageHeight * imageWidth) / imageHeight;
 		}
-		return new Dimension(newImgWidth, newImgHeight);
+		
+		float[] imageDimension = {newImageWidth, newImageHeight};
+		return imageDimension;
 	}
 }
