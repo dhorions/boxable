@@ -1,6 +1,6 @@
 boxable
 =======
-(http://dhorions.github.io/boxable/)
+http://dhorions.github.io/boxable/
 
 Create tables in pdf documents using [PDFBox](http://pdfbox.apache.org)
 
