@@ -27,6 +27,7 @@ public class Cell<T extends PDPage> {
 	private final Row<T> row;
 	private WrappingFunction wrappingFunction;
 	private boolean isHeaderCell = false;
+	private boolean isColspanCell = false;
 
 	// default padding
 	private float leftPadding = 5f;
@@ -516,16 +517,10 @@ public class Cell<T extends PDPage> {
 	 */
 	public float getVerticalFreeSpace() {
 		if (isTextRotated()) {
-			float tw = 0.0f;
-			try {
-				for (final String line : getParagraph().getLines()) {
-					tw = Math.max(tw, getFont().getStringWidth(line.trim()));
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+			// need to calculate max line width so we just iterating through lines
+			for(String line : getParagraph().getLines()){
 			}
-			tw = tw / 1000 * getFontSize();
-			return getInnerHeight() - tw;
+			return getInnerHeight() - getParagraph().getMaxLineWidth();
 		} else {
 			return getInnerHeight() - getTextHeight();
 		}
@@ -548,20 +543,10 @@ public class Cell<T extends PDPage> {
 	 * @see {@link #getTextHeight}
 	 */
 	public float getHorizontalFreeSpace() {
-
-		float tw = 0.0f;
-		try {
-			for (final String line : getParagraph().getLines()) {
-				tw = Math.max(tw, getFont().getStringWidth(line.trim()));
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		tw = tw / 1000 * getFontSize();
 		if (isTextRotated()) {
 			return getInnerWidth() - getTextHeight();
 		} else {
-			return getInnerWidth() - tw;
+			return getInnerWidth() - getParagraph().getMaxLineWidth();
 		}
 	}
 
@@ -662,4 +647,12 @@ public class Cell<T extends PDPage> {
     {
         this.fontBold = fontBold;
     }
+
+	public boolean isColspanCell() {
+		return isColspanCell;
+	}
+
+	public void setColspanCell(boolean isColspanCell) {
+		this.isColspanCell = isColspanCell;
+	}
 }
