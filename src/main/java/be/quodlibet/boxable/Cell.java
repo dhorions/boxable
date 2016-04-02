@@ -671,7 +671,7 @@ public class Cell<T extends PDPage> {
             this.leftBorderStyle = null;//if left border wasn't set, don't set it now
         }
         this.font = sourceCell.getFont();//otherwise paragraph gets invalidated
-        setFontBold(sourceCell.getFontBold());
+        this.fontBold = sourceCell.getFontBold();
         setFillColor(sourceCell.getFillColor());
         setTextColor(sourceCell.getTextColor());
         setHeight(sourceCell.getHeight());
