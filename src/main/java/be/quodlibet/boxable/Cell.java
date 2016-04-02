@@ -665,7 +665,11 @@ public class Cell<T extends PDPage> {
      */
     public void copyCellStyle(Cell sourceCell)
     {
+        Boolean leftBorder = this.leftBorderStyle == null;
         setBorderStyle(sourceCell.getTopBorder());
+        if (leftBorder) {
+            this.leftBorderStyle = null;//if left border wasn't set, don't set it now
+        }
         setFont(sourceCell.getFont());
         setFontBold(sourceCell.getFontBold());
         setFillColor(sourceCell.getFillColor());
