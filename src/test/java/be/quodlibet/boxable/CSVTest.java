@@ -48,9 +48,6 @@ public class CSVTest
     {
     }
 
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
     @Test
     public void csvTestColWidths() throws IOException
     {
@@ -66,12 +63,12 @@ public class CSVTest
         float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         float yStart = yStartNewPage;
-        float bottomMargin = 70;
+        float bottomMargin = 20;
 
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
         CSVTable t = new CSVTable(dataTable, page);
-        t.addCsvToTable(data, CSVTable.HASHEADER, ";".toCharArray()[0]);
+        t.addCsvToTable(data, CSVTable.HASHEADER, ';');
         dataTable.draw();
         File file = new File("target/CSVexampleColWidths.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
@@ -87,20 +84,18 @@ public class CSVTest
         //Initialize Document
         PDDocument doc = new PDDocument();
         PDPage page = new PDPage();
-        //Create a landscape page
-        //page.setMediaBox(new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth()));
         doc.addPage(page);
         //Initialize table
         float margin = 10;
         float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         float yStart = yStartNewPage;
-        float bottomMargin = 70;
+        float bottomMargin = 20;
 
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
         CSVTable t = new CSVTable(dataTable, page);
-        t.addCsvToTable(data, CSVTable.HASHEADER, ";".toCharArray()[0]);
+        t.addCsvToTable(data, CSVTable.HASHEADER, ';');
         dataTable.draw();
         File file = new File("target/CSVexamplePortrait.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
@@ -117,19 +112,19 @@ public class CSVTest
         PDDocument doc = new PDDocument();
         PDPage page = new PDPage();
         //Create a landscape page
-        //page.setMediaBox(new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth()));
+        page.setMediaBox(new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth()));
         doc.addPage(page);
         //Initialize table
         float margin = 10;
         float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         float yStart = yStartNewPage;
-        float bottomMargin = 70;
+        float bottomMargin = 20;
 
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
         CSVTable t = new CSVTable(dataTable, page);
-        t.addCsvToTable(data, CSVTable.HASHEADER, ";".toCharArray()[0]);
+        t.addCsvToTable(data, CSVTable.HASHEADER, ';');
         dataTable.draw();
         File file = new File("target/CSVexampleLandscape.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
@@ -154,7 +149,7 @@ public class CSVTest
         float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         float yStart = yStartNewPage;
-        float bottomMargin = 70;
+        float bottomMargin = 20;
 
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
@@ -168,7 +163,7 @@ public class CSVTest
         c2.setFillColor(new Color(175, 212, 224));
         dataTable.addHeaderRow(h2);
         CSVTable t = new CSVTable(dataTable, page);
-        t.addCsvToTable(data, CSVTable.HASHEADER, ";".toCharArray()[0]);
+        t.addCsvToTable(data, CSVTable.HASHEADER, ';');
         dataTable.draw();
         File file = new File("target/CSVexampleSimple.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
@@ -183,7 +178,6 @@ public class CSVTest
     {
 
         String data = readData("https://s3.amazonaws.com/misc.quodlibet.be/Boxable/Eurostat_Energcy_Prices_Medium_Household.csv");
-        //String data = readData("https://s3.amazonaws.com/misc.quodlibet.be/Boxable/simplecsv.csv");
         //Initialize Document
         PDDocument doc = new PDDocument();
         PDPage page = new PDPage();
@@ -195,7 +189,7 @@ public class CSVTest
         float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         float yStart = yStartNewPage;
-        float bottomMargin = 70;
+        float bottomMargin = 20;
 
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
@@ -219,7 +213,7 @@ public class CSVTest
         t.getDataCellTemplateEven().setFillColor(Color.WHITE);
         t.getDataCellTemplateOdd().setFillColor(new Color(250, 242, 242));
 
-        t.addCsvToTable(data, CSVTable.HASHEADER, ";".toCharArray()[0]);
+        t.addCsvToTable(data, CSVTable.HASHEADER, ';');
 
         dataTable.draw();
         File file = new File("target/CSVexampleAdvanced.pdf");
