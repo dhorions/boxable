@@ -72,33 +72,33 @@ public class CSVTable
      */
     private void setDefaultStyles()
     {
-        LineStyle thinline = new LineStyle(Color.DARK_GRAY, 0.5f);
+        LineStyle thinline = new LineStyle(Color.BLACK, 0.75f);
         //Header style
         headerCellTemplate.setFillColor(new Color(137, 218, 245));
         headerCellTemplate.setTextColor(Color.BLACK);
         headerCellTemplate.setFont(PDType1Font.HELVETICA_BOLD);
-        headerCellTemplate.setLeftBorderStyle(thinline);
+        headerCellTemplate.setBorderStyle(thinline);
 
         //Normal cell style, all rows and columns are the same by default
         dataCellTemplateEven.setFillColor(new Color(242, 242, 242));
         dataCellTemplateEven.setTextColor(Color.BLACK);
         dataCellTemplateEven.setFont(PDType1Font.HELVETICA);
-        dataCellTemplateEven.setLeftBorderStyle(thinline);
+        dataCellTemplateEven.setBorderStyle(thinline);
 
         dataCellTemplateOdd.setFillColor(new Color(242, 242, 242));
         dataCellTemplateOdd.setTextColor(Color.BLACK);
         dataCellTemplateOdd.setFont(PDType1Font.HELVETICA);
-        dataCellTemplateOdd.setLeftBorderStyle(thinline);
+        dataCellTemplateOdd.setBorderStyle(thinline);
 
         firstColumnCellTemplate.setFillColor(new Color(242, 242, 242));
         firstColumnCellTemplate.setTextColor(Color.BLACK);
         firstColumnCellTemplate.setFont(PDType1Font.HELVETICA);
-        firstColumnCellTemplate.setLeftBorderStyle(thinline);
+        firstColumnCellTemplate.setBorderStyle(thinline);
 
         lastColumnCellTemplate.setFillColor(new Color(242, 242, 242));
         lastColumnCellTemplate.setTextColor(Color.BLACK);
         lastColumnCellTemplate.setFont(PDType1Font.HELVETICA);
-        lastColumnCellTemplate.setLeftBorderStyle(thinline);
+        lastColumnCellTemplate.setBorderStyle(thinline);
     }
 
 
