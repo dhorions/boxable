@@ -90,7 +90,7 @@ public class CSVTest
         float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         float yStart = yStartNewPage;
-        float bottomMargin = 20;
+        float bottomMargin = 0;
 
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
@@ -119,7 +119,7 @@ public class CSVTest
         float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         float yStart = yStartNewPage;
-        float bottomMargin = 20;
+        float bottomMargin = 0;
 
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
@@ -149,7 +149,7 @@ public class CSVTest
         float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         float yStart = yStartNewPage;
-        float bottomMargin = 20;
+        float bottomMargin = 0;
 
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
@@ -189,7 +189,7 @@ public class CSVTest
         float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         float yStart = yStartNewPage;
-        float bottomMargin = 20;
+        float bottomMargin = 0;
 
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
