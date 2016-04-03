@@ -11,6 +11,7 @@ import be.quodlibet.boxable.utils.FontUtils;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -176,6 +177,45 @@ public class CSVTable
         return lastColumnCellTemplate;
     }
 
+    /**
+     * <p>
+     * Add a List of Lists to the Table
+     * </p>
+     *
+     * @param data
+     * @param hasHeader
+     * @param separator
+     * @throws IOException
+     */
+    public void addListToTable(List<List> data, Boolean hasHeader) throws IOException
+    {
+        char separator = ';';
+        if (data == null || data.isEmpty()) {
+            return;
+        }
+        String output = "";
+        //Convert Map of arbitrary objects to a csv String
+        for (List inputList : data) {
+            for (Object v : inputList) {
+                String value = v.toString();
+                if (value.contains("" + separator)) {
+                    //surround value with quotes if it contains the escape character
+                    value = "\"" + value + "\"";
+                }
+                output += value + separator;
+            }
+            //remove the last separator
+            output = removeLastChar(output);
+            output += "\n";
+        }
+        addCsvToTable(output, hasHeader, separator);
+
+    }
+
+    private static String removeLastChar(String str)
+    {
+        return str.substring(0, str.length() - 1);
+    }
     /**
      * <p>
      * Add a String representing a CSV document to the Table
