@@ -20,6 +20,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 /**
+ * Write CSV documents directly to PDF Tables
  *
  * @author Dries Horions <dries@quodlibet.be>
  */
@@ -33,6 +34,17 @@ public class CSVTable
     private Cell dataCellTemplateOdd;
     private Cell firstColumnCellTemplate;
     private Cell lastColumnCellTemplate;
+
+    /**
+     * <p>
+     * Create a CSVTable object to be able to add CSV document to a Table.
+     * A page needs to be passed to the constructor so the Template Cells can be created.
+     * </p>
+     *
+     * @param table
+     * @param page
+     * @throws IOException
+     */
     public CSVTable(Table table, PDPage page) throws IOException
     {
         this.table = table;
@@ -53,7 +65,11 @@ public class CSVTable
         setDefaultStyles();
         ddoc.close();
     }
-
+    /**
+     * <p>
+     * Default cell styles for all cells. By default, only the header cell has a different style than the rest of the table.
+     * </p>
+     */
     private void setDefaultStyles()
     {
         LineStyle thinline = new LineStyle(Color.DARK_GRAY, 0.5f);
@@ -95,38 +111,81 @@ public class CSVTable
     {
         return table;
     }
-
+    /**
+     * <p>
+     * Set the Table that the CSV document will be added to
+     * </p>
+     *
+     * @param table
+     */
     public void setTable(Table table)
     {
         this.table = table;
     }
-
+    /**
+     * <p>
+     * Get the Cell Template that will be applied to header cells.
+     * <p>
+     * @return
+     */
     public Cell getHeaderCellTemplate()
     {
         return headerCellTemplate;
     }
-
+    /**
+     * <p>
+     * Get the Cell Template that will be assigned to Data cells that are in even rows, and are not the first or last column
+     * </p>
+     *
+     * @return
+     */
     public Cell getDataCellTemplateEven()
     {
         return dataCellTemplateEven;
     }
-
+    /**
+     * <p>
+     * Get the Cell Template that will be assigned to Data cells that are in odd rows, and are not the first or last column
+     * </p>
+     *
+     * @return
+     */
     public Cell getDataCellTemplateOdd()
     {
         return dataCellTemplateOdd;
     }
-
+    /**
+     * <p>
+     * Get the Cell Template that will be assigned to cells in the first column
+     * </p>
+     *
+     * @return
+     */
     public Cell getFirstColumnCellTemplate()
     {
         return firstColumnCellTemplate;
     }
-
+    /**
+     * <p>
+     * Get the Cell Template that will be assigned to cells in the last columns
+     *
+     * @return
+     */
     public Cell getLastColumnCellTemplate()
     {
         return lastColumnCellTemplate;
     }
 
-
+    /**
+     * <p>
+     * Add a String representing a CSV document to the Table
+     * </p>
+     *
+     * @param data
+     * @param hasHeader
+     * @param separator
+     * @throws IOException
+     */
     public void addCsvToTable(String data, Boolean hasHeader, char separator) throws IOException
     {
         Iterable<CSVRecord> records = CSVParser.parse(data, CSVFormat.EXCEL.withDelimiter(separator));
@@ -141,20 +200,17 @@ public class CSVTable
 
 
                 //calculate the width of the columns
-                float totalPct = 0.0f;
                 float totalWidth = 0.0f;
                 for (int i = 0; i < line.size(); i++) {
                     String cellValue = line.get(i);
                     float textWidth = FontUtils.getStringWidth(headerCellTemplate.getFont(), " " + cellValue + " ", headerCellTemplate.getFontSize());
                     float widthPct = textWidth * 100 / table.getWidth();
-                    totalPct += widthPct;
                     totalWidth += textWidth;
                     numcols = i;
                 }
-                //now totalPct has the total % of width we need to have all columns full sized.
-                //now calculate a factor to reduce size by to make it fit
-                float sizefactor = 100.0f / totalPct;
-                sizefactor = table.getWidth() / totalWidth;
+                //totalWidth has the total width we need to have all columns full sized.
+                //calculate a factor to reduce/increase size by to make it fit in our table
+                float sizefactor = table.getWidth() / totalWidth;
                 for (int i = 0; i <= numcols; i++) {
                     String cellValue = "";
                     if (line.size() >= i) {
@@ -184,10 +240,6 @@ public class CSVTable
             else {
                 Row r = table.createRow(dataCellTemplateEven.getCellHeight());
                 for (int i = 0; i <= numcols; i++) {
-                    String cellValue = "";
-                    if (line.size() >= i) {
-                        cellValue = line.get(i);
-                    }
                     //Choose the correct template for the cell
                     Cell template = dataCellTemplateEven;
                     if (odd) {
@@ -198,6 +250,10 @@ public class CSVTable
                     }
                     if (i == numcols) {
                         template = lastColumnCellTemplate;
+                    }
+                    String cellValue = "";
+                    if (line.size() >= i) {
+                        cellValue = line.get(i);
                     }
                     Cell c = r.createCell(colWidths.get(i), cellValue, template.getAlign(), template.getValign());
                     //Apply style of header cell to this cell
