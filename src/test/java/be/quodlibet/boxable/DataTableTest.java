@@ -1,6 +1,6 @@
 package be.quodlibet.boxable;
 
-import be.quodlibet.boxable.csv.CSVTable;
+import be.quodlibet.boxable.datatable.DataTable;
 import com.google.common.io.Files;
 import java.awt.Color;
 import java.io.File;
@@ -24,10 +24,10 @@ import org.junit.Test;
  *
  * @author Dries Horions <dries@quodlibet.be>
  */
-public class CSVTest
+public class DataTableTest
 {
 
-    public CSVTest()
+    public DataTableTest()
     {
     }
 
@@ -81,8 +81,8 @@ public class CSVTest
 
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
-        CSVTable t = new CSVTable(dataTable, page);
-        t.addListToTable(data, CSVTable.HASHEADER);
+        DataTable t = new DataTable(dataTable, page);
+        t.addListToTable(data, DataTable.HASHEADER);
         dataTable.draw();
         File file = new File("target/ListExampleLandscape.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
@@ -110,8 +110,8 @@ public class CSVTest
 
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
-        CSVTable t = new CSVTable(dataTable, page);
-        t.addCsvToTable(data, CSVTable.HASHEADER, ';');
+        DataTable t = new DataTable(dataTable, page);
+        t.addCsvToTable(data, DataTable.HASHEADER, ';');
         dataTable.draw();
         File file = new File("target/CSVexampleColWidths.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
@@ -137,8 +137,8 @@ public class CSVTest
 
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
-        CSVTable t = new CSVTable(dataTable, page);
-        t.addCsvToTable(data, CSVTable.HASHEADER, ';');
+        DataTable t = new DataTable(dataTable, page);
+        t.addCsvToTable(data, DataTable.HASHEADER, ';');
         dataTable.draw();
         File file = new File("target/CSVexamplePortrait.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
@@ -166,8 +166,8 @@ public class CSVTest
 
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
-        CSVTable t = new CSVTable(dataTable, page);
-        t.addCsvToTable(data, CSVTable.HASHEADER, ';');
+        DataTable t = new DataTable(dataTable, page);
+        t.addCsvToTable(data, DataTable.HASHEADER, ';');
         dataTable.draw();
         File file = new File("target/CSVexampleLandscape.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
@@ -205,8 +205,8 @@ public class CSVTest
         Cell c2 = h2.createCell(100, "Eur per kWh for Medium Size Households.<br/>Source <i>http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=ten00117</i>");
         c2.setFillColor(new Color(175, 212, 224));
         dataTable.addHeaderRow(h2);
-        CSVTable t = new CSVTable(dataTable, page);
-        t.addCsvToTable(data, CSVTable.HASHEADER, ';');
+        DataTable t = new DataTable(dataTable, page);
+        t.addCsvToTable(data, DataTable.HASHEADER, ';');
         dataTable.draw();
         File file = new File("target/CSVexampleSimple.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
@@ -245,7 +245,7 @@ public class CSVTest
         Cell c2 = h2.createCell(100, "Eur per kWh for Medium Size Households.<br/>Source <i>http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=ten00117</i>");
         c2.setFillColor(new Color(175, 212, 224));
         dataTable.addHeaderRow(h2);
-        CSVTable t = new CSVTable(dataTable, page);
+        DataTable t = new DataTable(dataTable, page);
         //set the style template for header cells
         t.getHeaderCellTemplate().setFillColor(new Color(13, 164, 214));
         //set the style template for first column
@@ -256,7 +256,7 @@ public class CSVTest
         t.getDataCellTemplateEven().setFillColor(Color.WHITE);
         t.getDataCellTemplateOdd().setFillColor(new Color(250, 242, 242));
 
-        t.addCsvToTable(data, CSVTable.HASHEADER, ';');
+        t.addCsvToTable(data, DataTable.HASHEADER, ';');
 
         dataTable.draw();
         File file = new File("target/CSVexampleAdvanced.pdf");

@@ -1,4 +1,4 @@
-package be.quodlibet.boxable.csv;
+package be.quodlibet.boxable.datatable;
 
 import be.quodlibet.boxable.BaseTable;
 import be.quodlibet.boxable.Cell;
@@ -25,7 +25,7 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
  *
  * @author Dries Horions <dries@quodlibet.be>
  */
-public class CSVTable
+public class DataTable
 {
     public static final Boolean HASHEADER = true;
     public static final Boolean NOHEADER = false;
@@ -35,6 +35,7 @@ public class CSVTable
     private Cell dataCellTemplateOdd;
     private Cell firstColumnCellTemplate;
     private Cell lastColumnCellTemplate;
+    private Cell defaultCellTemplate;
 
     /**
      * <p>
@@ -46,7 +47,7 @@ public class CSVTable
      * @param page
      * @throws IOException
      */
-    public CSVTable(Table table, PDPage page) throws IOException
+    public DataTable(Table table, PDPage page) throws IOException
     {
         this.table = table;
         //Create a dummy pdf document, page and table to create template cells
@@ -63,6 +64,7 @@ public class CSVTable
         dataCellTemplateOdd = dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE);
         firstColumnCellTemplate = dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE);
         lastColumnCellTemplate = dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE);
+        defaultCellTemplate = dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE);
         setDefaultStyles();
         ddoc.close();
     }
@@ -81,25 +83,15 @@ public class CSVTable
         headerCellTemplate.setBorderStyle(thinline);
 
         //Normal cell style, all rows and columns are the same by default
-        dataCellTemplateEven.setFillColor(new Color(242, 242, 242));
-        dataCellTemplateEven.setTextColor(Color.BLACK);
-        dataCellTemplateEven.setFont(PDType1Font.HELVETICA);
-        dataCellTemplateEven.setBorderStyle(thinline);
+        defaultCellTemplate.setFillColor(new Color(242, 242, 242));
+        defaultCellTemplate.setTextColor(Color.BLACK);
+        defaultCellTemplate.setFont(PDType1Font.HELVETICA);
+        defaultCellTemplate.setBorderStyle(thinline);
 
-        dataCellTemplateOdd.setFillColor(new Color(242, 242, 242));
-        dataCellTemplateOdd.setTextColor(Color.BLACK);
-        dataCellTemplateOdd.setFont(PDType1Font.HELVETICA);
-        dataCellTemplateOdd.setBorderStyle(thinline);
-
-        firstColumnCellTemplate.setFillColor(new Color(242, 242, 242));
-        firstColumnCellTemplate.setTextColor(Color.BLACK);
-        firstColumnCellTemplate.setFont(PDType1Font.HELVETICA);
-        firstColumnCellTemplate.setBorderStyle(thinline);
-
-        lastColumnCellTemplate.setFillColor(new Color(242, 242, 242));
-        lastColumnCellTemplate.setTextColor(Color.BLACK);
-        lastColumnCellTemplate.setFont(PDType1Font.HELVETICA);
-        lastColumnCellTemplate.setBorderStyle(thinline);
+        dataCellTemplateEven.copyCellStyle(defaultCellTemplate);
+        dataCellTemplateOdd.copyCellStyle(defaultCellTemplate);
+        firstColumnCellTemplate.copyCellStyle(defaultCellTemplate);
+        lastColumnCellTemplate.copyCellStyle(defaultCellTemplate);
     }
 
 
@@ -285,10 +277,10 @@ public class CSVTable
                     if (odd) {
                         template = dataCellTemplateOdd;
                     }
-                    if (i == 0) {
+                    if (i == 0 & !firstColumnCellTemplate.hasSameStyle(defaultCellTemplate)) {
                         template = firstColumnCellTemplate;
                     }
-                    if (i == numcols) {
+                    if (i == numcols & !lastColumnCellTemplate.hasSameStyle(defaultCellTemplate)) {
                         template = lastColumnCellTemplate;
                     }
                     String cellValue = "";
