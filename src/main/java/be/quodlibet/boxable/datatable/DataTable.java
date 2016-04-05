@@ -30,12 +30,12 @@ public class DataTable
     public static final Boolean HASHEADER = true;
     public static final Boolean NOHEADER = false;
     private Table table;
-    private Cell headerCellTemplate;
-    private Cell dataCellTemplateEven;
-    private Cell dataCellTemplateOdd;
-    private Cell firstColumnCellTemplate;
-    private Cell lastColumnCellTemplate;
-    private Cell defaultCellTemplate;
+    private final Cell headerCellTemplate;
+    private final Cell dataCellTemplateEven;
+    private final Cell dataCellTemplateOdd;
+    private final Cell firstColumnCellTemplate;
+    private final Cell lastColumnCellTemplate;
+    private final Cell defaultCellTemplate;
 
     /**
      * <p>
@@ -201,7 +201,6 @@ public class DataTable
             output += "\n";
         }
         addCsvToTable(output, hasHeader, separator);
-
     }
 
     private static String removeLastChar(String str)
