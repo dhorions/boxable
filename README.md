@@ -47,6 +47,10 @@ data.add(new ArrayList<>(
 for (int i = 1; i <= 100; i++) {
   data.add(new ArrayList<>(
                Arrays.asList("Row " + i + " Col One", "Row " + i + " Col Two", "Row " + i + " Col Three", "Row " + i + " Col Four", "Row " + i + " Col Five")));
+BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, true);
+DataTable t = new DataTable(dataTable, page);
+t.addListToTable(data, DataTable.HASHEADER);
+dataTable.draw();
 }
 ```
 Output : [ListExampleLandscape.pdf](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/ListExampleLandscape.pdf)
@@ -85,7 +89,7 @@ Special Thanks to these awesome contributers :
 
 =======
 
-Copyright [2016] [Quodlibet.be]
+Copyright [2016](Quodlibet.be)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
