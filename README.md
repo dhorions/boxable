@@ -19,10 +19,11 @@ For other build systems, check the [Maven Central Repository](http://search.mave
 - Build tables in pdf documents
 - Convert csv data into tables in pdf documents
 - Convert Lists into tables in pdf documents
-- 
+
 # Tutorial
 
-A tutorial is being created and will be accessible at http://dhorions.github.io/boxable/
+A tutorial is being created and will be accessible at http://dhorions.github.io/boxable/.
+If you want to help, please let us know  [here](https://github.com/dhorions/boxable/issues/41).
 
 # Usage examples
 
