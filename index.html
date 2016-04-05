@@ -29,66 +29,108 @@
       <div class="inner clearfix">
         <section id="main-content">
           <h1>
-<a id="boxable" class="anchor" href="#boxable" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>boxable</h1>
+<a id="boxable---a-java-library-to-build-tables-in-pdf-documents" class="anchor" href="#boxable---a-java-library-to-build-tables-in-pdf-documents" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><a href="http://dhorions.github.io/boxable/">Boxable</a> - A java library to build tables in PDF documents.</h1>
 
-<p>Create tables in pdf documents using <a href="http://pdfbox.apache.org">PDFBox</a></p>
+<p>Boxable is a library that can be used to easily create tables in pdf documents.  It uses the <a href="https://pdfbox.apache.org/">PDFBox</a> PDF library under the hood.</p>
 
-<p>Here are a few examples of the type of tables boxable can created :</p>
+<h1>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h1>
 
 <ul>
-<li>
-<a href="https://s3.amazonaws.com/misc.quodlibet.be/Boxable/BoxableSample1.pdf">Table with text and images</a>
-<img src="https://s3.amazonaws.com/misc.quodlibet.be/Boxable/sample1_preview.png" alt="alt text">
-</li>
-<li>
-<a href="https://s3.amazonaws.com/misc.quodlibet.be/Boxable/BoxableSample3.pdf">Vertical and Horizontal text</a>
-<img src="https://s3.amazonaws.com/misc.quodlibet.be/Boxable/sample3_preview.png" alt="alt text">
-</li>
+<li>Build tables in pdf documents</li>
+<li>Convert csv data into tables in pdf documents</li>
+<li>Convert Lists into tables in pdf documents</li>
 </ul>
 
-<p>Example code can be found <a href="https://github.com/dhorions/boxable/blob/master/src/test/java/be/quodlibet/boxable/TableTest.java">here</a></p>
-
-<p>The project is Java 7 compliant.</p>
-
-<p>Maven : 
-The project can be used as a Maven dependency : </p>
+<h1>
+<a id="maven" class="anchor" href="#maven" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Maven</h1>
 
 <div class="highlight highlight-text-xml"><pre>&lt;<span class="pl-ent">dependency</span>&gt;
     &lt;<span class="pl-ent">groupId</span>&gt;com.github.dhorions&lt;/<span class="pl-ent">groupId</span>&gt;
     &lt;<span class="pl-ent">artifactId</span>&gt;boxable&lt;/<span class="pl-ent">artifactId</span>&gt;
-    &lt;<span class="pl-ent">version</span>&gt;1.3&lt;/<span class="pl-ent">version</span>&gt;
+    &lt;<span class="pl-ent">version</span>&gt;1.4&lt;/<span class="pl-ent">version</span>&gt;
 &lt;/<span class="pl-ent">dependency</span>&gt;</pre></div>
 
-<p>The project can also be used as a Maven dependency by using jitpack.io.</p>
+<p>For other build systems, check the <a href="http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22boxable%22">Maven Central Repository</a>.</p>
+
+<h1>
+<a id="tutorial" class="anchor" href="#tutorial" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Tutorial</h1>
+
+<p>A tutorial is being created and will be accessible at <a href="http://dhorions.github.io/boxable/">http://dhorions.github.io/boxable/</a>.
+If you want to help, please let us know  <a href="https://github.com/dhorions/boxable/issues/41">here</a>.</p>
+
+<h1>
+<a id="usage-examples" class="anchor" href="#usage-examples" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage examples</h1>
+
+<h2>
+<a id="create-a-pdf-from-a-csv-file" class="anchor" href="#create-a-pdf-from-a-csv-file" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Create a pdf from a csv file</h2>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-smi">String</span> data <span class="pl-k">=</span> readData(<span class="pl-s"><span class="pl-pds">"</span>https://s3.amazonaws.com/misc.quodlibet.be/Boxable/Eurostat_Immigration_Applications.csv<span class="pl-pds">"</span></span>);
+<span class="pl-smi">BaseTable</span> pdfTable <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">BaseTable</span>(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, <span class="pl-c1">true</span>,<span class="pl-c1">true</span>);
+<span class="pl-smi">DataTable</span> t <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">DataTable</span>(pdfTable, page);
+t<span class="pl-k">.</span>addCsvToTable(data, <span class="pl-smi">DataTable</span><span class="pl-c1"><span class="pl-k">.</span>HASHEADER</span>, <span class="pl-s"><span class="pl-pds">'</span>;<span class="pl-pds">'</span></span>);
+pdfTable<span class="pl-k">.</span>draw();</pre></div>
+
+<p>Output : <a href="https://s3.amazonaws.com/misc.quodlibet.be/Boxable/CSVexamplePortrait.pdf">CSVExamplePortrait.pdf</a></p>
+
+<h2>
+<a id="create-a-pdf-from-a-list" class="anchor" href="#create-a-pdf-from-a-list" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Create a pdf from a List</h2>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">List&lt;<span class="pl-smi">List</span>&gt;</span> data <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">ArrayList</span>();
+data<span class="pl-k">.</span>add(<span class="pl-k">new</span> <span class="pl-k">ArrayList&lt;&gt;</span>(
+               <span class="pl-smi">Arrays</span><span class="pl-k">.</span>asList(<span class="pl-s"><span class="pl-pds">"</span>Column One<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>Column Two<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>Column Three<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>Column Four<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>Column Five<span class="pl-pds">"</span></span>)));
+<span class="pl-k">for</span> (<span class="pl-k">int</span> i <span class="pl-k">=</span> <span class="pl-c1">1</span>; i <span class="pl-k">&lt;=</span> <span class="pl-c1">100</span>; i<span class="pl-k">++</span>) {
+  data<span class="pl-k">.</span>add(<span class="pl-k">new</span> <span class="pl-k">ArrayList&lt;&gt;</span>(
+               <span class="pl-smi">Arrays</span><span class="pl-k">.</span>asList(<span class="pl-s"><span class="pl-pds">"</span>Row <span class="pl-pds">"</span></span> <span class="pl-k">+</span> i <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span> Col One<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>Row <span class="pl-pds">"</span></span> <span class="pl-k">+</span> i <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span> Col Two<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>Row <span class="pl-pds">"</span></span> <span class="pl-k">+</span> i <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span> Col Three<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>Row <span class="pl-pds">"</span></span> <span class="pl-k">+</span> i <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span> Col Four<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>Row <span class="pl-pds">"</span></span> <span class="pl-k">+</span> i <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span> Col Five<span class="pl-pds">"</span></span>)));
+<span class="pl-smi">BaseTable</span> dataTable <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">BaseTable</span>(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, <span class="pl-c1">true</span>, <span class="pl-c1">true</span>);
+<span class="pl-smi">DataTable</span> t <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">DataTable</span>(dataTable, page);
+t<span class="pl-k">.</span>addListToTable(data, <span class="pl-smi">DataTable</span><span class="pl-c1"><span class="pl-k">.</span>HASHEADER</span>);
+dataTable<span class="pl-k">.</span>draw();
+}</pre></div>
+
+<p>Output : <a href="https://s3.amazonaws.com/misc.quodlibet.be/Boxable/ListExampleLandscape.pdf">ListExampleLandscape.pdf</a></p>
+
+<h2>
+<a id="build-tables-in-pdf-documents" class="anchor" href="#build-tables-in-pdf-documents" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Build tables in pdf documents</h2>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-smi">BaseTable</span> table <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">BaseTable</span>(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, <span class="pl-c1">true</span>,
+                drawContent);
+<span class="pl-c">//Create Header row</span>
+<span class="pl-k">Row&lt;<span class="pl-smi">PDPage</span>&gt;</span> headerRow <span class="pl-k">=</span> table<span class="pl-k">.</span>createRow(<span class="pl-c1">15f</span>);
+<span class="pl-k">Cell&lt;<span class="pl-smi">PDPage</span>&gt;</span> cell <span class="pl-k">=</span> headerRow<span class="pl-k">.</span>createCell(<span class="pl-c1">100</span>, <span class="pl-s"><span class="pl-pds">"</span>Awesome Facts About Belgium<span class="pl-pds">"</span></span>);
+cell<span class="pl-k">.</span>setFont(<span class="pl-smi">PDType1Font</span><span class="pl-c1"><span class="pl-k">.</span>HELVETICA_BOLD</span>);
+cell<span class="pl-k">.</span>setFillColor(<span class="pl-smi">Color</span><span class="pl-c1"><span class="pl-k">.</span>BLACK</span>);
+table<span class="pl-k">.</span>addHeaderRow(headerRow);
+<span class="pl-k">List&lt;<span class="pl-k">String</span>[]&gt;</span> facts <span class="pl-k">=</span> getFacts();
+<span class="pl-k">for</span> (<span class="pl-k">String</span>[] fact <span class="pl-k">:</span> facts) {
+            <span class="pl-k">Row&lt;<span class="pl-smi">PDPage</span>&gt;</span> row <span class="pl-k">=</span> table<span class="pl-k">.</span>createRow(<span class="pl-c1">10f</span>);
+            cell <span class="pl-k">=</span> row<span class="pl-k">.</span>createCell((<span class="pl-c1">100</span> <span class="pl-k">/</span> <span class="pl-c1">3.0f</span>) <span class="pl-k">*</span> <span class="pl-c1">2</span>, fact[<span class="pl-c1">0</span>] );
+            <span class="pl-k">for</span> (<span class="pl-k">int</span> i <span class="pl-k">=</span> <span class="pl-c1">1</span>; i <span class="pl-k">&lt;</span> fact<span class="pl-k">.</span>length; i<span class="pl-k">++</span>) {
+               cell <span class="pl-k">=</span> row<span class="pl-k">.</span>createCell((<span class="pl-c1">100</span> <span class="pl-k">/</span> <span class="pl-c1">9f</span>), fact[i]);
+            }
+}
+table<span class="pl-k">.</span>draw();</pre></div>
+
+<p>Special Thanks to these awesome contributers : </p>
 
 <ul>
-<li>add the repository : </li>
+<li><a href="https://github.com/dgautier">dgautier</a></li>
+<li><a href="https://github.com/ZeerDonker">ZeerDonker</a></li>
+<li><a href="https://github.com/Frulenzo">Frulenzo</a></li>
+<li><a href="https://github.com/dobluth">dobluth</a></li>
+<li><a href="https://github.com/schmitzhermes">schmitzhermes</a></li>
 </ul>
-
-<div class="highlight highlight-text-xml"><pre>&lt;<span class="pl-ent">repository</span>&gt;
-  &lt;<span class="pl-ent">id</span>&gt;jitpack.io&lt;/<span class="pl-ent">id</span>&gt;
-  &lt;<span class="pl-ent">url</span>&gt;https://jitpack.io&lt;/<span class="pl-ent">url</span>&gt;
-&lt;/<span class="pl-ent">repository</span>&gt;</pre></div>
-
-<ul>
-<li>add the dependency</li>
-</ul>
-
-<div class="highlight highlight-text-xml"><pre>&lt;<span class="pl-ent">dependencies</span>&gt;
-  &lt;<span class="pl-ent">dependency</span>&gt;
-    &lt;<span class="pl-ent">groupId</span>&gt;com.github.dhorions&lt;/<span class="pl-ent">groupId</span>&gt;
-    &lt;<span class="pl-ent">artifactId</span>&gt;boxable&lt;/<span class="pl-ent">artifactId</span>&gt;
-    &lt;<span class="pl-ent">version</span>&gt;1.3&lt;/<span class="pl-ent">version</span>&gt;
-  &lt;/<span class="pl-ent">dependency</span>&gt;
-&lt;/<span class="pl-ent">dependencies</span>&gt;</pre></div>
-
-<p>Special Thanks to <a href="https://github.com/dgautier">dgautier</a>,<a href="https://github.com/ZeerDonker">ZeerDonker</a>,<a href="https://github.com/Frulenzo">Frulenzo</a>,<a href="https://github.com/dobluth">dobluth</a> and <a href="https://github.com/schmitzhermes">schmitzhermes</a> for their valuable contributions.</p>
 
 <h1></h1>
 
+<p>Copyright <a href="Quodlibet.be">2016</a></p>
+
 <p>Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
-You may obtain a copy of the License at <a href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+You may obtain a copy of the License at</p>
+
+<pre><code>http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
 
 <p>Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
