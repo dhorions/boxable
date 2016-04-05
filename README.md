@@ -4,6 +4,13 @@
 
 Boxable is a library that can be used to easily create tables in pdf documents.  It uses the [PDFBox](https://pdfbox.apache.org/) PDF library under the hood.
 
+# Features
+
+- Build tables in pdf documents
+- Convert csv data into tables in pdf documents
+- Convert Lists into tables in pdf documents
+
+
 # Maven
 ```xml
 <dependency>
@@ -14,11 +21,6 @@ Boxable is a library that can be used to easily create tables in pdf documents. 
 ```
 For other build systems, check the [Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22boxable%22).
 
-# Features
-
-- Build tables in pdf documents
-- Convert csv data into tables in pdf documents
-- Convert Lists into tables in pdf documents
 
 # Tutorial
 
