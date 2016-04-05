@@ -45,8 +45,8 @@ public class Cell<T extends PDPage> {
 
 	private boolean textRotated = false;
 
-	private final HorizontalAlignment align;
-	private final VerticalAlignment valign;
+	private HorizontalAlignment align;
+	private VerticalAlignment valign;
 
 	float horizontalFreeSpace = 0;
 	float verticalFreeSpace = 0;
@@ -654,5 +654,77 @@ public class Cell<T extends PDPage> {
 
 	public void setColspanCell(boolean isColspanCell) {
 		this.isColspanCell = isColspanCell;
-	}
+    }
+
+    public void setAlign(HorizontalAlignment align)
+    {
+        this.align = align;
+    }
+
+    public void setValign(VerticalAlignment valign)
+    {
+        this.valign = valign;
+    }
+
+    /**
+     * <p>
+     * Copies the style of an existing cell to this cell
+     * </p>
+     *
+     * @param sourceCell
+     */
+    public void copyCellStyle(Cell sourceCell)
+    {
+        Boolean leftBorder = this.leftBorderStyle == null;
+        setBorderStyle(sourceCell.getTopBorder());
+        if (leftBorder) {
+            this.leftBorderStyle = null;//if left border wasn't set, don't set it now
+        }
+        this.font = sourceCell.getFont();//otherwise paragraph gets invalidated
+        this.fontBold = sourceCell.getFontBold();
+        setFillColor(sourceCell.getFillColor());
+        setTextColor(sourceCell.getTextColor());
+        setAlign(sourceCell.getAlign());
+        setValign(sourceCell.getValign());
+    }
+    /**
+     * <p>
+     * Compares the style of a cell with another cell
+     * </p>
+     *
+     * @param sourceCell
+     * @return
+     */
+    public Boolean hasSameStyle(Cell sourceCell)
+    {
+        if (!sourceCell.getTopBorder().equals(getTopBorder())) {
+            return false;
+        }
+        if (!sourceCell.getFont().equals(getFont())) {
+            return false;
+        }
+        if (!sourceCell.getFontBold().equals(getFontBold())) {
+            return false;
+        }
+        if (!sourceCell.getFillColor().equals(getFillColor())) {
+            return false;
+        }
+        if (!sourceCell.getTextColor().equals(getTextColor())) {
+            return false;
+        }
+        if (!sourceCell.getAlign().equals(getAlign())) {
+            return false;
+        }
+        if (!sourceCell.getValign().equals(getValign())) {
+            return false;
+        }
+        return true;
+    }
+
+
+    public void setWidth(float width)
+    {
+        this.width = width;
+    }
+
 }

@@ -2,13 +2,14 @@ package be.quodlibet.boxable.line;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.util.Objects;
 
 /**
  * <p>
  * The <code>LineStyle</code> class defines a basic set of rendering attributes
  * for lines.
  * </p>
- * 
+ *
  * @author hstimac
  * @author mkuehne
  *
@@ -27,7 +28,7 @@ public class LineStyle {
 	 * <p>
 	 * Simple constructor for setting line {@link Color} and line width
 	 * </p>
-	 * 
+	 *
 	 * @param color
 	 *            The line {@link Color
 	 * @param width
@@ -42,7 +43,7 @@ public class LineStyle {
 	 * <p>
 	 * Provides ability to produce dotted line.
 	 * </p>
-	 * 
+	 *
 	 * @param color
 	 *            The {@link Color} of the line
 	 * @param width
@@ -61,7 +62,7 @@ public class LineStyle {
 	 * <p>
 	 * Provides ability to produce dashed line.
 	 * </p>
-	 * 
+	 *
 	 * @param color
 	 *            The {@link Color} of the line
 	 * @param width
@@ -73,7 +74,7 @@ public class LineStyle {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param color
 	 *            The {@link Color} of the line
 	 * @param width
@@ -107,6 +108,35 @@ public class LineStyle {
 
 	public float getDashPhase() {
 		return dashPhase;
-	}
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int hash = 7;
+        hash = 89 * hash + Objects.hashCode(this.color);
+        hash = 89 * hash + Float.floatToIntBits(this.width);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final LineStyle other = (LineStyle) obj;
+        if (!Objects.equals(this.color, other.color)) {
+            return false;
+        }
+        if (Float.floatToIntBits(this.width) != Float.floatToIntBits(other.width)) {
+            return false;
+        }
+        return true;
+    }
+
 
 }
