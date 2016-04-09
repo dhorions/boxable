@@ -4,23 +4,22 @@
  */
 package be.quodlibet.boxable;
 
+import be.quodlibet.boxable.image.Image;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 
-import be.quodlibet.boxable.image.Image;
-
 public class Row<T extends PDPage> {
 
-	private final Table<T> table;
+    public static Boolean HEADER = true;
+    public static Boolean NOHEADER = false;
+	private Table<T> table;
 	PDOutlineItem bookmark;
 	List<Cell<T>> cells;
 	private boolean headerRow = false;
 	float height;
-
 	Row(Table<T> table, List<Cell<T>> cells, float height) {
 		this.table = table;
 		this.cells = cells;
@@ -31,20 +30,28 @@ public class Row<T extends PDPage> {
 		this.table = table;
 		this.cells = new ArrayList<>();
 		this.height = height;
-	}
+    }
+
+    Row(Table<T> table)
+    {
+        this.table = table;
+        this.cells = new ArrayList<>();
+
+    }
 
 	/**
 	 * <p>
 	 * Creates a cell with provided width, cell value and default left top
 	 * alignment
 	 * </p>
-	 * 
+	 *
 	 * @param width
 	 * @param value
 	 * @return
 	 */
-	public Cell<T> createCell(float width, String value) {
-		Cell<T> cell = new Cell<T>(this, width, value, true);
+    public Cell<T> createCell(float widthPct, String value)
+    {
+        Cell<T> cell = new Cell<T>(this, widthPct, value, true);
 		if(headerRow){
 			// set all cell as header cell
 			cell.setHeaderCell(true);
@@ -62,7 +69,7 @@ public class Row<T extends PDPage> {
 	 * <p>
 	 * Creates a image cell with provided width and {@link Image}
 	 * </p>
-	 * 
+	 *
 	 * @param width
 	 *            Cell's width
 	 * @param img
@@ -88,7 +95,7 @@ public class Row<T extends PDPage> {
 	 * Creates a cell with provided width, cell value, horizontal and vertical
 	 * alignment
 	 * </p>
-	 * 
+	 *
 	 * @param width
 	 * @param value
 	 * @param align
@@ -118,12 +125,29 @@ public class Row<T extends PDPage> {
 	 * @param value
 	 * @return
 	 */
-	public Cell<T> createCell(String value) {
-		float headerCellWidth = table.getHeader().getCells().get(cells.size()).getWidth();
-		Cell<T> cell = new Cell<T>(this, headerCellWidth, value, false);
-		setBorders(cell, cells.isEmpty());
-		cells.add(cell);
-		return cell;
+    public Cell<T> createCell(String value)
+    {
+        float headerCellWidth = 0;
+        float headerCellWidthPct = 0;
+        if (table.getHeader().getCells().size() > cells.size() & !this.isHeaderRow()) {
+            headerCellWidth = table.getHeader().getCells().get(cells.size()).getWidth();
+            headerCellWidthPct = table.getHeader().getCells().get(cells.size()).getWidthPct();
+        }
+        else {
+           headerCellWidth = 0;
+           headerCellWidthPct = 0;
+        }
+            Cell<T> cell;
+            if (headerCellWidth > 0) {
+                cell = new Cell<T>(this, headerCellWidth, value, false);
+            }
+            else {
+                //The header cell has no width yet, use the percentage
+                cell = new Cell<T>(this, headerCellWidthPct, value, true);
+            }
+            setBorders(cell, cells.isEmpty());
+            cells.add(cell);
+            return cell;
 	}
 
 	/**
@@ -131,7 +155,7 @@ public class Row<T extends PDPage> {
 	 * Remove left border to avoid double borders from previous cell's right
 	 * border
 	 * </p>
-	 * 
+	 *
 	 * @param cell
 	 * @param leftBorder
 	 */
@@ -152,12 +176,12 @@ public class Row<T extends PDPage> {
 			cell.setTopBorderStyle(null);
 		}
 	}
-	
+
 	/**
 	 * <p>
 	 * Gets maximal height of the cells in current row therefore row's height.
 	 * </p>
-	 * 
+	 *
 	 * @return Row's height
 	 */
 	public float getHeight() {
@@ -172,7 +196,8 @@ public class Row<T extends PDPage> {
 
 		if (maxheight > height) {
 			this.height = maxheight;
-		}
+            }
+
 		return height;
 	}
 
@@ -228,5 +253,18 @@ public class Row<T extends PDPage> {
 
 	public void setHeaderRow(boolean headerRow) {
 		this.headerRow = headerRow;
-	}
+    }
+    public void initWidths()
+    {
+
+        for (Cell c : cells) {
+            c.setWidth(0);
+        }
+    }
+    public Table<T> getTable()
+    {
+        return table;
+    }
+
+
 }

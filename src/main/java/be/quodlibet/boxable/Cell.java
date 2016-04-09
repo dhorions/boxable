@@ -14,7 +14,8 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 public class Cell<T extends PDPage> {
 
-	private float width;
+    private float width;
+    private float widthPct;
 	private Float height;
 	private String text;
 
@@ -24,7 +25,7 @@ public class Cell<T extends PDPage> {
 	private float fontSize = 8;
 	private Color fillColor;
 	private Color textColor = Color.BLACK;
-	private final Row<T> row;
+	private Row<T> row;
 	private WrappingFunction wrappingFunction;
 	private boolean isHeaderCell = false;
 	private boolean isColspanCell = false;
@@ -45,8 +46,8 @@ public class Cell<T extends PDPage> {
 
 	private boolean textRotated = false;
 
-	private HorizontalAlignment align;
-	private VerticalAlignment valign;
+    private HorizontalAlignment align = HorizontalAlignment.LEFT;
+    private VerticalAlignment valign = VerticalAlignment.TOP;
 
 	float horizontalFreeSpace = 0;
 	float verticalFreeSpace = 0;
@@ -64,8 +65,10 @@ public class Cell<T extends PDPage> {
 	 * @see Cell#Cell(Row, float, String, boolean, HorizontalAlignment,
 	 *      VerticalAlignment)
 	 */
-	Cell(Row<T> row, float width, String text, boolean isCalculated) {
-		this(row, width, text, isCalculated, HorizontalAlignment.LEFT, VerticalAlignment.TOP);
+    Cell(Row<T> row, float widthPct, String text, boolean isCalculated)
+    {
+
+        this(row, widthPct, text, isCalculated, HorizontalAlignment.LEFT, VerticalAlignment.TOP);
 	}
 
 	/**
@@ -92,7 +95,8 @@ public class Cell<T extends PDPage> {
 	Cell(Row<T> row, float width, String text, boolean isCalculated, HorizontalAlignment align,
 			VerticalAlignment valign) {
 		this.row = row;
-		if (isCalculated) {
+            if (isCalculated) {
+                this.widthPct = width;
 			double calclulatedWidth = ((row.getWidth() * width) / 100);
 			this.width = (float) calclulatedWidth;
 		} else {
@@ -108,6 +112,12 @@ public class Cell<T extends PDPage> {
 		this.valign = valign;
 		this.wrappingFunction = null;
 	}
+
+    public Cell(float width, String text)
+    {
+        this.width = width;
+        this.text = text;
+    }
 
 	/**
 	 * <p>
@@ -162,8 +172,13 @@ public class Cell<T extends PDPage> {
 	 *
 	 * @return Cell's width
 	 */
-	public float getWidth() {
-		return width;
+    public float getWidth()
+    {
+        if (width == 0 && widthPct != 0) {
+            width = (row.getWidth() * widthPct) / 100;
+        }
+
+        return width;
 	}
 
 	/**
@@ -225,7 +240,12 @@ public class Cell<T extends PDPage> {
 	 * @throws IllegalArgumentException
 	 *             if <code>font</code> is not set.
 	 */
-	public PDFont getFont() {
+    public PDFont getFont()
+    {
+        if (font == null) {
+            //Get the default font for the row
+            font = row.getTable().getFont();
+        }
 		if (font == null) {
 			throw new IllegalArgumentException("Font not set.");
 		}
@@ -687,6 +707,48 @@ public class Cell<T extends PDPage> {
         setAlign(sourceCell.getAlign());
         setValign(sourceCell.getValign());
     }
+
+    public Cell<T> withBorder(LineStyle style)
+    {
+        setBorderStyle(style);
+        return this;
+    }
+
+    public Cell<T> withFont(PDFont font)
+    {
+        this.font = font;
+        return this;
+    }
+
+    public Cell<T> withFontBold(PDFont font)
+    {
+        this.fontBold = font;
+        return this;
+    }
+
+    public Cell<T> withAlign(HorizontalAlignment align)
+    {
+        setAlign(align);
+        return this;
+    }
+
+    public Cell<T> withValign(VerticalAlignment align)
+    {
+        setValign(align);
+        return this;
+    }
+
+    public Cell<T> withFillColor(Color c)
+    {
+        setFillColor(c);
+        return this;
+    }
+
+    public Cell<T> withTextColor(Color c)
+    {
+        setTextColor(c);
+        return this;
+    }
     /**
      * <p>
      * Compares the style of a cell with another cell
@@ -726,5 +788,16 @@ public class Cell<T extends PDPage> {
     {
         this.width = width;
     }
+
+    public float getWidthPct()
+    {
+        return widthPct;
+    }
+
+    public void setWidthPct(float widthPct)
+    {
+        this.widthPct = widthPct;
+    }
+
 
 }

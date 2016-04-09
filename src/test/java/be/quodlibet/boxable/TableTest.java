@@ -543,7 +543,8 @@ public class TableTest {
 		Files.createParentDirs(file);
 		doc.save(file);
 		doc.close();
-	}
+    }
+
 
 	private static PDPage addNewPage(PDDocument doc) {
 		PDPage page = new PDPage();

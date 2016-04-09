@@ -4,17 +4,6 @@
  */
 package be.quodlibet.boxable;
 
-import java.awt.Color;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-
 import be.quodlibet.boxable.text.PipelineLayer;
 import be.quodlibet.boxable.text.Token;
 import be.quodlibet.boxable.text.TokenType;
@@ -22,6 +11,15 @@ import be.quodlibet.boxable.text.Tokenizer;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
 import be.quodlibet.boxable.utils.PDStreamUtils;
+import java.awt.Color;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 public class Paragraph {
 
@@ -212,7 +210,7 @@ public class Paragraph {
 					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 					textInLine.reset();
 					lineCounter++;
-					
+
 					// extra spacing because it's a paragraph
 					result.add(" ");
 					lineWidths.put(lineCounter, 0.0f);
@@ -465,7 +463,9 @@ public class Paragraph {
 		return getLines().size() * getFontHeight();
 	}
 
-	public float getFontHeight() {
+    public float getFontHeight()
+    {
+
 		return FontUtils.getHeight(font, fontSize);
 	}
 

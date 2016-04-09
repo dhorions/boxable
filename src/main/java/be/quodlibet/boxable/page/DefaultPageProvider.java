@@ -8,13 +8,14 @@ public class DefaultPageProvider implements PageProvider<PDPage> {
 
 	private final PDDocument document;
 
-	private final PDRectangle size;
+	private  PDRectangle size;
 
 	private int currentPageIndex = -1;
 
 	public DefaultPageProvider(final PDDocument document, final PDRectangle size) {
-		this.document = document;
-		this.size = size;
+            this.document = document;
+            this.size = size;
+
 	}
 
 	@Override
@@ -30,8 +31,9 @@ public class DefaultPageProvider implements PageProvider<PDPage> {
 
 	@Override
 	public PDPage nextPage() {
-		if (currentPageIndex == -1) {
-			currentPageIndex = document.getNumberOfPages();
+            if (currentPageIndex == -1) {
+                //currentPageIndex = document.getNumberOfPages();
+                    currentPageIndex = document.getNumberOfPages() - 1;
 		} else {
 			currentPageIndex++;
 		}
@@ -49,14 +51,27 @@ public class DefaultPageProvider implements PageProvider<PDPage> {
 		return getCurrentPage();
 	}
 
-	private PDPage getCurrentPage() {
-		if (currentPageIndex >= document.getNumberOfPages()) {
-			final PDPage newPage = new PDPage(size);
-			document.addPage(newPage);
-			return newPage;
-		}
-
-		return document.getPage(currentPageIndex);
+    public PDPage getCurrentPage()
+    {
+        //if (currentPageIndex >= document.getNumberOfPages()) {
+        if (currentPageIndex >= document.getNumberOfPages()) {
+            final PDPage newPage = new PDPage(size);
+            document.addPage(newPage);
+            return newPage;
+        }
+	return document.getPage(currentPageIndex);
 	}
+
+    @Override
+    public void setSize(PDRectangle size)
+    {
+        this.size = size;
+    }
+
+    @Override
+    public PDRectangle getSize()
+    {
+        return size;
+    }
 
 }
