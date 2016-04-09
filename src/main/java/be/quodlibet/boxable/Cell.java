@@ -799,5 +799,15 @@ public class Cell<T extends PDPage> {
         this.widthPct = widthPct;
     }
 
+    public int getColumnIndex()
+    {
+        return row.getCells().indexOf(this);
+    }
+
+    public int getRowIndex()
+    {
+        return row.getRowIndex();
+    }
+
 
 }

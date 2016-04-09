@@ -19,7 +19,8 @@ public class Row<T extends PDPage> {
 	PDOutlineItem bookmark;
 	List<Cell<T>> cells;
 	private boolean headerRow = false;
-	float height;
+    float height;
+
 	Row(Table<T> table, List<Cell<T>> cells, float height) {
 		this.table = table;
 		this.cells = cells;
@@ -264,6 +265,11 @@ public class Row<T extends PDPage> {
     public Table<T> getTable()
     {
         return table;
+    }
+
+    public int getRowIndex()
+    {
+        return table.getRows().indexOf(this);
     }
 
 
