@@ -193,4 +193,185 @@ abstract class Style
         this.fillcolorAccent4 = fillcolorAccent4;
     }
 
+    public HorizontalAlignment getAlignDefault()
+    {
+        return alignDefault;
+    }
+
+    public void setAlignDefault(HorizontalAlignment alignDefault)
+    {
+        this.alignDefault = alignDefault;
+    }
+
+    public VerticalAlignment getValignDefault()
+    {
+        return valignDefault;
+    }
+
+    public void setValignDefault(VerticalAlignment valignDefault)
+    {
+        this.valignDefault = valignDefault;
+    }
+
+    public HorizontalAlignment getAlignAccent1()
+    {
+        return alignAccent1;
+    }
+
+    public void setAlignAccent1(HorizontalAlignment alignAccent1)
+    {
+        this.alignAccent1 = alignAccent1;
+    }
+
+    public VerticalAlignment getValignAccent1()
+    {
+        return valignAccent1;
+    }
+
+    public void setValignAccent1(VerticalAlignment valignAccent1)
+    {
+        this.valignAccent1 = valignAccent1;
+    }
+
+    public HorizontalAlignment getAlignAccent2()
+    {
+        return alignAccent2;
+    }
+
+    public void setAlignAccent2(HorizontalAlignment alignAccent2)
+    {
+        this.alignAccent2 = alignAccent2;
+    }
+
+    public VerticalAlignment getValignAccent2()
+    {
+        return valignAccent2;
+    }
+
+    public void setValignAccent2(VerticalAlignment valignAccent2)
+    {
+        this.valignAccent2 = valignAccent2;
+    }
+
+    public HorizontalAlignment getAlignAccent3()
+    {
+        return alignAccent3;
+    }
+
+    public void setAlignAccent3(HorizontalAlignment alignAccent3)
+    {
+        this.alignAccent3 = alignAccent3;
+    }
+
+    public VerticalAlignment getValignAccent3()
+    {
+        return valignAccent3;
+    }
+
+    public void setValignAccent3(VerticalAlignment valignAccent3)
+    {
+        this.valignAccent3 = valignAccent3;
+    }
+
+    public HorizontalAlignment getAlignAccent4()
+    {
+        return alignAccent4;
+    }
+
+    public void setAlignAccent4(HorizontalAlignment alignAccent4)
+    {
+        this.alignAccent4 = alignAccent4;
+    }
+
+    public VerticalAlignment getValignAccent4()
+    {
+        return valignAccent4;
+    }
+
+    public void setValignAccent4(VerticalAlignment valignAccent4)
+    {
+        this.valignAccent4 = valignAccent4;
+    }
+
+    public Color getTextcolorAccent5()
+    {
+        return textcolorAccent5;
+    }
+
+    public void setTextcolorAccent5(Color textcolorAccent5)
+    {
+        this.textcolorAccent5 = textcolorAccent5;
+    }
+
+    public Color getFillcolorAccent5()
+    {
+        return fillcolorAccent5;
+    }
+
+    public void setFillcolorAccent5(Color fillcolorAccent5)
+    {
+        this.fillcolorAccent5 = fillcolorAccent5;
+    }
+
+    public HorizontalAlignment getAlignAccent5()
+    {
+        return alignAccent5;
+    }
+
+    public void setAlignAccent5(HorizontalAlignment alignAccent5)
+    {
+        this.alignAccent5 = alignAccent5;
+    }
+
+    public VerticalAlignment getValignAccent5()
+    {
+        return valignAccent5;
+    }
+
+    public void setValignAccent5(VerticalAlignment valignAccent5)
+    {
+        this.valignAccent5 = valignAccent5;
+    }
+
+    public Color getTextcolorAccent6()
+    {
+        return textcolorAccent6;
+    }
+
+    public void setTextcolorAccent6(Color textcolorAccent6)
+    {
+        this.textcolorAccent6 = textcolorAccent6;
+    }
+
+    public Color getFillcolorAccent6()
+    {
+        return fillcolorAccent6;
+    }
+
+    public void setFillcolorAccent6(Color fillcolorAccent6)
+    {
+        this.fillcolorAccent6 = fillcolorAccent6;
+    }
+
+    public HorizontalAlignment getAlignAccent6()
+    {
+        return alignAccent6;
+    }
+
+    public void setAlignAccent6(HorizontalAlignment alignAccent6)
+    {
+        this.alignAccent6 = alignAccent6;
+    }
+
+    public VerticalAlignment getValignAccent6()
+    {
+        return valignAccent6;
+    }
+
+    public void setValignAccent6(VerticalAlignment valignAccent6)
+    {
+        this.valignAccent6 = valignAccent6;
+    }
+
+
 }

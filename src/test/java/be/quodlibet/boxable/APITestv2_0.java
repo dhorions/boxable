@@ -4,7 +4,9 @@ import be.quodlibet.boxable.layout.DefaultCellLayouter;
 import be.quodlibet.boxable.layout.MatrixCellLayouter;
 import be.quodlibet.boxable.layout.VerticalZebraCellLayouter;
 import be.quodlibet.boxable.layout.ZebraCellLayouter;
+import be.quodlibet.boxable.layout.style.DefaultStyle;
 import be.quodlibet.boxable.layout.style.DefaultStyle.Styles;
+import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.page.DefaultPageProvider;
 import com.google.common.io.Files;
 import java.awt.Color;
@@ -293,12 +295,24 @@ public class APITestv2_0
             table.draw();
 
             //Default Style with  Zebra Layouter and Matrix Layouter
-            table.getRows().get(0).getCells().get(0).setText("Test 4 -  Default Style with Zebra Layouter and Matrix Layouter");
+            table.getRows().get(0).getCells().get(0).setText("Test 4 -  Default Style with Zebra Layouter and Matrix Layouter and centered headers");
             table.getLayouters().clear();
             table.getLayouters().add(new DefaultCellLayouter(Styles.DEFAULT));
             table.getLayouters().add(new ZebraCellLayouter(Styles.DEFAULT));
             table.getLayouters().add(new MatrixCellLayouter(Styles.DEFAULT));
             table.draw();
+
+            //Custom style
+            table.pageBreak();
+            table.getRows().get(0).getCells().get(0).setText("Test 4 -  Custom Style");
+            DefaultStyle customStyle = new DefaultStyle()
+                    .withBorder(new LineStyle(Color.ORANGE, (float) 0.5))
+                    .withFont(PDType1Font.COURIER)
+                    .withAlignAccent2(HorizontalAlignment.CENTER);
+            table.getLayouters().clear();
+            table.getLayouters().add(new DefaultCellLayouter(customStyle));
+            table.draw();
+
         }
         catch (IOException ex) {
             //Writing to a pdf page can always return a IOException because of

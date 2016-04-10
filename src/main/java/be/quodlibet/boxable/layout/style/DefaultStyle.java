@@ -4,6 +4,7 @@ import be.quodlibet.boxable.HorizontalAlignment;
 import be.quodlibet.boxable.VerticalAlignment;
 import be.quodlibet.boxable.line.LineStyle;
 import java.awt.Color;
+import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 /**
@@ -238,6 +239,191 @@ public class DefaultStyle extends Style
         this.valignAccent4 = valignAccent1;
         this.valignAccent5 = valignAccent1;
         this.valignAccent6 = valignAccent1;
+    }
+    public DefaultStyle withFont(PDFont font)
+    {
+        setFont(font);
+        return this;
+    }
+
+    public DefaultStyle withFontBold(PDFont font)
+    {
+        setFontBold(font);
+        return this;
+    }
+
+    public DefaultStyle withTextcolorDefault(Color c)
+    {
+        setTextcolorDefault(c);
+        return this;
+    }
+
+    public DefaultStyle withTextcolorAccent1(Color c)
+    {
+        setTextcolorAccent1(c);
+        return this;
+    }
+
+    public DefaultStyle withTextcolorAccent2(Color c)
+    {
+        setTextcolorAccent2(c);
+        return this;
+    }
+
+    public DefaultStyle withTextcolorAccent3(Color c)
+    {
+        setTextcolorAccent3(c);
+        return this;
+    }
+
+    public DefaultStyle withTextcolorAccent4(Color c)
+    {
+        setTextcolorAccent4(c);
+        return this;
+    }
+
+    public DefaultStyle withTextcolorAccent5(Color c)
+    {
+        setTextcolorAccent5(c);
+        return this;
+    }
+
+    public DefaultStyle withTextcolorAccent6(Color c)
+    {
+        setTextcolorAccent6(c);
+        return this;
+    }
+
+    public DefaultStyle withFillcolorDefault(Color c)
+    {
+        setFillcolorDefault(c);
+        return this;
+    }
+
+    public DefaultStyle withFillcolorAccent1(Color c)
+    {
+        setFillcolorAccent1(c);
+        return this;
+    }
+
+    public DefaultStyle withFillcolorAccent2(Color c)
+    {
+        setFillcolorAccent2(c);
+        return this;
+    }
+
+    public DefaultStyle withFillcolorAccent3(Color c)
+    {
+        setFillcolorAccent3(c);
+        return this;
+    }
+
+    public DefaultStyle withFillcolorAccent4(Color c)
+    {
+        setFillcolorAccent4(c);
+        return this;
+    }
+
+    public DefaultStyle withFillcolorAccent5(Color c)
+    {
+        setFillcolorAccent5(c);
+        return this;
+    }
+
+    public DefaultStyle withFillcolorAccent6(Color c)
+    {
+        setFillcolorAccent6(c);
+        return this;
+    }
+
+    public DefaultStyle withBorder(LineStyle border)
+    {
+        setBorder(border);
+        return this;
+    }
+
+    public DefaultStyle withAlignDefault(HorizontalAlignment align)
+    {
+        this.setAlignDefault(align);
+        return this;
+    }
+
+    public DefaultStyle withAlignAccent1(HorizontalAlignment align)
+    {
+        this.setAlignAccent1(align);
+        return this;
+    }
+
+    public DefaultStyle withAlignAccent2(HorizontalAlignment align)
+    {
+        this.setAlignAccent2(align);
+        return this;
+    }
+
+    public DefaultStyle withAlignAccent3(HorizontalAlignment align)
+    {
+        this.setAlignAccent3(align);
+        return this;
+    }
+
+    public DefaultStyle withAlignAccent4(HorizontalAlignment align)
+    {
+        this.setAlignAccent4(align);
+        return this;
+    }
+
+    public DefaultStyle withAlignAccent5(HorizontalAlignment align)
+    {
+        this.setAlignAccent5(align);
+        return this;
+    }
+
+    public DefaultStyle withAlignAccent6(HorizontalAlignment align)
+    {
+        this.setAlignAccent6(align);
+        return this;
+    }
+
+    public DefaultStyle withValignDefault(VerticalAlignment align)
+    {
+        this.setValignDefault(align);
+        return this;
+    }
+
+    public DefaultStyle withValignAccent1(VerticalAlignment align)
+    {
+        this.setValignAccent1(align);
+        return this;
+    }
+
+    public DefaultStyle withValignAccent2(VerticalAlignment align)
+    {
+        this.setValignAccent2(align);
+        return this;
+    }
+
+    public DefaultStyle withValignAccent3(VerticalAlignment align)
+    {
+        this.setValignAccent3(align);
+        return this;
+    }
+
+    public DefaultStyle withValignAccent4(VerticalAlignment align)
+    {
+        this.setValignAccent4(align);
+        return this;
+    }
+
+    public DefaultStyle withValignAccent51(VerticalAlignment align)
+    {
+        this.setValignAccent5(align);
+        return this;
+    }
+
+    public DefaultStyle withValignAccent6(VerticalAlignment align)
+    {
+        this.setValignAccent6(align);
+        return this;
     }
 
 }
