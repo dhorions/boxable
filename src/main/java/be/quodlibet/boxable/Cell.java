@@ -4,6 +4,7 @@
  */
 package be.quodlibet.boxable;
 
+import be.quodlibet.boxable.layout.DefaultCellLayouter;
 import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.text.WrappingFunction;
 import java.awt.Color;
@@ -578,8 +579,11 @@ public class Cell<T extends PDPage> {
 		return valign;
 	}
 
-	public boolean isHeaderCell() {
-		return isHeaderCell;
+    public boolean isHeaderCell()
+    {
+        isHeaderCell = row.isHeaderRow();
+        return isHeaderCell;
+        //return isHeaderCell;
 	}
 
 	public void setHeaderCell(boolean isHeaderCell) {
@@ -749,6 +753,21 @@ public class Cell<T extends PDPage> {
         setTextColor(c);
         return this;
     }
+
+    public Cell<T> withFontSize(int size)
+    {
+        setFontSize(size);
+        return this;
+    }
+    /**
+     * Apply all the layouters of the table to the cell
+     */
+    public void layout()
+    {
+        for (DefaultCellLayouter l : row.getTable().getLayouters()) {
+            l.layout(this);
+        }
+    }
     /**
      * <p>
      * Compares the style of a cell with another cell
@@ -809,5 +828,9 @@ public class Cell<T extends PDPage> {
         return row.getRowIndex();
     }
 
+    public Row<T> getRow()
+    {
+        return row;
+    }
 
 }

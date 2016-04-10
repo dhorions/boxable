@@ -4,6 +4,7 @@
  */
 package be.quodlibet.boxable;
 
+import be.quodlibet.boxable.layout.DefaultCellLayouter;
 import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.page.PageProvider;
 import be.quodlibet.boxable.text.Token;
@@ -51,7 +52,7 @@ public abstract class Table<T extends PDPage> {
 	private boolean removeTopBorders = false;
 
 	private PageProvider<T> pageProvider;
-
+    private List<DefaultCellLayouter> layouters;
 
 
     private boolean drawDebug;
@@ -70,6 +71,18 @@ public abstract class Table<T extends PDPage> {
 
     }
 
+    public List<DefaultCellLayouter> getLayouters()
+    {
+        if (layouters == null) {
+            layouters = new ArrayList();
+        }
+        return layouters;
+    }
+
+    public void setLayouters(List<DefaultCellLayouter> layouters)
+    {
+        this.layouters = layouters;
+    }
 
 
     public void setPage(PageProvider<T> provider)
@@ -259,6 +272,7 @@ public abstract class Table<T extends PDPage> {
         Boolean hasWidthPct = false;
         List<Cell> cells = lastHeaderRow.getCells();
         for (Cell c : cells) {
+            c.layout();
             if (c.getWidth() > 0 || c.getWidthPct() > 0) {
                 hasWidthPct = true;
             }
@@ -267,6 +281,7 @@ public abstract class Table<T extends PDPage> {
             //calculate the total width of the columns
             float totalWidth = 0.0f;
             for (Cell c : cells) {
+
                 String cellValue = c.getText();
                 float textWidth = FontUtils.getStringWidth(c.getFont(), " " + cellValue + " ", c.getFontSize());
                 float widthPct = textWidth * 100 / getWidth();
@@ -295,6 +310,7 @@ public abstract class Table<T extends PDPage> {
         Boolean hasWidthPct = false;
         List<Cell> cells = r.getCells();
         for (Cell c : cells) {
+            c.layout();
             if (c.getWidth() > 0 || c.getWidthPct() > 0) {
                 hasWidthPct = true;
             }
@@ -317,15 +333,16 @@ public abstract class Table<T extends PDPage> {
         if (yStart == 0) {
             yStart = yStartNewPage;
         }
-        //if (width == 0) {
+
         //Since the page size can have changed, recalculate all column widths
         this.width = pageProvider.getCurrentPage().getMediaBox().getWidth() - (2 * margin);
         for (Row r : rows) {
             r.initWidths();
         }
-        //}
+
         //If the last header line doesn't have widths assigned, calculate the width based on the content.
         initColumnWidths();
+
         ensureStreamIsOpen();
 
         for (Row<T> row : rows) {
@@ -449,7 +466,8 @@ public abstract class Table<T extends PDPage> {
 		float cursorX = margin;
 		float cursorY;
 
-		for (Cell<T> cell : row.getCells()) {
+            for (Cell<T> cell : row.getCells()) {
+
 			// remember horizontal cursor position, so we can advance to the next cell easily later
 			float cellStartX = cursorX;
 			if (cell instanceof ImageCell) {
@@ -896,7 +914,7 @@ public abstract class Table<T extends PDPage> {
         if (tableContentStream != null) {
             tableContentStream.close();
         }
-        
+
         this.currentPage = createNewPage();
         yStartNewPage = pageProvider.getCurrentPage().getMediaBox().getHeight() - (2 * margin);
         this.yStart = yStartNewPage - pageTopMargin;
@@ -1063,6 +1081,5 @@ public abstract class Table<T extends PDPage> {
     {
         this.pageBottomMargin = pageBottomMargin;
     }
-
 
 }

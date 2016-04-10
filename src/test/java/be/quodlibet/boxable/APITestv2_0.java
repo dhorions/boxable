@@ -1,5 +1,10 @@
 package be.quodlibet.boxable;
 
+import be.quodlibet.boxable.layout.DefaultCellLayouter;
+import be.quodlibet.boxable.layout.MatrixCellLayouter;
+import be.quodlibet.boxable.layout.VerticalZebraCellLayouter;
+import be.quodlibet.boxable.layout.ZebraCellLayouter;
+import be.quodlibet.boxable.layout.style.DefaultStyle.Styles;
 import be.quodlibet.boxable.page.DefaultPageProvider;
 import com.google.common.io.Files;
 import java.awt.Color;
@@ -151,8 +156,6 @@ public class APITestv2_0
     {
         PDPage p = addNewPage();
         BaseTable table = new BaseTable();
-        //TODO : implement table.createRow(List<String>()) so all the cells can be passed to the list at once
-
         //The Header Row, width % is mandatory for this row
         Row<PDPage> headerRow = table.createRow();
         headerRow.createCell(100, "Test 2 - Multiple Pages");
@@ -220,6 +223,81 @@ public class APITestv2_0
         DefaultPageProvider provider = new DefaultPageProvider(doc, p.getMediaBox());
         table.setPage(provider);
         try {
+            table.draw();
+        }
+        catch (IOException ex) {
+            //Writing to a pdf page can always return a IOException because of
+            //https://pdfbox.apache.org/docs/2.0.0/javadocs/org/apache/pdfbox/pdmodel/PDPageContentStream.html#PDPageContentStream(org.apache.pdfbox.pdmodel.PDDocument,%20org.apache.pdfbox.pdmodel.PDPage,%20org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode,%20boolean,%20boolean)
+            Logger.getLogger(APITestv2_0.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    @Test
+    public void apiv2_0Test4()
+    {
+        PDPage p = addNewPage();
+        BaseTable table = new BaseTable();
+        //The Header Row, width % is mandatory for this row
+        Row<PDPage> headerRow = table.createRow();
+        headerRow.createCell(100, "Test 4 - Theming");
+        table.addHeaderRow(headerRow);
+        //No widths are passed for the columns, so they should be auto calcilated
+        headerRow = table.createRow(
+                new ArrayList<>(
+                        Arrays.asList(
+                                "XvsY",
+                                "A",
+                                "B",
+                                "C",
+                                "D",
+                                "E",
+                                "F"
+                        )), Row.HEADER);
+
+        //Non header rows will inherit their width from the last header row.
+        //Any arbitrary collection can be used, the String representation will be used.
+        for (int i = 1; i <= 6; i++) {
+             table.createRow(
+                    new ArrayList<>(
+                            Arrays.asList(
+                                    "" + i,
+                                    "A" + i,
+                                    "B" + i,
+                                    "C" + i,
+                                    "D" + i,
+                                    "E" + i,
+                                    "F" + i)
+                    ));
+        }
+
+        //Assign table to pageProvider
+        DefaultPageProvider provider = new DefaultPageProvider(doc, p.getMediaBox());
+        table.setPage(provider);
+        try {
+            //Draw table once with default Style
+            table.getRows().get(0).getCells().get(0).setText("Test 4 -  Default Style");
+            table.getLayouters().add(new DefaultCellLayouter(Styles.DEFAULT));
+            table.draw();
+            //Green Style with Zebra Layouter
+            table.getRows().get(0).getCells().get(0).setText("Test 4 -  Green Style with Zebra Layouter");
+            table.getLayouters().clear();
+            table.getLayouters().add(new DefaultCellLayouter(Styles.GREEN));
+            table.getLayouters().add(new ZebraCellLayouter(Styles.GREEN));
+            table.draw();
+            //Candy Style with Vertical Zebra Layouter
+            table.getRows().get(0).getCells().get(0).setText("Test 4 -  Candy Style with Vertical Zebra Layouter");
+            table.getLayouters().clear();
+            table.getLayouters().add(new DefaultCellLayouter(Styles.CANDY));
+            table.getLayouters().add(new VerticalZebraCellLayouter(Styles.CANDY));
+            table.draw();
+
+            //Default Style with  Zebra Layouter and Matrix Layouter
+            table.getRows().get(0).getCells().get(0).setText("Test 4 -  Default Style with Zebra Layouter and Matrix Layouter");
+            table.getLayouters().clear();
+            table.getLayouters().add(new DefaultCellLayouter(Styles.DEFAULT));
+            table.getLayouters().add(new ZebraCellLayouter(Styles.DEFAULT));
+            table.getLayouters().add(new MatrixCellLayouter(Styles.DEFAULT));
             table.draw();
         }
         catch (IOException ex) {
