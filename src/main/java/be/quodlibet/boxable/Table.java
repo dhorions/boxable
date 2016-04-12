@@ -876,4 +876,8 @@ public abstract class Table<T extends PDPage> {
 		return rows;
 	}
 
+	public boolean tableStartedAtNewPage() {
+		return tableStartedAtNewPage;
+	}
+
 }
