@@ -544,6 +544,49 @@ public class TableTest {
 		doc.save(file);
 		doc.close();
 	}
+	
+	@Test
+	public void SampleTest6() throws IOException {
+
+		//Set margins
+		float margin = 10;
+
+		//Initialize Document
+		PDDocument doc = new PDDocument();
+		PDPage page = addNewPage(doc);
+
+		//Initialize table
+		float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
+		float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+		boolean drawContent = true;
+		boolean drawLines = true;
+		float yStart = yStartNewPage;
+		float bottomMargin = 70;
+		BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, drawLines,
+				drawContent);
+
+		//Create Header row
+		Row<PDPage> row = table.createRow(15f);
+		Cell<PDPage> cell = row.createCell((100 / 3f), "Hellooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo", HorizontalAlignment.get("center"),
+				VerticalAlignment.get("top"));
+		cell.setFontSize(6);
+
+		Cell<PDPage> cell2 = row.createCell((100 / 3f), "<i>Here is text in italic</i>", HorizontalAlignment.get("center"),
+				VerticalAlignment.get("middle"));
+		cell2.setFontSize(6);
+
+		Cell<PDPage> cell3 = row.createCell((100 / 3f), "<b><i>Here is text in bold and italic</i></b>", HorizontalAlignment.get("center"),
+				VerticalAlignment.get("bottom"));
+		cell3.setFontSize(6);
+		table.draw();
+
+		//Save the document
+		File file = new File("target/BoxableSample6.pdf");
+		System.out.println("Sample file saved at : " + file.getAbsolutePath());
+		Files.createParentDirs(file);
+		doc.save(file);
+		doc.close();
+	}
 
 	private static PDPage addNewPage(PDDocument doc) {
 		PDPage page = new PDPage();
