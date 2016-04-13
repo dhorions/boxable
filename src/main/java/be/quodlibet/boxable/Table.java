@@ -207,8 +207,11 @@ public abstract class Table<T extends PDPage> {
 	private void drawRow(Row<T> row) throws IOException {
 		// if it is not header row or first row in the table then remove row's top border
 		if (row != header && row != rows.get(0)) {
-			row.removeTopBorders();
+			if(!isEndOfPage(row)){
+				row.removeTopBorders();
+			}
 		}
+
 		// draw the bookmark
 		if (row.getBookmark() != null) {
 			PDPageXYZDestination bookmarkDestination = new PDPageXYZDestination();
