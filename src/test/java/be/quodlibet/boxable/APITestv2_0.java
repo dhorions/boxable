@@ -65,13 +65,13 @@ public class APITestv2_0
     public void tearDown()
     {
     }
-
-    private static PDPage addNewPage()
+    /*
+     private static PDPage addNewPage()
     {
         PDPage page = new PDPage();
         doc.addPage(page);
         return page;
-    }
+    }*/
 
     private static void saveDocument(String fileName) throws IOException
     {
@@ -89,7 +89,7 @@ public class APITestv2_0
      @Test
     public void apiv2_0Test1()
     {
-        PDPage p = addNewPage();
+        //PDPage p = addNewPage();
         BaseTable table = new BaseTable();
         Row<PDPage> headerRow = table.createRow();
         headerRow.createCell(100, "Test 1 - Print table multiple times to document");
@@ -127,20 +127,21 @@ public class APITestv2_0
                                 .withTextColor(Color.WHITE)
                         )));
         //Assign table to pageProvider
-        DefaultPageProvider provider = new DefaultPageProvider(doc, p.getMediaBox());
-        table.setPage(provider);
+        DefaultPageProvider provider = new DefaultPageProvider(doc, PDRectangle.A4);
         try {
-            table.draw();
+            table.draw(provider);
             //Draw it a second time
             table.getRows().get(0).getCells().get(0).setText("Test 1 -  Same table second time on same page");
-            table.draw();
+            table.draw(provider);
             //Use the same table, but with different title, of a different size page (A4 landscape)
             //provider = new DefaultPageProvider(doc, new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth()));
             provider.setSize(new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth()));
-            table.pageBreak();
+            provider.nextPage();
             table.getRows().get(0).getCells().get(0).setText("Test 1 -  Same table third time, on a different size page");
             //Draw it a third time on the next page
-            table.draw();
+            float bottom = table.draw(provider);
+            //draw ith a fourth time on the next page, but a little lower
+            table.draw(bottom - 100, provider);
 
         }
         catch (IOException ex) {
@@ -156,7 +157,6 @@ public class APITestv2_0
     @Test
     public void apiv2_0Test2()
     {
-        PDPage p = addNewPage();
         BaseTable table = new BaseTable();
         //The Header Row, width % is mandatory for this row
         Row<PDPage> headerRow = table.createRow();
@@ -178,12 +178,12 @@ public class APITestv2_0
         }
 
         //Assign table to page
-        DefaultPageProvider provider = new DefaultPageProvider(doc, p.getMediaBox());
-        table.setPage(provider);
+        DefaultPageProvider provider = new DefaultPageProvider(doc, PDRectangle.A4);
+        provider.nextPage();
         //Writing to a pdf page can always return a IOException because of
         //https://pdfbox.apache.org/docs/2.0.0/javadocs/org/apache/pdfbox/pdmodel/PDPageContentStream.html#PDPageContentStream(org.apache.pdfbox.pdmodel.PDDocument,%20org.apache.pdfbox.pdmodel.PDPage,%20org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode,%20boolean,%20boolean)
         try {
-            table.draw();
+            table.draw(provider);
         }
         catch (IOException ex) {
             Logger.getLogger(APITestv2_0.class.getName()).log(Level.SEVERE, null, ex);
@@ -194,20 +194,19 @@ public class APITestv2_0
     @Test
     public void apiv2_0Test3()
     {
-        PDPage p = addNewPage();
         BaseTable table = new BaseTable();
         //The Header Row, width % is mandatory for this row
         Row<PDPage> headerRow = table.createRow();
         headerRow.createCell(100, "Test 3 - Auto Calculated Column Width");
         table.addHeaderRow(headerRow);
         //No widths are passed for the columns, so they should be auto calcilated
-        headerRow = table.createRow(
-                new ArrayList<>(
+        headerRow = table.createRow(                new ArrayList<>(
                         Arrays.asList(
                                 "Column 1 is the widest column of them all",
                                 "Column 2 is narrower",
                                 "Column 3 narrowest"
                         )), Row.HEADER);
+
 
         //Non header rows will inherit their width from the last header row.
         //Any arbitrary collection can be used, the String representation will be used.
@@ -222,10 +221,10 @@ public class APITestv2_0
         }
 
         //Assign table to pageProvider
-        DefaultPageProvider provider = new DefaultPageProvider(doc, p.getMediaBox());
-        table.setPage(provider);
+        DefaultPageProvider provider = new DefaultPageProvider(doc, PDRectangle.A4);
+        provider.nextPage();
         try {
-            table.draw();
+            table.draw(provider);
         }
         catch (IOException ex) {
             //Writing to a pdf page can always return a IOException because of
@@ -238,7 +237,6 @@ public class APITestv2_0
     @Test
     public void apiv2_0Test4()
     {
-        PDPage p = addNewPage();
         BaseTable table = new BaseTable();
         //The Header Row, width % is mandatory for this row
         Row<PDPage> headerRow = table.createRow();
@@ -274,33 +272,35 @@ public class APITestv2_0
         }
 
         //Assign table to pageProvider
-        DefaultPageProvider provider = new DefaultPageProvider(doc, p.getMediaBox());
-        table.setPage(provider);
+        DefaultPageProvider provider = new DefaultPageProvider(doc, PDRectangle.A4);
+        provider.nextPage();
+
         try {
             //Draw table once with default Style
             table.getRows().get(0).getCells().get(0).setText("Test 4 -  Default Style");
-            table.getLayouters().add(new DefaultCellLayouter(Styles.DEFAULT));
-            table.draw();
+            table.addLayouter(new DefaultCellLayouter(Styles.DEFAULT));
+            table.draw(provider);
             //Green Style with Zebra Layouter
             table.getRows().get(0).getCells().get(0).setText("Test 4 -  Green Style with Zebra Layouter");
-            table.getLayouters().clear();
-            table.getLayouters().add(new DefaultCellLayouter(Styles.GREEN));
-            table.getLayouters().add(new ZebraCellLayouter(Styles.GREEN));
-            table.draw();
+            table.clearLayouters()
+                    .addLayouter(new DefaultCellLayouter(Styles.GREEN))
+                    .addLayouter(new ZebraCellLayouter(Styles.GREEN))
+                    .draw(provider);
+
             //Candy Style with Vertical Zebra Layouter
             table.getRows().get(0).getCells().get(0).setText("Test 4 -  Candy Style with Vertical Zebra Layouter");
-            table.getLayouters().clear();
-            table.getLayouters().add(new DefaultCellLayouter(Styles.CANDY));
-            table.getLayouters().add(new VerticalZebraCellLayouter(Styles.CANDY));
-            table.draw();
+            table.clearLayouters()
+                    .addLayouter(new DefaultCellLayouter(Styles.CANDY))
+                    .addLayouter(new VerticalZebraCellLayouter(Styles.CANDY))
+                    .draw(provider);
 
             //Default Style with  Zebra Layouter and Matrix Layouter
             table.getRows().get(0).getCells().get(0).setText("Test 4 -  Default Style with Zebra Layouter and Matrix Layouter and centered headers");
-            table.getLayouters().clear();
-            table.getLayouters().add(new DefaultCellLayouter(Styles.DEFAULT));
-            table.getLayouters().add(new ZebraCellLayouter(Styles.DEFAULT));
-            table.getLayouters().add(new MatrixCellLayouter(Styles.DEFAULT));
-            table.draw();
+            table.clearLayouters()
+                    .addLayouter(new DefaultCellLayouter(Styles.DEFAULT))
+                    .addLayouter(new ZebraCellLayouter(Styles.DEFAULT))
+                    .addLayouter(new MatrixCellLayouter(Styles.DEFAULT))
+                    .draw(provider);
 
             //Custom style
             table.pageBreak();
@@ -309,9 +309,9 @@ public class APITestv2_0
                     .withBorder(new LineStyle(Color.ORANGE, (float) 0.5))
                     .withFont(PDType1Font.COURIER)
                     .withAlignAccent2(HorizontalAlignment.CENTER);
-            table.getLayouters().clear();
-            table.getLayouters().add(new DefaultCellLayouter(customStyle));
-            table.draw();
+            table.clearLayouters()
+                    .addLayouter(new DefaultCellLayouter(customStyle))
+                    .draw();
 
         }
         catch (IOException ex) {

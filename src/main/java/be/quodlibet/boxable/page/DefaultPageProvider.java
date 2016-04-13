@@ -15,6 +15,7 @@ public class DefaultPageProvider implements PageProvider<PDPage> {
 	public DefaultPageProvider(final PDDocument document, final PDRectangle size) {
             this.document = document;
             this.size = size;
+            this.currentPageIndex = document.getNumberOfPages() - 1;
 
 	}
 
@@ -34,6 +35,10 @@ public class DefaultPageProvider implements PageProvider<PDPage> {
             if (currentPageIndex == -1) {
                 //currentPageIndex = document.getNumberOfPages();
                     currentPageIndex = document.getNumberOfPages() - 1;
+                //unless the document has no pages yet
+                if (document.getNumberOfPages() == 0) {
+                    currentPageIndex = 0;
+                }
 		} else {
 			currentPageIndex++;
 		}
@@ -53,7 +58,11 @@ public class DefaultPageProvider implements PageProvider<PDPage> {
 
     public PDPage getCurrentPage()
     {
-        //if (currentPageIndex >= document.getNumberOfPages()) {
+        //If there are no pages, create a first page
+        if (document.getNumberOfPages() == 0) {
+            currentPageIndex = 0;
+        }
+
         if (currentPageIndex >= document.getNumberOfPages()) {
             final PDPage newPage = new PDPage(size);
             document.addPage(newPage);
@@ -66,6 +75,7 @@ public class DefaultPageProvider implements PageProvider<PDPage> {
     public void setSize(PDRectangle size)
     {
         this.size = size;
+
     }
 
     @Override

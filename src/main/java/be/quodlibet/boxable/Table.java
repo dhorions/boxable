@@ -71,6 +71,18 @@ public abstract class Table<T extends PDPage> {
 
     }
 
+    public Table addLayouter(DefaultCellLayouter l)
+    {
+        getLayouters().add(l);
+        return this;
+    }
+
+    public Table clearLayouters()
+    {
+        getLayouters().clear();
+        return this;
+    }
+
     public List<DefaultCellLayouter> getLayouters()
     {
         if (layouters == null) {
@@ -105,7 +117,7 @@ public abstract class Table<T extends PDPage> {
             }
         }*/
         this.pageProvider = provider;
-        this.currentPage = pageProvider.nextPage();
+        this.currentPage = pageProvider.getCurrentPage();
         this.document = pageProvider.getDocument();
 
     }
@@ -323,6 +335,34 @@ public abstract class Table<T extends PDPage> {
             }
         }
 
+    }
+
+    /**
+     * Draw the table on a specific vertical Position on the current page of a pageProvider
+     *
+     * @param yStartPosition
+     * @param provider
+     * @return
+     * @throws IOException
+     */
+    public float draw(float yStartPosition, PageProvider<T> provider) throws IOException
+    {
+        this.yStart = yStartPosition;
+        this.setPage(provider);
+        return draw();
+    }
+
+    /**
+     * Draw the table at the top of the current page of a pageProvider
+     *
+     * @param provider
+     * @return
+     * @throws IOException
+     */
+    public float draw(PageProvider<T> provider) throws IOException
+    {
+        this.setPage(provider);
+        return draw();
     }
     public float draw() throws IOException
     {
