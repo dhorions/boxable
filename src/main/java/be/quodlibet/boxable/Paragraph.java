@@ -338,7 +338,68 @@ public class Paragraph {
 				break;
 			case TEXT:
 				try {
-					sinceLastWrapPoint.push(currentFont, fontSize, token);
+//					sinceLastWrapPoint.push(currentFont, fontSize, token);
+
+					String word = token.getData();
+//					breakWithinWords in if()
+					if (font.getStringWidth(word) / 1000f * fontSize > width && width > font.getAverageFontWidth() / 1000f * fontSize) {
+						// you need to check if you have already something in your line 
+						boolean alreadyTextInLine = false;
+						if(textInLine.trimmedWidth()>0){
+							alreadyTextInLine = true;
+						}
+						
+						while (font.getStringWidth(word) / 1000f * fontSize > width) {
+						float width = 0;
+						float firstPartWordWidth = 0;
+						float restOfTheWordWidth = 0;
+						String lastTextToken = word;
+						StringBuilder firstPartOfWord = new StringBuilder();
+						StringBuilder restOfTheWord = new StringBuilder();
+						for (int i = 0; i < lastTextToken.length(); i++) {
+							char c = lastTextToken.charAt(i);
+							try {
+								width += (font.getStringWidth("" + c) / 1000f * fontSize);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+							if(alreadyTextInLine){
+								if (width < this.width - textInLine.trimmedWidth()) {
+									firstPartOfWord.append("" + c);
+									firstPartWordWidth = Math.max(width, firstPartWordWidth);
+								} else {
+									restOfTheWord.append("" + c);
+									restOfTheWordWidth = Math.max(width, restOfTheWordWidth);
+								}
+							} else {
+								if (width < this.width) {
+									firstPartOfWord.append("" + c);
+									firstPartWordWidth = Math.max(width, firstPartWordWidth);
+								} else {
+									restOfTheWord.append("" + c);
+									restOfTheWordWidth = Math.max(width, restOfTheWordWidth);
+								}
+							}
+						}
+						// reset
+						alreadyTextInLine = false;
+						sinceLastWrapPoint.push(currentFont, fontSize,
+								new Token(TokenType.TEXT, firstPartOfWord.toString()));
+						textInLine.push(sinceLastWrapPoint);
+						// this is our line
+						result.add(textInLine.trimmedText());
+						lineWidths.put(lineCounter, textInLine.trimmedWidth());
+						mapLineTokens.put(lineCounter, textInLine.tokens());
+						maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+						textInLine.reset();
+						lineCounter++;
+						word = restOfTheWord.toString();
+						}
+						sinceLastWrapPoint.push(currentFont, fontSize, new Token(TokenType.TEXT, word));
+					} else {
+						sinceLastWrapPoint.push(currentFont, fontSize, token);
+					}
+				
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
