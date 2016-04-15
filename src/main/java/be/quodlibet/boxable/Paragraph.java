@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,7 @@ public class Paragraph {
 
 	private boolean drawDebug;
 	private final Map<Integer, Float> lineWidths = new HashMap<>();
-	private Map<Integer, List<Token>> mapLineTokens = new HashMap<>();
+	private Map<Integer, List<Token>> mapLineTokens = new LinkedHashMap<>();
 	private float maxLineWidth = Integer.MIN_VALUE;
 
 	public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align) {
