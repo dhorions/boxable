@@ -682,6 +682,7 @@ public class Cell<T extends PDPage> {
         }
         this.font = sourceCell.getFont();//otherwise paragraph gets invalidated
         this.fontBold = sourceCell.getFontBold();
+        this.fontSize = sourceCell.getFontSize();
         setFillColor(sourceCell.getFillColor());
         setTextColor(sourceCell.getTextColor());
         setAlign(sourceCell.getAlign());
