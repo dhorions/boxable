@@ -544,7 +544,7 @@ public class TableTest {
 		doc.save(file);
 		doc.close();
 	}
-	
+
 	@Test
 	public void SampleTest6() throws IOException {
 
@@ -586,7 +586,65 @@ public class TableTest {
 		Files.createParentDirs(file);
 		doc.save(file);
 		doc.close();
-	}
+    }
+
+    @Test
+    public void SampleTest7() throws IOException
+    {
+
+        //Set margins
+        float margin = 10;
+
+        //Initialize Document
+        PDDocument doc = new PDDocument();
+        PDPage page = addNewPage(doc);
+
+        //Initialize table
+        float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
+        float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+        boolean drawContent = true;
+        boolean drawLines = true;
+        float yStart = yStartNewPage;
+        float bottomMargin = 70;
+        BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, drawLines,
+                                        drawContent);
+
+        //Create Header row
+        Row<PDPage> row = table.createRow(400f);
+        Cell<PDPage> cell = row.createCell((100 / 3f), "<p>Integer eget elit vitae est feugiat laoreet. <b>Nam vitae ex commodo, euismod risus in, sodales dolor. Mauris condimentum urna neque, non condimentum odio</b> posuere a. Aenean nisl ex, semper eu malesuada sit amet, luctus nec enim. <br>Pellentesque eu ultrices magna, non porta dolor. Fus<b><i>ce eu neque nulla. Curabitur eu eros tristique leo efficitur fringilla sit amet sed neque. Aliquam</i></b> a tempor enim. Praesent pellentesque volutpat dolor, non rhoncus est posuere id. Aenean nunc purus, gravida at mauris et, pretium volutpat nisl. Mauris lacus urna, sodales ac eros in, mollis scelerisque neque.</p> Unordered List <ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>", HorizontalAlignment.get("center"),
+                                           VerticalAlignment.get("top"));
+        cell.setFontSize(6);
+
+        Cell<PDPage> cell2 = row.createCell((100 / 3f), "<p>Proin dui dolor, lacinia at dui at, placerat ullamcorper arcu. Sed auctor sagittis elit, at eleifend ex aliquet ut. Duis lobortis est nec placerat condimentum. Aliquam erat volutpat. In a sem massa. Phasellus eget tortor iaculis, condimentum turpis a, sodales lorem. Aenean egestas congue ex<i> eu condimentum. Fusce sed</i> fringilla lorem. Vestibulum luctus ni<b>si ac turpis congue, vitae pharetra lorem suscipit.</b></p>Ordered List <ol><li>Item 1</li><li>Item 2</li><li>Item 3</li></ol>", HorizontalAlignment.get("center"),
+                                            VerticalAlignment.get("middle"));
+        cell2.setFontSize(6);
+
+        Cell<PDPage> cell3 = row.createCell((100 / 3f), "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam at bibendum leo. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aenean lobortis enim vitae magna varius, nec scelerisque sapien elementum. Quisque porta eros in feugiat commodo. Phasellus a elit diam. Nullam pretium lorem malesuada, ullamcorper risus eget, dictum libero. Nulla neque ante, volutpat in tincidunt eu, porttitor ut purus. Fusce at mauris velit. Pellentesque vel tincidunt erat. </p><p>In vehicula velit nunc, sit amet ultricies neque fringilla vel. Quisque ac enim nisl. Ut quis leo et lorem iaculis porttitor a semper diam. Pellentesque lobortis nisi ac ipsum efficitur facilisis. Interdum et malesuada fames ac ante ipsum primis in faucibus. Praesent in tellus velit. Maecenas volutpat ipsum lacus, non fringilla neque faucibus et.</p>", HorizontalAlignment.get("center"),
+                                            VerticalAlignment.get("bottom"));
+        cell3.setFontSize(6);
+
+        Row<PDPage> row2 = table.createRow(400f);
+        Cell<PDPage> cell4 = row2.createCell((100 / 3.0f), " <p>Integer eget elit vitae est feugiat laoreet. <b>Nam vitae ex commodo, euismod risus in, sodales dolor. Mauris condimentum urna neque, non condimentum odio</b> posuere a. Aenean nisl ex, semper eu malesuada sit amet, luctus nec enim. <br>Pellentesque eu ultrices magna, non porta dolor. Fus<b><i>ce eu neque nulla. Curabitur eu eros tristique leo efficitur fringilla sit amet sed neque. Aliquam</i></b> a tempor enim. Praesent pellentesque volutpat dolor, non rhoncus est posuere id. Aenean nunc purus, gravida at mauris et, pretium volutpat nisl. Mauris lacus urna, sodales ac eros in, mollis scelerisque neque.</p> Unordered List <ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>", HorizontalAlignment.get("center"),
+                                             VerticalAlignment.get("top"));
+        cell4.setFontSize(6);
+
+        Cell<PDPage> cell5 = row2.createCell((100 / 3f), "<p>Proin dui dolor, lacinia at dui at, placerat ullamcorper arcu. Sed auctor sagittis elit, at eleifend ex aliquet ut. Duis lobortis est nec placerat condimentum. Aliquam erat volutpat. In a sem massa. Phasellus eget tortor iaculis, condimentum turpis a, sodales lorem. Aenean egestas congue ex<i> eu condimentum. Fusce sed</i> fringilla lorem. Vestibulum luctus ni<b>si ac turpis congue, vitae pharetra lorem suscipit.</b></p>Ordered List <ol><li>Item 1</li><li>Item 2</li><li>Item 3</li></ol>", HorizontalAlignment.get("center"),
+                                             VerticalAlignment.get("middle"));
+        cell5.setFontSize(6);
+
+        Cell<PDPage> cell6 = row2.createCell((100 / 3f),
+                                             "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam at bibendum leo. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aenean lobortis enim vitae magna varius, nec scelerisque sapien elementum. Quisque porta eros in feugiat commodo. Phasellus a elit diam. Nullam pretium lorem malesuada, ullamcorper risus eget, dictum libero. Nulla neque ante, volutpat in tincidunt eu, porttitor ut purus. Fusce at mauris velit. Pellentesque vel tincidunt erat. </p><p>In vehicula velit nunc, sit amet ultricies neque fringilla vel. Quisque ac enim nisl. Ut quis leo et lorem iaculis porttitor a semper diam. Pellentesque lobortis nisi ac ipsum efficitur facilisis. Interdum et malesuada fames ac ante ipsum primis in faucibus. Praesent in tellus velit. Maecenas volutpat ipsum lacus, non fringilla neque faucibus et.</p>",
+                                             HorizontalAlignment.get("center"), VerticalAlignment.get("bottom"));
+        cell6.setFontSize(6);
+        table.draw();
+
+        //Save the document
+        File file = new File("target/BoxableSample7.pdf");
+        System.out.println("Sample file saved at : " + file.getAbsolutePath());
+        Files.createParentDirs(file);
+        doc.save(file);
+        doc.close();
+    }
 
 	private static PDPage addNewPage(PDDocument doc) {
 		PDPage page = new PDPage();
