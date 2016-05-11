@@ -20,7 +20,8 @@ public class Row<T extends PDPage> {
 	List<Cell<T>> cells;
 	private boolean headerRow = false;
 	float height;
-
+	private float lineSpacing = 1;
+	
 	Row(Table<T> table, List<Cell<T>> cells, float height) {
 		this.table = table;
 		this.cells = cells;
@@ -50,10 +51,7 @@ public class Row<T extends PDPage> {
 			cell.setHeaderCell(true);
 		}
 		setBorders(cell, cells.isEmpty());
-		if (headerRow) {
-			// set all cell as header cell
-			cell.setHeaderCell(true);
-		}
+		cell.setLineSpacing(lineSpacing);
 		cells.add(cell);
 		return cell;
 	}
@@ -102,10 +100,7 @@ public class Row<T extends PDPage> {
 			cell.setHeaderCell(true);
 		}
 		setBorders(cell, cells.isEmpty());
-		if (headerRow) {
-			// set all cell as header cell
-			cell.setHeaderCell(true);
-		}
+		cell.setLineSpacing(lineSpacing);
 		cells.add(cell);
 		return cell;
 	}
@@ -228,5 +223,13 @@ public class Row<T extends PDPage> {
 
 	public void setHeaderRow(boolean headerRow) {
 		this.headerRow = headerRow;
+	}
+
+	public float getLineSpacing() {
+		return lineSpacing;
+	}
+
+	public void setLineSpacing(float lineSpacing) {
+		this.lineSpacing = lineSpacing;
 	}
 }

@@ -42,7 +42,7 @@ public class Cell<T extends PDPage> {
 	private LineStyle bottomBorderStyle = new LineStyle(Color.BLACK, 1);
 
 	private Paragraph paragraph = null;
-
+	private float lineSpacing = 1;
 	private boolean textRotated = false;
 
 	private HorizontalAlignment align;
@@ -297,18 +297,18 @@ public class Cell<T extends PDPage> {
 			if (isHeaderCell) {
 				if (isTextRotated()) {
 					paragraph = new Paragraph(text, fontBold, fontSize, getInnerHeight(), align, textColor, null,
-							wrappingFunction);
+							wrappingFunction, lineSpacing);
 				} else {
 					paragraph = new Paragraph(text, fontBold, fontSize, getInnerWidth(), align, textColor, null,
-							wrappingFunction);
+							wrappingFunction, lineSpacing);
 				}
 			} else {
 				if (isTextRotated()) {
 					paragraph = new Paragraph(text, font, fontSize, getInnerHeight(), align, textColor, null,
-							wrappingFunction);
+							wrappingFunction, lineSpacing);
 				} else {
 					paragraph = new Paragraph(text, font, fontSize, getInnerWidth(), align, textColor, null,
-							wrappingFunction);
+							wrappingFunction, lineSpacing);
 				}
 			}
 		}
@@ -727,5 +727,13 @@ public class Cell<T extends PDPage> {
     {
         this.width = width;
     }
+
+	public float getLineSpacing() {
+		return lineSpacing;
+	}
+
+	public void setLineSpacing(float lineSpacing) {
+		this.lineSpacing = lineSpacing;
+	}
 
 }
