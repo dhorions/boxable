@@ -530,7 +530,11 @@ public class Paragraph {
 	}
 
 	public float getHeight() {
-		return getLines().size() * getFontHeight() * getLineSpacing();
+		if(getLines().size() == 0){
+			return 0;
+		} else {
+			return (getLines().size()-1)*getLineSpacing()*getFontHeight() + getFontHeight();
+		}
 	}
 
 	public float getFontHeight() {
