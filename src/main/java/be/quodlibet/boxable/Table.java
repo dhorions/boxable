@@ -47,6 +47,7 @@ public abstract class Table<T extends PDPage> {
 	private final boolean drawLines;
 	private final boolean drawContent;
 	private float headerBottomMargin = 4f;
+	private float lineSpacing = 1f;
 
 	private boolean tableIsBroken = false;
 	private boolean tableStartedAtNewPage = false;
@@ -175,12 +176,14 @@ public abstract class Table<T extends PDPage> {
 
 	public Row<T> createRow(float height) {
 		Row<T> row = new Row<T>(this, height);
+		row.setLineSpacing(lineSpacing);
 		this.rows.add(row);
 		return row;
 	}
 
 	public Row<T> createRow(List<Cell<T>> cells, float height) {
 		Row<T> row = new Row<T>(this, cells, height);
+		row.setLineSpacing(lineSpacing);
 		this.rows.add(row);
 		return row;
 	}
@@ -606,9 +609,9 @@ public abstract class Table<T extends PDPage> {
 						}
 					}
 					if (cell.isTextRotated()) {
-						cursorX = cursorX + cell.getParagraph().getFontHeight();
+						cursorX = cursorX + cell.getParagraph().getFontHeight()* cell.getLineSpacing();
 					} else {
-						cursorY = cursorY - cell.getParagraph().getFontHeight();
+						cursorY = cursorY - cell.getParagraph().getFontHeight()* cell.getLineSpacing();
 					}
 				}
 			}
@@ -881,6 +884,14 @@ public abstract class Table<T extends PDPage> {
 
 	public boolean tableStartedAtNewPage() {
 		return tableStartedAtNewPage;
+	}
+
+	public float getLineSpacing() {
+		return lineSpacing;
+	}
+
+	public void setLineSpacing(float lineSpacing) {
+		this.lineSpacing = lineSpacing;
 	}
 
 }
