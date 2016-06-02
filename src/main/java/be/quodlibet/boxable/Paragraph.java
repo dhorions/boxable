@@ -37,6 +37,7 @@ public class Paragraph {
 	private HorizontalAlignment align;
 	private TextType textType;
 	private Color color;
+	private float lineSpacing;
 
 	private final static int DEFAULT_TAB = 4;
 	private final static int DEFAULT_TAB_AND_BULLET = 6;
@@ -68,6 +69,11 @@ public class Paragraph {
 
 	public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align,
 			final Color color, final TextType textType, WrappingFunction wrappingFunction) {
+		this(text, font, fontSize, width, align, color, textType, wrappingFunction, 1);
+	}
+	
+	public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align,
+			final Color color, final TextType textType, WrappingFunction wrappingFunction, float lineSpacing) {
 		this.color = color;
 		this.text = text;
 		this.font = font;
@@ -76,6 +82,7 @@ public class Paragraph {
 		this.textType = textType;
 		this.setAlign(align);
 		this.wrappingFunction = wrappingFunction == null ? DEFAULT_WRAP_FUNC : wrappingFunction;
+		this.lineSpacing = lineSpacing;
 	}
 
 	public List<String> getLines() {
@@ -531,7 +538,11 @@ public class Paragraph {
 	}
 
 	public float getHeight() {
-		return getLines().size() * getFontHeight();
+		if(getLines().size() == 0){
+			return 0;
+		} else {
+			return (getLines().size()-1)*getLineSpacing()*getFontHeight() + getFontHeight();
+		}
 	}
 
 	public float getFontHeight() {
@@ -638,6 +649,14 @@ public class Paragraph {
 
 	public Map<Integer, List<Token>> getMapLineTokens() {
 		return mapLineTokens;
+	}
+
+	public float getLineSpacing() {
+		return lineSpacing;
+	}
+
+	public void setLineSpacing(float lineSpacing) {
+		this.lineSpacing = lineSpacing;
 	}
 
 }
