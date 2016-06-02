@@ -342,14 +342,12 @@ public class Paragraph {
 //					sinceLastWrapPoint.push(currentFont, fontSize, token);
 
 					String word = token.getData();
-//					breakWithinWords in if()
-					if (font.getStringWidth(word) / 1000f * fontSize > width && width > font.getAverageFontWidth() / 1000f * fontSize) {
+					if(font.getStringWidth(word) / 1000f * fontSize > width && width > font.getAverageFontWidth() / 1000f * fontSize) {
 						// you need to check if you have already something in your line 
 						boolean alreadyTextInLine = false;
 						if(textInLine.trimmedWidth()>0){
 							alreadyTextInLine = true;
 						}
-						
 						while (font.getStringWidth(word) / 1000f * fontSize > width) {
 						float width = 0;
 						float firstPartWordWidth = 0;
@@ -377,8 +375,17 @@ public class Paragraph {
 									firstPartOfWord.append("" + c);
 									firstPartWordWidth = Math.max(width, firstPartWordWidth);
 								} else {
-									restOfTheWord.append("" + c);
-									restOfTheWordWidth = Math.max(width, restOfTheWordWidth);
+									if(i==0){
+										firstPartOfWord.append("" + c);
+										for (int j = 1; j< lastTextToken.length(); j++){
+											restOfTheWord.append("" + lastTextToken.charAt(j));
+										}
+										break;
+									} else {
+										restOfTheWord.append("" + c);
+										restOfTheWordWidth = Math.max(width, restOfTheWordWidth);
+										
+									}
 								}
 							}
 						}
