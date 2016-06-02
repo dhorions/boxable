@@ -114,7 +114,7 @@ public class Cell<T extends PDPage> {
 		this.wrappingFunction = null;
 	}
 
-    public Cell(float width, String text)
+     Cell(float width, String text)
     {
         this.width = width;
         this.text = text;

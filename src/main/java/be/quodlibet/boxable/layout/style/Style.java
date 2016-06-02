@@ -17,7 +17,6 @@ abstract class Style
     public PDFont font;
     public PDFont fontBold;
     public int fontsize;
-
     public Color textcolorDefault;
     public Color fillcolorDefault;
     public HorizontalAlignment alignDefault;
