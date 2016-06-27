@@ -89,7 +89,8 @@ public class Paragraph {
 		PDFont currentFont = font;
 		int orderListElement = 1;
 		boolean orderList = false;
-
+		int listLevel = 0;
+		
 		final PipelineLayer textInLine = new PipelineLayer();
 		final PipelineLayer sinceLastWrapPoint = new PipelineLayer();
 
@@ -103,6 +104,7 @@ public class Paragraph {
 					italic = true;
 					currentFont = getFont(bold, italic);
 				} else if (isList(token)) {
+					listLevel++;
 					if (token.getData().equals("ol")) {
 						orderList = true;
 						textInLine.push(sinceLastWrapPoint);
@@ -139,6 +141,7 @@ public class Paragraph {
 					currentFont = getFont(bold, italic);
 					sinceLastWrapPoint.push(token);
 				} else if (isList(token)) {
+					listLevel--;
 					if (token.getData().equals("ol")) {
 						orderList = false;
 						// reset elements
@@ -151,6 +154,9 @@ public class Paragraph {
 					mapLineTokens.put(lineCounter, new ArrayList<Token>());
 					lineCounter++;
 				} else if (isListElement(token)) {
+					if(!getAlign().equals(HorizontalAlignment.LEFT)) {
+						listLevel = 0;
+					}
 					// wrap at last wrap point?
 					if (textInLine.width() + sinceLastWrapPoint.trimmedWidth() > width) {
 						// this is our line
@@ -173,8 +179,8 @@ public class Paragraph {
 							}
 						} else {
 							try {
-								// tab + bullet
-								String tabBullet = indentLevel(DEFAULT_TAB_AND_BULLET);
+								// if it's not left aligned then ignore list and list element and deal with it as normal text where <li> mimic <br> behaviour
+								String tabBullet = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0)) + indentLevel(DEFAULT_TAB_AND_BULLET) : indentLevel(DEFAULT_TAB);
 								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
 										String.valueOf(font.getStringWidth(tabBullet) / 1000 * getFontSize())));
 							} catch (IOException e) {
@@ -234,6 +240,9 @@ public class Paragraph {
 					}
 					// wrapping at last wrap point
 					if (listElement) {
+						if(!getAlign().equals(HorizontalAlignment.LEFT)) {
+							listLevel = 0;
+						}
 						if (orderList) {
 							String orderingNumber = String.valueOf(orderListElement) + ". ";
 							String tab = String.valueOf(indentLevel(DEFAULT_TAB));
@@ -246,7 +255,8 @@ public class Paragraph {
 							}
 						} else {
 							try {
-								String tabBullet = indentLevel(DEFAULT_TAB_AND_BULLET);
+								// if it's not left aligned then ignore list and list element and deal with it as normal text where <li> mimic <br> behaviour
+								String tabBullet = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0)) + indentLevel(DEFAULT_TAB_AND_BULLET) : indentLevel(DEFAULT_TAB);
 								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
 										String.valueOf(font.getStringWidth(tabBullet) / 1000 * getFontSize())));
 							} catch (IOException e) {
@@ -272,6 +282,9 @@ public class Paragraph {
 					lineCounter++;
 					// wrapping at last wrap point
 					if (listElement) {
+						if(!getAlign().equals(HorizontalAlignment.LEFT)) {
+							listLevel = 0;
+						}
 						if (orderList) {
 							String orderingNumber = String.valueOf(orderListElement) + ". ";
 							String tab = String.valueOf(indentLevel(DEFAULT_TAB));
@@ -284,8 +297,8 @@ public class Paragraph {
 							}
 						} else {
 							try {
-								// tab + bullet
-								String tabBullet = indentLevel(DEFAULT_TAB_AND_BULLET);
+								// if it's not left aligned then ignore list and list element and deal with it as normal text where <li> mimic <br> behaviour
+								String tabBullet = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0)) + indentLevel(DEFAULT_TAB_AND_BULLET) : indentLevel(DEFAULT_TAB);
 								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
 										String.valueOf(font.getStringWidth(tabBullet) / 1000 * getFontSize())));
 							} catch (IOException e) {
@@ -305,12 +318,14 @@ public class Paragraph {
 						lineCounter++;
 					}
 				} else if (isListElement(token)) {
+					if(!getAlign().equals(HorizontalAlignment.LEFT)) {
+						listLevel = 0;
+					}
 					listElement = true;
 					// token padding, token bullet
 					try {
-						// you always go one tab ahead
-						String tab = indentLevel(DEFAULT_TAB);
-						//						sinceLastWrapPoint.push(currentFont, fontSize, new Token(TokenType.PADDING, String.valueOf(font.getStringWidth(tab) / 1000 * getFontSize())));
+						// if it's not left aligned then ignore list and list element and deal with it as normal text where <li> mimic <br> behaviour
+						String tab = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0)) : indentLevel(DEFAULT_TAB);
 						textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
 								String.valueOf(font.getStringWidth(tab) / 1000 * getFontSize())));
 						if (orderList) {
@@ -319,8 +334,10 @@ public class Paragraph {
 							textInLine.push(currentFont, fontSize, new Token(TokenType.ORDERING, orderingNumber));
 							orderListElement++;
 						} else {
-							// if it's unordered list then just move by bullet character
-							textInLine.push(currentFont, fontSize, new Token(TokenType.BULLET, " "));
+							// if it's unordered list then just move by bullet character (take care of alignment!)
+							if(getAlign().equals(HorizontalAlignment.LEFT)){
+								textInLine.push(currentFont, fontSize, new Token(TokenType.BULLET, " "));
+							} 
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -339,8 +356,6 @@ public class Paragraph {
 				break;
 			case TEXT:
 				try {
-//					sinceLastWrapPoint.push(currentFont, fontSize, token);
-
 					String word = token.getData();
 //					breakWithinWords in if()
 					if (font.getStringWidth(word) / 1000f * fontSize > width && width > font.getAverageFontWidth() / 1000f * fontSize) {
