@@ -12,6 +12,14 @@ Boxable is a library that can be used to easily create tables in pdf documents. 
 - Convert csv data into tables in pdf documents
 - Convert Lists into tables in pdf documents
 
+#### Boxable supports next tables features
+- HTML tags in cell content (not all! `<p>,<i>,<b>,<br>,<ul>,<ol>,<li>`)
+- Horizontal & Vertical Alignment of the text
+- Images inside cells and outside table (image scale is also supported)
+- basic set of rendering attributes for lines (borders)
+- rotated text (by 90 degrees)
+- writing text outside tables
+
 
 # Maven
 ```xml
@@ -80,8 +88,18 @@ for (String[] fact : facts) {
 }
 table.draw();
 ```
-
-
+## Retrieving current table page
+If table is displayed on multiple pages the *current page* can be obtained with `table.getCurrentPage()`.
+Something like :
+```java
+[...]
+// did we change the page?
+if (table.getCurrentPage() != page) {
+    cos.close();
+    page = table.getCurrentPage();
+    cos = new PDPageContentStream(document, page, true, true);
+}
+```
 
 
 Special Thanks to these awesome contributers : 
