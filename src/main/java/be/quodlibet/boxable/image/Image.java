@@ -8,7 +8,6 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
-import be.quodlibet.boxable.Row;
 import be.quodlibet.boxable.utils.ImageUtils;
 
 public class Image {
@@ -20,27 +19,26 @@ public class Image {
 	private float height;
 
 	// standard DPI
-	private float[] dpi = {72,72};
-	
+	private float[] dpi = { 72, 72 };
+
 	/**
 	 * <p>
 	 * Constructor for default images
 	 * </p>
 	 * 
 	 * @param image
-	 * @return
-	 * @throws IOException
+	 *            {@link BufferedImage}
 	 */
 	public Image(final BufferedImage image) {
 		this.image = image;
 		this.width = image.getWidth();
 		this.height = image.getHeight();
 	}
-	
+
 	public Image(final BufferedImage image, float dpi) {
 		this(image, dpi, dpi);
 	}
-	
+
 	public Image(final BufferedImage image, float dpiX, float dpiY) {
 		this.image = image;
 		this.width = image.getWidth();
@@ -63,19 +61,19 @@ public class Image {
 	 *            X coordinate for image drawing
 	 * @param y
 	 *            Y coordinate for image drawing
-	 * @throws IOException
+	 * @throws IOException if loading image fails
 	 */
 	public void draw(final PDDocument doc, final PDPageContentStream stream, float x, float y) throws IOException {
 		PDImageXObject imageXObject = LosslessFactory.createFromImage(doc, image);
 		stream.drawImage(imageXObject, x, y - height, width, height);
 	}
 
-	
 	/**
 	 * <p>
 	 * Method which scale {@link Image} with designated width
 	 * </p>
-	 * @deprecated Use {@link #scaleByWidth(width)}
+	 * 
+	 * @deprecated Use {@link #scaleByWidth}
 	 * @param width
 	 *            Maximal height where {@link Image} needs to be scaled
 	 * @return Scaled {@link Image}
@@ -83,12 +81,12 @@ public class Image {
 	public Image scale(float width) {
 		return scaleByWidth(width);
 	}
-	
-	
+
 	/**
 	 * <p>
 	 * Method which scale {@link Image} with designated width
 	 * </p>
+	 * 
 	 * @param width
 	 *            Maximal width where {@link Image} needs to be scaled
 	 * @return Scaled {@link Image}
@@ -97,18 +95,18 @@ public class Image {
 		float factorWidth = width / this.width;
 		return scale(width, this.height * factorWidth);
 	}
-	
+
 	private void scaleImageFromPixelToPoints() {
 		float dpiX = dpi[0];
 		float dpiY = dpi[1];
-		scale(getImageWidthInPoints(dpiX),getImageHeightInPoints(dpiY));
+		scale(getImageWidthInPoints(dpiX), getImageHeightInPoints(dpiY));
 	}
 
 	/**
 	 * <p>
 	 * Method which scale {@link Image} with designated height
 	 * 
-	 * @param width
+	 * @param height
 	 *            Maximal height where {@link Image} needs to be scaled
 	 * @return Scaled {@link Image}
 	 */
@@ -116,24 +114,24 @@ public class Image {
 		float factorHeight = height / this.height;
 		return scale(this.width * factorHeight, height);
 	}
-	
+
 	public float getImageWidthInPoints(float dpiX) {
-		return this.width*72f/dpiX;
+		return this.width * 72f / dpiX;
 	}
 
 	public float getImageHeightInPoints(float dpiY) {
-		return this.height*72f/dpiY;
+		return this.height * 72f / dpiY;
 	}
 
 	/**
 	 * <p>
 	 * Method which scale {@link Image} with designated width und height
 	 * 
-	 * @param width
+	 * @param boundWidth
 	 *            Maximal width where {@link Image} needs to be scaled
-	 * @param height
+	 * @param boundHeight
 	 *            Maximal height where {@link Image} needs to be scaled
-	 * @return
+	 * @return scaled {@link Image}
 	 */
 	public Image scale(float boundWidth, float boundHeight) {
 		float[] imageDimension = ImageUtils.getScaledDimension(this.width, this.height, boundWidth, boundHeight);

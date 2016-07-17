@@ -40,9 +40,9 @@ public class Row<T extends PDPage> {
 	 * alignment
 	 * </p>
 	 * 
-	 * @param width
-	 * @param value
-	 * @return
+	 * @param width Absolute width in points or in % of table width
+	 * @param value Cell's value (content)
+	 * @return New {@link Cell}
 	 */
 	public Cell<T> createCell(float width, String value) {
 		Cell<T> cell = new Cell<T>(this, width, value, true);
@@ -65,7 +65,7 @@ public class Row<T extends PDPage> {
 	 *            Cell's width
 	 * @param img
 	 *            {@link Image} in the cell
-	 * @return
+	 * @return {@link ImageCell}
 	 */
 	public ImageCell<T> createImageCell(float width, Image img) {
 		ImageCell<T> cell = new ImageCell<>(this, width, img, true);
@@ -87,11 +87,11 @@ public class Row<T extends PDPage> {
 	 * alignment
 	 * </p>
 	 * 
-	 * @param width
-	 * @param value
-	 * @param align
-	 * @param valign
-	 * @return
+	 * @param width Absolute width in points or in % of table width
+	 * @param value Cell's value (content)
+	 * @param align Cell's {@link HorizontalAlignment}
+	 * @param valign Cell's {@link VerticalAlignment}
+	 * @return New {@link Cell}
 	 */
 	public Cell<T> createCell(float width, String value, HorizontalAlignment align, VerticalAlignment valign) {
 		Cell<T> cell = new Cell<T>(this, width, value, true, align, valign);
@@ -110,8 +110,8 @@ public class Row<T extends PDPage> {
 	 * Creates a cell with the same width as the corresponding header cell
 	 * </p>
 	 *
-	 * @param value
-	 * @return
+	 * @param value Cell's value (content)
+	 * @return new {@link Cell}
 	 */
 	public Cell<T> createCell(String value) {
 		float headerCellWidth = table.getHeader().getCells().get(cells.size()).getWidth();
@@ -124,11 +124,11 @@ public class Row<T extends PDPage> {
 	/**
 	 * <p>
 	 * Remove left border to avoid double borders from previous cell's right
-	 * border
+	 * border. In most cases left border will be removed.
 	 * </p>
 	 * 
-	 * @param cell
-	 * @param leftBorder
+	 * @param cell {@link Cell}
+	 * @param leftBorder boolean for drawing cell's left border. If {@code true} then the left cell's border will be drawn.
 	 */
 	private void setBorders(final Cell<T> cell, final boolean leftBorder) {
 		if (!leftBorder) {

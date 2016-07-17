@@ -31,7 +31,7 @@ public class ImageUtils {
 	 * @param imageFile
 	 *            {@link File} from which image will be loaded
 	 * @return {@link Image}
-	 * @throws IOException
+	 * @throws IOException if loading image fails
 	 */
 	public static Image readImage(File imageFile) throws IOException {
 		final BufferedImage bufferedImage = ImageIO.read(imageFile);
@@ -43,17 +43,16 @@ public class ImageUtils {
 	 * Provide an ability to scale {@link Image} on desired {@link Dimension}
 	 * </p>
 	 * 
-	 * @param imgDim
-	 *            Original image {@link Dimension} which will be scaled
-	 * @param boundary
-	 *            Boundary {@link Dimension} where image will be applied
-	 * @return Appropriate scaled image {@link Dimension} based on boundary
-	 *         {@link Dimension}
+	 * @param imageWidth Original image width
+	 * @param imageHeight Original image height
+	 * @param boundWidth Desired image width
+	 * @param boundHeight Desired image height
+	 * @return {@code Array} with image dimension. First value is width and second is height. 
 	 */
 	public static float[] getScaledDimension(float imageWidth, float imageHeight, float boundWidth, float boundHeight) {
 		float newImageWidth = imageWidth;
 		float newImageHeight = imageHeight;
-		
+
 		// first check if we need to scale width
 		if (imageWidth > boundWidth) {
 			newImageWidth = boundWidth;
@@ -67,8 +66,8 @@ public class ImageUtils {
 			// scale width to maintain aspect ratio
 			newImageWidth = (newImageHeight * imageWidth) / imageHeight;
 		}
-		
-		float[] imageDimension = {newImageWidth, newImageHeight};
+
+		float[] imageDimension = { newImageWidth, newImageHeight };
 		return imageDimension;
 	}
 }

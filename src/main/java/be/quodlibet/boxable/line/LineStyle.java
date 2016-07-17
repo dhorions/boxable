@@ -30,7 +30,7 @@ public class LineStyle {
 	 * </p>
 	 *
 	 * @param color
-	 *            The line {@link Color
+	 *            The line {@link Color}
 	 * @param width
 	 *            The line width
 	 */
