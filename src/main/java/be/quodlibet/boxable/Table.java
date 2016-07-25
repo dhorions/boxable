@@ -63,6 +63,16 @@ public abstract class Table<T extends PDPage> {
 
 	/**
 	 * @deprecated Use one of the constructors that pass a {@link PageProvider}
+	 * @param yStart Y position where {@link Table} will start
+	 * @param yStartNewPage Y position where possible new page of {@link Table} will start
+	 * @param pageBottomMargin bottom margin of {@link Table}
+	 * @param width {@link Table} width
+	 * @param margin {@link Table} margin
+	 * @param document {@link PDDocument} where {@link Table} will be drawn
+	 * @param currentPage current page where {@link Table} will be drawn (some tables are big and can be through multiple pages)
+	 * @param drawLines draw {@link Table}'s borders
+	 * @param drawContent draw {@link Table}'s content
+	 * @throws IOException if fonts are not loaded correctly
 	 */
 	@Deprecated
 	public Table(float yStart, float yStartNewPage, float pageBottomMargin, float width, float margin,
@@ -73,6 +83,14 @@ public abstract class Table<T extends PDPage> {
 
 	/**
 	 * @deprecated Use one of the constructors that pass a {@link PageProvider}
+	 * @param yStartNewPage Y position where possible new page of {@link Table} will start
+	 * @param pageBottomMargin bottom margin of {@link Table}
+	 * @param width {@link Table} width
+	 * @param margin {@link Table} margin
+	 * @param document {@link PDDocument} where {@link Table} will be drawn
+	 * @param drawLines draw {@link Table}'s borders
+	 * @param drawContent draw {@link Table}'s content
+	 * @throws IOException if fonts are not loaded correctly
 	 */
 	@Deprecated
 	public Table(float yStartNewPage, float pageBottomMargin, float width, float margin, PDDocument document,
@@ -295,7 +313,7 @@ public abstract class Table<T extends PDPage> {
 
 	/**
 	 * @deprecated Use a {@link PageProvider} instead
-	 * @return
+	 * @return new {@link PDPage}
 	 */
 	@Deprecated
 	// remove also createNewPage()
@@ -772,10 +790,11 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	/**
+	 * /**
 	 * 
-	 * @param header
 	 * @deprecated Use {@link #addHeaderRow(Row)} instead, as it supports
 	 *             multiple header rows
+	 * @param header row that will be set as table's header row
 	 */
 	@Deprecated
 	public void setHeader(Row<T> header) {
@@ -832,7 +851,7 @@ public abstract class Table<T extends PDPage> {
 	 * Setting current row as table header row
 	 * </p>
 	 * 
-	 * @param row
+	 * @param row The row that would be added as table's header row
 	 */
 	public void addHeaderRow(Row<T> row) {
 		this.header.add(row);

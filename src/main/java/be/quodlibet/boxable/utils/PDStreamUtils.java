@@ -130,7 +130,7 @@ public final class PDStreamUtils {
 	 *            The {@link PDPageContentStream} where drawing will be applied.
 	 * @param line
 	 *            The {@link LineStyle} that would be applied
-	 * @throws IOException
+	 * @throws IOException If the content stream could not be written or the line color cannot be retrieved.
 	 */
 	public static void setLineStyles(final PDPageContentStream stream, final LineStyle line) throws IOException {
 		stream.setNonStrokingColor(line.getColor());

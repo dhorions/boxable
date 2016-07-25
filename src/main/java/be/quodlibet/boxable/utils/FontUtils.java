@@ -54,7 +54,9 @@ public final class FontUtils {
 	 * </p>
 	 * 
 	 * @param document
+	 *            {@link PDDocument} where fonts will be loaded
 	 * @param fontPath
+	 *            font path which will be loaded
 	 * @return The read {@link PDType0Font}
 	 * @throws IOException
 	 *             If reading the font file fails
@@ -75,7 +77,7 @@ public final class FontUtils {
 	 *            The text whose width will be retrieved
 	 * @param fontSize
 	 *            The font size of text whose width will be retrieved
-	 * @return
+	 * @return text width
 	 */
 	public static float getStringWidth(final PDFont font, final String text, final float fontSize) {
 		try {
@@ -142,8 +144,10 @@ public final class FontUtils {
 	 * </p>
 	 * 
 	 * @param font
+	 *            {@link PDFont} from which the height will be calculated.
 	 * @param fontSize
-	 * @return
+	 *            font size for current {@link PDFont}.
+	 * @return {@link PDFont}'s height
 	 */
 	public static float getHeight(final PDFont font, final float fontSize) {
 		final String fontName = font.getName();
@@ -167,6 +171,7 @@ public final class FontUtils {
 	 * @param font
 	 *            The font from which calculation will be applied
 	 * @throws IOException
+	 *             If reading the font file fails
 	 */
 	private static void createFontMetrics(final PDFont font) throws IOException {
 		final float base = font.getFontDescriptor().getXHeight() / 1000;

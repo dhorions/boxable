@@ -18,6 +18,10 @@ public class BoxableUtils {
 
 	/**
 	 * @deprecated Use {@link FontUtils#loadFont(PDDocument, String)} instead
+	 * @param document {@link PDDocument} where this {@link PDType0Font} will be applied
+	 * @param fontPath font's path
+	 * @return {@link PDType0Font} 
+	 * @throws IOException if font's path is bad
 	 */
 	@Deprecated
 	public static final PDType0Font loadFont(PDDocument document, String fontPath) throws IOException {

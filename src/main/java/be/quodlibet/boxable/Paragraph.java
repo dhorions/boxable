@@ -551,6 +551,7 @@ public class Paragraph {
 
 	/**
 	 * @deprecated This method will be removed in a future release
+	 * @return current font width
 	 */
 	@Deprecated
 	public float getFontWidth() {
@@ -559,6 +560,8 @@ public class Paragraph {
 
 	/**
 	 * @deprecated This method will be removed in a future release
+	 * @param width Paragraph's width
+	 * @return {@link Paragraph} with designated width
 	 */
 	@Deprecated
 	public Paragraph withWidth(int width) {
@@ -568,6 +571,9 @@ public class Paragraph {
 
 	/**
 	 * @deprecated This method will be removed in a future release
+	 * @param font {@link PDFont} for {@link Paragraph}
+	 * @param fontSize font size for {@link Paragraph}
+	 * @return {@link Paragraph} with designated font and font size
 	 */
 	@Deprecated
 	public Paragraph withFont(PDFont font, int fontSize) {
@@ -577,7 +583,10 @@ public class Paragraph {
 	}
 
 	/**
+	 * /**
 	 * @deprecated This method will be removed in a future release
+	 * @param color {@code int} rgb value for color
+	 * @return Paragraph's {@link Color}
 	 */
 	@Deprecated
 	public Paragraph withColor(int color) {
@@ -588,6 +597,7 @@ public class Paragraph {
 	/**
 	 * @deprecated This method will be replaced by
 	 *             {@code public Color getColor()} in a future release
+	 * @return Paragraph's {@link Color} 
 	 */
 	@Deprecated
 	public int getColor() {
