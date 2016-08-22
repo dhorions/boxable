@@ -206,12 +206,21 @@ public abstract class Table<T extends PDPage> {
 		return row;
 	}
 
+	/**
+	 * <p>
+	 * Draws table
+	 * </p>
+	 * 
+	 * @return Y position of the table
+	 * @throws IOException
+	 */
 	public float draw() throws IOException {
 		ensureStreamIsOpen();
 
 		for (Row<T> row : rows) {
 			if (header.contains(row)) {
-				// check if header row height and first data row height can fit the page
+				// check if header row height and first data row height can fit
+				// the page
 				// if not draw them on another side
 				if (isEndOfPage(getMinimumHeight())) {
 					pageBreak();
@@ -368,6 +377,28 @@ public abstract class Table<T extends PDPage> {
 				}
 				imageCell.getImage().draw(document, tableContentStream, cursorX, cursorY);
 
+			} else if (cell instanceof TableCell) {
+				final TableCell<T> tableCell = (TableCell<T>) cell;
+
+				cursorY = yStart - cell.getTopPadding()
+						- (cell.getTopBorder() != null ? cell.getTopBorder().getWidth() : 0);
+
+				// table cell vertical alignment
+				switch (cell.getValign()) {
+				case TOP:
+					break;
+				case MIDDLE:
+					cursorY -= cell.getVerticalFreeSpace() / 2;
+					break;
+				case BOTTOM:
+					cursorY -= cell.getVerticalFreeSpace();
+					break;
+				}
+
+				cursorX += cell.getLeftPadding() + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth());
+				tableCell.setXPosition(cursorX);
+				tableCell.setYPosition(cursorY);
+				tableCell.draw(currentPage);
 			} else {
 				// no text without font
 				if (cell.getFont() == null) {
