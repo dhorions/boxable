@@ -894,6 +894,115 @@ public class TableTest {
         doc.save(file);
         doc.close();
     }
+	
+	@Test
+	public void SampleTest10() throws IOException {
+
+		// Set margins
+		float margin = 10;
+
+		// Initialize Document
+		PDDocument doc = new PDDocument();
+		PDPage page = addNewPage(doc);
+
+		// Initialize table
+		float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
+		float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+		boolean drawContent = true;
+		boolean drawLines = true;
+		float yStart = yStartNewPage;
+		float pageBottomMargin = 70;
+		float pageTopMargin = 2*margin;
+		BaseTable table = new BaseTable(yStart, yStartNewPage, pageBottomMargin, tableWidth, margin, doc, page, drawLines,
+				drawContent);
+
+		// set default line spacing for entire table
+		table.setLineSpacing(1.5f);
+
+		// first row (header row)
+		Row<PDPage> row = table.createRow(10f);
+
+		Cell<PDPage> cell4 = row.createCell((100 / 3f),
+				"header cell I.",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
+		cell4.setFontSize(6);
+		
+		Cell<PDPage> cell5 = row.createCell((100 / 3f),
+				"header cell II.",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+		cell5.setFontSize(6);
+		
+		Cell<PDPage> cell6 = row.createCell((100 / 3f), "header cell III.", HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+		cell6.setFontSize(6);
+		table.addHeaderRow(row);
+		
+		// keep track of y position
+		yStart -= row.getHeight();
+		
+		Row<PDPage> row2 = table.createRow(10f);
+
+		Cell<PDPage> cell = row2.createCell((100 / 3f),
+				"<p>SINGLE SPACING</p><p>Integer eget elit vitae est feugiat laoreet. <b>Nam vitae ex commodo, euismod risus in, sodales dolor. Mauris condimentum urna neque, non condimentum odio</b> posuere a. Aenean nisl ex, semper eu malesuada sit amet, luctus nec enim. <br>Pellentesque eu ultrices magna, non porta dolor. Fus<b><i>ce eu neque nulla. Curabitur eu eros tristique leo efficitur fringilla sit amet sed neque. Aliquam</i></b> a tempor enim. Praesent pellentesque volutpat dolor, non rhoncus est posuere id. Aenean nunc purus, gravida at mauris et, pretium volutpat nisl. Mauris lacus urna, sodales ac eros in, mollis scelerisque neque.</p> Unordered List <ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
+		cell.setFontSize(6);
+
+		Cell<PDPage> cell2 = row2.createCell((100 / 3f),
+				"<p>SINGLE SPACING</p><p>Proin dui dolor, lacinia at dui at, placerat ullamcorper arcu. Sed auctor sagittis elit, at eleifend ex aliquet ut. Duis lobortis est nec placerat condimentum. Aliquam erat volutpat. In a sem massa. Phasellus eget tortor iaculis, condimentum turpis a, sodales lorem. Aenean egestas congue ex<i> eu condimentum. Fusce sed</i> fringilla lorem. Vestibulum luctus ni<b>si ac turpis congue, vitae pharetra lorem suscipit.</b></p>Ordered List <ol><li>Item 1</li><li>Item 2</li><li>Item 3</li></ol>",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+		cell2.setFontSize(6);
+
+		Cell<PDPage> cell3 = row2.createTableCell((100 / 3f),
+				"<table><tr><td>Hello Hello Hello Hello Hello Hello Hello it's me</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1 b1 b1 b1 b1 b1 b1 b1 </td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr></table>",
+				doc, page, yStart, pageBottomMargin, margin);
+		cell3.setFontSize(6);
+
+		// keep track of y position
+		yStart -= row.getHeight();
+		
+		Row<PDPage> row3 = table.createRow(10f);
+
+		Cell<PDPage> cell7 = row3.createCell((100 / 3f),
+				"<p>SINGLE SPACING</p><p>Integer eget elit vitae est feugiat laoreet. <b>Nam vitae ex commodo, euismod risus in, sodales dolor. Mauris condimentum urna neque, non condimentum odio</b> posuere a. Aenean nisl ex, semper eu malesuada sit amet, luctus nec enim. <br>Pellentesque eu ultrices magna, non porta dolor. Fus<b><i>ce eu neque nulla. Curabitur eu eros tristique leo efficitur fringilla sit amet sed neque. Aliquam</i></b> a tempor enim. Praesent pellentesque volutpat dolor, non rhoncus est posuere id. Aenean nunc purus, gravida at mauris et, pretium volutpat nisl. Mauris lacus urna, sodales ac eros in, mollis scelerisque neque.</p> Unordered List <ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
+		cell7.setFontSize(6);
+		
+		Cell<PDPage> cell8 = row3.createCell((100 / 3f),
+				"<p>SINGLE SPACING</p><p>Integer eget elit vitae est feugiat laoreet. <b>Nam vitae ex commodo, euismod risus in, sodales dolor. Mauris condimentum urna neque, non condimentum odio</b> posuere a. Aenean nisl ex, semper eu malesuada sit amet, luctus nec enim. <br>Pellentesque eu ultrices magna, non porta dolor. Fus<b><i>ce eu neque nulla. Curabitur eu eros tristique leo efficitur fringilla sit amet sed neque. Aliquam</i></b> a tempor enim. Praesent pellentesque volutpat dolor, non rhoncus est posuere id. Aenean nunc purus, gravida at mauris et, pretium volutpat nisl. Mauris lacus urna, sodales ac eros in, mollis scelerisque neque.</p> Unordered List <ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+		cell8.setFontSize(6);
+		
+		Cell<PDPage> cell9 = row3.createCell((100 / 3f), "hello 3", HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+		cell9.setFontSize(6);
+		
+		// keep track of y position
+		yStart -= row3.getHeight();
+		
+		// fourth row that actually breaks first page with big inner table 
+		Row<PDPage> row4 = table.createRow(10f);
+		Cell<PDPage> cell10 = row4.createCell((100 / 3f),
+				"<p>SINGLE SPACING</p><p>Integer eget elit vitae est feugiat laoreet. <b>Nam vitae ex commodo, euismod risus in, sodales dolor. Mauris condimentum urna neque, non condimentum odio</b> posuere a. Aenean nisl ex, semper eu malesuada sit amet, luctus nec enim. <br>Pellentesque eu ultrices magna, non porta dolor. Fus<b><i>ce eu neque nulla. Curabitur eu eros tristique leo efficitur fringilla sit amet sed neque. Aliquam</i></b> a tempor enim. Praesent pellentesque volutpat dolor, non rhoncus est posuere id. Aenean nunc purus, gravida at mauris et, pretium volutpat nisl. Mauris lacus urna, sodales ac eros in, mollis scelerisque neque.</p> Unordered List <ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
+		cell10.setFontSize(6);
+
+		Cell<PDPage> cell11 = row4.createCell((100 / 3f),
+				"<p>SINGLE SPACING</p><p>Proin dui dolor, lacinia at dui at, placerat ullamcorper arcu. Sed auctor sagittis elit, at eleifend ex aliquet ut. Duis lobortis est nec placerat condimentum. Aliquam erat volutpat. In a sem massa. Phasellus eget tortor iaculis, condimentum turpis a, sodales lorem. Aenean egestas congue ex<i> eu condimentum. Fusce sed</i> fringilla lorem. Vestibulum luctus ni<b>si ac turpis congue, vitae pharetra lorem suscipit.</b></p>Ordered List <ol><li>Item 1</li><li>Item 2</li><li>Item 3</li></ol>",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+		cell11.setFontSize(6);
+
+		Cell<PDPage> cell12 = row4.createTableCell((100 / 3f),
+				"<table><tr><td>Here is inner table that will break your page and begin on second page. Try to learn to live with that assumption.</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr></table>",
+				doc, page, yStart, pageBottomMargin, pageTopMargin);
+		cell12.setFontSize(6);
+		
+		table.draw();
+
+		// Save the document
+		File file = new File("target/SampleTest10.pdf");
+		System.out.println("Sample file saved at : " + file.getAbsolutePath());
+		Files.createParentDirs(file);
+		doc.save(file);
+		doc.close();
+	}
 
 	private static PDPage addNewPage(PDDocument doc) {
 		PDPage page = new PDPage();
