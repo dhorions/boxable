@@ -990,7 +990,7 @@ public class TableTest {
 		cell11.setFontSize(6);
 
 		Cell<PDPage> cell12 = row4.createTableCell((100 / 3f),
-				"<table><tr><td>Here is inner table that will break your page and begin on second page. Try to learn to live with that assumption.</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr></table>",
+				"<table><tr><td colspan=\"5\">Colspan 5</td></tr><tr><td colspan=\"2\">Colspan 2</td><td>no colspan</td><td colspan=\"2\">Colspan 2</td></tr><tr><td>a1</td><td>a1</td><td>a1</td><td>a1</td><td>a1</td></tr></table>",
 				doc, page, yStart, pageBottomMargin, pageTopMargin);
 		cell12.setFontSize(6);
 		

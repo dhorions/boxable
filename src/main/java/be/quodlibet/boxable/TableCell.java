@@ -63,8 +63,19 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			for (Element htmlTableRow : rows) {
 				Row<PDPage> row = table.createRow(0);
 				Elements cols = htmlTableRow.select("td");
+				int columnsSize = cols.size();
+				// calculate how much really columns do you have (including colspans!)
+				for(Element col : cols){
+					if(col.attr("colspan") != null && !col.attr("colspan").isEmpty()){
+						columnsSize += Integer.parseInt(col.attr("colspan"))-1;
+					}
+				}
 				for (Element col : cols) {
-					row.createCell(tableWidth / cols.size() / row.getWidth() * 100, col.text());
+					if(col.attr("colspan") != null && !col.attr("colspan").isEmpty()){
+						row.createCell(tableWidth / columnsSize * Integer.parseInt(col.attr("colspan"))  / row.getWidth() * 100, col.text());
+					} else {
+						row.createCell(tableWidth / columnsSize / row.getWidth() * 100, col.text());
+					}
 				}
 				yStart -= row.getHeight();
 			}
@@ -96,8 +107,19 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			for (Element htmlTableRow : rows) {
 				Row<PDPage> row = table.createRow(0);
 				Elements cols = htmlTableRow.select("td");
+				int columnsSize = cols.size();
+				// calculate how much really columns do you have (including colspans!)
+				for(Element col : cols){
+					if(col.attr("colspan") != null && !col.attr("colspan").isEmpty()){
+						columnsSize += Integer.parseInt(col.attr("colspan"))-1;
+					}
+				}
 				for (Element col : cols) {
-					row.createCell(tableWidth / cols.size() / row.getWidth() * 100, col.text());
+					if(col.attr("colspan") != null && !col.attr("colspan").isEmpty()){
+						row.createCell(tableWidth / columnsSize * Integer.parseInt(col.attr("colspan"))  / row.getWidth() * 100, col.text());
+					} else {
+						row.createCell(tableWidth / columnsSize / row.getWidth() * 100, col.text());
+					}
 				}
 			}
 			this.height = table.getHeaderAndDataHeight();
