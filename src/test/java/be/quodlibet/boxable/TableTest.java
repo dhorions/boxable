@@ -990,7 +990,7 @@ public class TableTest {
 		cell11.setFontSize(6);
 
 		Cell<PDPage> cell12 = row4.createTableCell((100 / 3f),
-				"<table><tr><td colspan=\"5\">Colspan 5</td></tr><tr><td colspan=\"2\">Colspan 2</td><td>no colspan</td><td colspan=\"2\">Colspan 2</td></tr><tr><td>a1</td><td>a1</td><td>a1</td><td>a1</td><td>a1</td></tr></table>",
+				"<table><tr><th colspan=\"5\">Header Colspan 5</th></tr><tr><td colspan=\"2\"><i>Italic Colspan 2</i></td><td>no colspan</td><td colspan=\"2\"><b>Bold Colspan 2</b></td></tr><tr><td>a1</td><td>a2</td><td>a3</td><td>a4</td><td>a5</td></tr></table>",
 				doc, page, yStart, pageBottomMargin, pageTopMargin);
 		cell12.setFontSize(6);
 		

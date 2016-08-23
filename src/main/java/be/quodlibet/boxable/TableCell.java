@@ -47,34 +47,54 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 
 	/**
 	 * <p>
-	 * This method just fills up the table's content for proper table cell
-	 * height calculation. Position of the table (x,y) is not relevant here.
+	 * This method just fills up the table's with her content for proper table
+	 * cell height calculation. Position of the table (x,y) is not relevant
+	 * here.
+	 * </p>
+	 * <p>
+	 * NOTE: if entire row is not header row then use bold instead header cell (
+	 * {@code
+	 * <th>})
 	 * </p>
 	 */
 	public void fillTable() {
 		try {
 			// please consider the cell's paddings
 			float tableWidth = this.width - leftPadding - rightPadding;
-			BaseTable table = new BaseTable(yStart, PDRectangle.A4.getHeight() - pageTopMargin, pageTopMargin, pageBottomMargin,
-					tableWidth, 10, doc, page, true, true);
+			BaseTable table = new BaseTable(yStart, PDRectangle.A4.getHeight() - pageTopMargin, pageTopMargin,
+					pageBottomMargin, tableWidth, 10, doc, page, true, true);
 			Document document = Jsoup.parse(tableData);
 			Element htmlTable = document.select("table").first();
 			Elements rows = htmlTable.select("tr");
 			for (Element htmlTableRow : rows) {
 				Row<PDPage> row = table.createRow(0);
-				Elements cols = htmlTableRow.select("td");
-				int columnsSize = cols.size();
+				Elements tableCols = htmlTableRow.select("td");
+				Elements tableHeaderCols = htmlTableRow.select("th");
+				// do we have header columns?
+				boolean tableHasHeaderColumns = tableHeaderCols.isEmpty() ? false : true;
+				if (tableHasHeaderColumns) {
+					// if entire row is not header row then use bold instead
+					// header cell (<th>)
+					row.setHeaderRow(true);
+				}
+				int columnsSize = tableHasHeaderColumns ? tableHeaderCols.size() : tableCols.size();
 				// calculate how much really columns do you have (including colspans!)
-				for(Element col : cols){
-					if(col.attr("colspan") != null && !col.attr("colspan").isEmpty()){
-						columnsSize += Integer.parseInt(col.attr("colspan"))-1;
+				for (Element col : tableHasHeaderColumns ? tableHeaderCols : tableCols) {
+					// FIXME: row can have mixed td and th cells
+					if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
+						columnsSize += Integer.parseInt(col.attr("colspan")) - 1;
 					}
 				}
-				for (Element col : cols) {
-					if(col.attr("colspan") != null && !col.attr("colspan").isEmpty()){
-						row.createCell(tableWidth / columnsSize * Integer.parseInt(col.attr("colspan"))  / row.getWidth() * 100, col.text());
+				for (Element col : tableHasHeaderColumns ? tableHeaderCols : tableCols) {
+					// TODO: enable horizontal/vertical alignments, background
+					// color, border color
+					if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
+						Cell<T> cell = (Cell<T>) row.createCell(
+								tableWidth / columnsSize * Integer.parseInt(col.attr("colspan")) / row.getWidth() * 100,
+								col.html());
 					} else {
-						row.createCell(tableWidth / columnsSize / row.getWidth() * 100, col.text());
+						Cell<T> cell = (Cell<T>) row.createCell(tableWidth / columnsSize / row.getWidth() * 100,
+								col.html());
 					}
 				}
 				yStart -= row.getHeight();
@@ -87,11 +107,17 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 
 	/**
 	 * <p>
-	 * This method draw table cell with proper X,Y position which are determined in
-	 * {@link Table#draw()} method
+	 * This method draw table cell with proper X,Y position which are determined
+	 * in {@link Table#draw()} method
+	 * </p>
+	 * <p>
+	 * NOTE: if entire row is not header row then use bold instead header cell (
+	 * {@code
+	 * <th>})
 	 * </p>
 	 * 
-	 * @param page {@link PDPage} where table cell be written on
+	 * @param page
+	 *            {@link PDPage} where table cell be written on
 	 */
 	public void draw(PDPage page) {
 		try {
@@ -99,26 +125,38 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			float tableWidth = this.width - leftPadding - rightPadding;
 			// top and bottom table's margin are determined by cell's top and
 			// bottom padding
-			BaseTable table = new BaseTable(yStart, PDRectangle.A4.getHeight() - pageTopMargin, pageTopMargin, pageBottomMargin,
-					tableWidth, xStart, doc, page, true, true);
+			BaseTable table = new BaseTable(yStart, PDRectangle.A4.getHeight() - pageTopMargin, pageTopMargin,
+					pageBottomMargin, tableWidth, xStart, doc, page, true, true);
 			Document document = Jsoup.parse(tableData);
 			Element htmlTable = document.select("table").first();
 			Elements rows = htmlTable.select("tr");
 			for (Element htmlTableRow : rows) {
 				Row<PDPage> row = table.createRow(0);
-				Elements cols = htmlTableRow.select("td");
-				int columnsSize = cols.size();
-				// calculate how much really columns do you have (including colspans!)
-				for(Element col : cols){
-					if(col.attr("colspan") != null && !col.attr("colspan").isEmpty()){
-						columnsSize += Integer.parseInt(col.attr("colspan"))-1;
+				Elements tableCols = htmlTableRow.select("td");
+				Elements tableHeaderCols = htmlTableRow.select("th");
+				// do we have header columns?
+				boolean tableHasHeaderColumns = tableHeaderCols.isEmpty() ? false : true;
+				if (tableHasHeaderColumns) {
+					row.setHeaderRow(true);
+				}
+				int columnsSize = tableHasHeaderColumns ? tableHeaderCols.size() : tableCols.size();
+				// calculate how much really columns do you have (including
+				// colspans!)
+				for (Element col : tableHasHeaderColumns ? tableHeaderCols : tableCols) {
+					// FIXME: row can have mixed td and th cells
+					if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
+						columnsSize += Integer.parseInt(col.attr("colspan")) - 1;
 					}
 				}
-				for (Element col : cols) {
-					if(col.attr("colspan") != null && !col.attr("colspan").isEmpty()){
-						row.createCell(tableWidth / columnsSize * Integer.parseInt(col.attr("colspan"))  / row.getWidth() * 100, col.text());
+				for (Element col : tableHasHeaderColumns ? tableHeaderCols : tableCols) {
+					// TODO: enable horizontal/vertical alignments, background color, border color
+					if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
+						Cell<T> cell = (Cell<T>) row.createCell(
+								tableWidth / columnsSize * Integer.parseInt(col.attr("colspan")) / row.getWidth() * 100,
+								col.html());
 					} else {
-						row.createCell(tableWidth / columnsSize / row.getWidth() * 100, col.text());
+						Cell<T> cell = (Cell<T>) row.createCell(tableWidth / columnsSize / row.getWidth() * 100,
+								col.html());
 					}
 				}
 			}
