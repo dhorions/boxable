@@ -64,6 +64,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			BaseTable table = new BaseTable(yStart, PDRectangle.A4.getHeight() - pageTopMargin, pageTopMargin,
 					pageBottomMargin, tableWidth, 10, doc, page, true, true);
 			Document document = Jsoup.parse(tableData);
+			document.outputSettings().prettyPrint(false);
 			Element htmlTable = document.select("table").first();
 			Elements rows = htmlTable.select("tr");
 			for (Element htmlTableRow : rows) {
@@ -128,6 +129,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			BaseTable table = new BaseTable(yStart, PDRectangle.A4.getHeight() - pageTopMargin, pageTopMargin,
 					pageBottomMargin, tableWidth, xStart, doc, page, true, true);
 			Document document = Jsoup.parse(tableData);
+			document.outputSettings().prettyPrint(false);
 			Element htmlTable = document.select("table").first();
 			Elements rows = htmlTable.select("tr");
 			for (Element htmlTableRow : rows) {
