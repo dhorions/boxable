@@ -4,13 +4,16 @@
  */
 package be.quodlibet.boxable;
 
-import be.quodlibet.boxable.line.LineStyle;
-import be.quodlibet.boxable.text.WrappingFunction;
 import java.awt.Color;
 import java.io.IOException;
+
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+
+import be.quodlibet.boxable.line.LineStyle;
+import be.quodlibet.boxable.text.WrappingFunction;
+import be.quodlibet.boxable.utils.FontUtils;
 
 public class Cell<T extends PDPage> {
 
@@ -102,6 +105,11 @@ public class Cell<T extends PDPage> {
 		if (getWidth() > row.getWidth()) {
 			throw new IllegalArgumentException(
 					"Cell Width=" + getWidth() + " can't be bigger than row width=" + row.getWidth());
+		}
+		//check if we have new default font
+		if(!FontUtils.getDefaultfonts().isEmpty()){
+			font = FontUtils.getDefaultfonts().get("font");
+			fontBold = FontUtils.getDefaultfonts().get("fontBold");
 		}
 		this.text = text == null ? "" : text;
 		this.align = align;

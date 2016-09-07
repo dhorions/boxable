@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class FontUtils {
 
-	private final static Logger LOGGER = LoggerFactory.getLogger(FontUtils.class);
+	private final static Logger logger = LoggerFactory.getLogger(FontUtils.class);
 
 	private static final class FontMetrics {
 		private final float ascent;
@@ -35,7 +35,7 @@ public final class FontUtils {
 			this.descent = descent;
 		}
 	}
-
+	
 	/**
 	 * <p>
 	 * {@link HashMap} for caching {@link FontMetrics} for designated
@@ -43,6 +43,9 @@ public final class FontUtils {
 	 * expensive to calculate and the results are only approximate.
 	 */
 	private static final Map<String, FontMetrics> fontMetrics = new HashMap<>();
+	
+	private static final Map<String, PDFont> defaultFonts = new HashMap<>();
+	
 
 	private FontUtils() {
 	}
@@ -61,10 +64,15 @@ public final class FontUtils {
 	 * @throws IOException
 	 *             If reading the font file fails
 	 */
-	public static final PDType0Font loadFont(PDDocument document, String fontPath) throws IOException {
-		return PDType0Font.load(document, FontUtils.class.getClassLoader().getResourceAsStream(fontPath));
+	public static final PDType0Font loadFont(PDDocument document, String fontPath) {
+		try {
+			return PDType0Font.load(document, FontUtils.class.getClassLoader().getResourceAsStream(fontPath));
+		} catch (IOException e) {
+			logger.warn("Cannot load given external font", e);
+			return null;
+		}
 	}
-
+	
 	/**
 	 * <p>
 	 * Retrieving {@link String} width depending on current font size. The width
@@ -102,12 +110,7 @@ public final class FontUtils {
 	public static float getAscent(final PDFont font, final float fontSize) {
 		final String fontName = font.getName();
 		if (!fontMetrics.containsKey(fontName)) {
-			try {
-				createFontMetrics(font);
-			} catch (final IOException e) {
-				LOGGER.info("Getting font ascent distance ...");
-				return font.getFontDescriptor().getAscent() / 1000 * fontSize;
-			}
+			createFontMetrics(font);
 		}
 
 		return fontMetrics.get(fontName).ascent * fontSize;
@@ -127,12 +130,7 @@ public final class FontUtils {
 	public static float getDescent(final PDFont font, final float fontSize) {
 		final String fontName = font.getName();
 		if (!fontMetrics.containsKey(fontName)) {
-			try {
-				createFontMetrics(font);
-			} catch (final IOException e) {
-				LOGGER.info("Getting font descent distance ...");
-				return font.getFontDescriptor().getDescent() / 1000 * fontSize;
-			}
+			createFontMetrics(font);
 		}
 
 		return fontMetrics.get(fontName).descent * fontSize;
@@ -152,12 +150,7 @@ public final class FontUtils {
 	public static float getHeight(final PDFont font, final float fontSize) {
 		final String fontName = font.getName();
 		if (!fontMetrics.containsKey(fontName)) {
-			try {
-				createFontMetrics(font);
-			} catch (final IOException e) {
-				LOGGER.info("Getting font height ...");
-				return font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * fontSize * 0.865f;
-			}
+			createFontMetrics(font);
 		}
 
 		return fontMetrics.get(fontName).height * fontSize;
@@ -170,13 +163,34 @@ public final class FontUtils {
 	 * 
 	 * @param font
 	 *            The font from which calculation will be applied
+<<<<<<< HEAD
 	 * @throws IOException
 	 *             If reading the font file fails
+=======
+>>>>>>> using FreeSans as default font and added new free fonts
 	 */
-	private static void createFontMetrics(final PDFont font) throws IOException {
+	private static void createFontMetrics(final PDFont font) {
 		final float base = font.getFontDescriptor().getXHeight() / 1000;
 		final float ascent = font.getFontDescriptor().getAscent() / 1000 - base;
 		final float descent = font.getFontDescriptor().getDescent() / 1000;
 		fontMetrics.put(font.getName(), new FontMetrics(base + ascent - descent, ascent, descent));
+	}
+	
+	public static void addDefaultFonts(final PDFont font,final PDFont fontBold,final PDFont fontItalic,final PDFont fontBoldItalic) {
+		defaultFonts.put("font", font);
+		defaultFonts.put("fontBold", fontBold);
+		defaultFonts.put("fontItalic", fontItalic);
+		defaultFonts.put("fontBoldItalic", fontBoldItalic);
+	}
+	
+	public static Map<String, PDFont> getDefaultfonts() {
+		return defaultFonts;
+	}
+	
+	public static void setSansFontsAsDefault(PDDocument document){
+		defaultFonts.put("font", loadFont(document, "fonts/FreeSans.ttf"));
+		defaultFonts.put("fontBold", loadFont(document, "fonts/FreeSansBold.ttf"));
+		defaultFonts.put("fontItalic", loadFont(document, "fonts/FreeSansOblique.ttf"));
+		defaultFonts.put("fontBoldItalic", loadFont(document, "fonts/FreeSansBoldOblique.ttf"));
 	}
 }

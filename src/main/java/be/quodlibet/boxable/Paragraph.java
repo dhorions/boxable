@@ -79,6 +79,12 @@ public class Paragraph {
 		this.color = color;
 		this.text = text;
 		this.font = font;
+		// check if we have different default font for italic and bold text
+		if(!FontUtils.getDefaultfonts().isEmpty()){
+			fontBold = FontUtils.getDefaultfonts().get("fontBold");
+			fontBoldItalic = FontUtils.getDefaultfonts().get("fontBoldItalic");
+			fontItalic = FontUtils.getDefaultfonts().get("fontItalic");
+		}
 		this.fontSize = fontSize;
 		this.width = width;
 		this.textType = textType;

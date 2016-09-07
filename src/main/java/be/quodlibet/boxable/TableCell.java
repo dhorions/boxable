@@ -12,11 +12,9 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import be.quodlibet.boxable.utils.FontUtils;
-
 public class TableCell<T extends PDPage> extends Cell<T> {
 
-	private final static Logger LOGGER = LoggerFactory.getLogger(FontUtils.class);
+	private final static Logger logger = LoggerFactory.getLogger(TableCell.class);
 
 	private final String tableData;
 	private final float width;
@@ -25,6 +23,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	private float height = 0;
 	private final PDDocument doc;
 	private final PDPage page;
+	
 	// default paddings
 	private float leftPadding = 5f;
 	private float rightPadding = 5f;
@@ -32,12 +31,12 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	private final float pageTopMargin;
 	private final float pageBottomMargin;
 	
-	TableCell(Row<T> row, float width, String tableData, boolean isCalculated, PDDocument doc, PDPage page,
+	TableCell(Row<T> row, float width, String tableData, boolean isCalculated, PDDocument document, PDPage page,
 			float yStart, float pageTopMargin, float pageBottomMargin) {
 		super(row, width, tableData, isCalculated);
 		this.tableData = tableData;
 		this.width = width * row.getWidth() / 100;
-		this.doc = doc;
+		this.doc = document;
 		this.page = page;
 		this.yStart = yStart;
 		this.pageTopMargin = pageTopMargin;
@@ -62,7 +61,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			// please consider the cell's paddings
 			float tableWidth = this.width - leftPadding - rightPadding;
 			BaseTable table = new BaseTable(yStart, PDRectangle.A4.getHeight() - pageTopMargin, pageTopMargin,
-					pageBottomMargin, tableWidth, 10, doc, page, true, true);
+					pageBottomMargin, tableWidth, xStart, doc, page, true, true);
 			Document document = Jsoup.parse(tableData);
 			document.outputSettings().prettyPrint(false);
 			Element htmlTable = document.select("table").first();
@@ -81,31 +80,28 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 				int columnsSize = tableHasHeaderColumns ? tableHeaderCols.size() : tableCols.size();
 				// calculate how much really columns do you have (including colspans!)
 				for (Element col : tableHasHeaderColumns ? tableHeaderCols : tableCols) {
-					// FIXME: row can have mixed td and th cells
 					if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
 						columnsSize += Integer.parseInt(col.attr("colspan")) - 1;
 					}
 				}
 				for (Element col : tableHasHeaderColumns ? tableHeaderCols : tableCols) {
-					// TODO: enable horizontal/vertical alignments, background
-					// color, border color
 					if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
 						Cell<T> cell = (Cell<T>) row.createCell(
 								tableWidth / columnsSize * Integer.parseInt(col.attr("colspan")) / row.getWidth() * 100,
-								col.html());
+								col.html().replace("&amp;", "&"));
 					} else {
 						Cell<T> cell = (Cell<T>) row.createCell(tableWidth / columnsSize / row.getWidth() * 100,
-								col.html());
+								col.html().replace("&amp;", "&"));
 					}
 				}
 				yStart -= row.getHeight();
 			}
-			this.height = table.getHeaderAndDataHeight();
+			height = table.getHeaderAndDataHeight();
 		} catch (IOException e) {
-			LOGGER.warn("Cannot create table in TableCell. Table data: '{}' " + tableData + e);
+			logger.warn("Cannot create table in TableCell. Table data: '{}' " + tableData + e);
 		}
 	}
-
+	
 	/**
 	 * <p>
 	 * This method draw table cell with proper X,Y position which are determined
@@ -155,17 +151,17 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 					if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
 						Cell<T> cell = (Cell<T>) row.createCell(
 								tableWidth / columnsSize * Integer.parseInt(col.attr("colspan")) / row.getWidth() * 100,
-								col.html());
+								col.html().replace("&amp;", "&"));
 					} else {
 						Cell<T> cell = (Cell<T>) row.createCell(tableWidth / columnsSize / row.getWidth() * 100,
-								col.html());
+								col.html().replace("&amp;", "&"));
 					}
 				}
 			}
-			this.height = table.getHeaderAndDataHeight();
+			height = table.getHeaderAndDataHeight();
 			table.draw();
 		} catch (IOException e) {
-			LOGGER.warn("Cannot draw table for TableCell! Table data: '{}'" + tableData + e);
+			logger.warn("Cannot draw table for TableCell! Table data: '{}'" + tableData + e);
 		}
 	}
 
@@ -207,4 +203,5 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	public void setRightPadding(float rightPadding) {
 		this.rightPadding = rightPadding;
 	}
+
 }
