@@ -234,9 +234,9 @@ public final class Tokenizer {
 							}
 						}
 						
-						if (!consumed) {
-							sb.append('<');
-						}
+					}
+					if (!consumed) {
+						sb.append('<');
 					}
 					break;
 				default:
