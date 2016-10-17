@@ -483,7 +483,7 @@ public abstract class Table<T extends PDPage> {
 				// new line
 				float lineStartX = cursorX;
 				float lineStartY = cursorY;
-
+				
 				// if it is head row or if it is header cell then please use bold font
 				if (row.equals(header) || cell.isHeaderCell()) {
 					this.tableContentStream.setFont(cell.getParagraph().getFont(true, false), cell.getFontSize());
@@ -573,6 +573,10 @@ public abstract class Table<T extends PDPage> {
 							}
 							break;
 						case BULLET:
+							// if cell is not left aligned then don't draw the bullet
+							if(!cell.getAlign().equals(HorizontalAlignment.LEFT)){
+								continue;
+							}
 							if (cell.isTextRotated()) {
 								// move cursorX up because bullet needs to be in the middle of font height
 								cursorX += FontUtils.getHeight(currentFont, cell.getFontSize()) / 2;
