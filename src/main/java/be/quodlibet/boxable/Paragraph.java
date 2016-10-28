@@ -73,7 +73,7 @@ public class Paragraph {
 			final Color color, final TextType textType, WrappingFunction wrappingFunction) {
 		this(text, font, fontSize, width, align, color, textType, wrappingFunction, 1);
 	}
-	
+
 	public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align,
 			final Color color, final TextType textType, WrappingFunction wrappingFunction, float lineSpacing) {
 		this.color = color;
@@ -163,7 +163,9 @@ public class Paragraph {
 					if (token.getData().equals("ol")) {
 						numberOfOrderedLists--;
 						// reset elements
-						orderListElement = stack.peek().getOrderingNumber()+1;
+						if(numberOfOrderedLists>0){
+							orderListElement = stack.peek().getOrderingNumber()+1;
+						}
 						if(numberOfOrderedLists > 1){
 							stack.pop();
 						}
@@ -493,15 +495,15 @@ public class Paragraph {
 	}
 
 	private static String indentLevel(int numberOfSpaces) {
-		//String builder is efficient at concatenating strings together
+		// String builder is efficient at concatenating strings together
 		StringBuilder sb = new StringBuilder();
 
-		//Loop as many times as specified; each time add a space to the string
+		// Loop as many times as specified; each time add a space to the string
 		for (int i = 0; i < numberOfSpaces; i++) {
 			sb.append(" ");
 		}
 
-		//Return the string
+		// Return the string
 		return sb.toString();
 	}
 
@@ -575,10 +577,10 @@ public class Paragraph {
 	}
 
 	public float getHeight() {
-		if(getLines().size() == 0){
+		if (getLines().size() == 0) {
 			return 0;
 		} else {
-			return (getLines().size()-1)*getLineSpacing()*getFontHeight() + getFontHeight();
+			return (getLines().size() - 1) * getLineSpacing() * getFontHeight() + getFontHeight();
 		}
 	}
 
@@ -597,7 +599,8 @@ public class Paragraph {
 
 	/**
 	 * @deprecated This method will be removed in a future release
-	 * @param width Paragraph's width
+	 * @param width
+	 *            Paragraph's width
 	 * @return {@link Paragraph} with designated width
 	 */
 	@Deprecated
@@ -608,8 +611,10 @@ public class Paragraph {
 
 	/**
 	 * @deprecated This method will be removed in a future release
-	 * @param font {@link PDFont} for {@link Paragraph}
-	 * @param fontSize font size for {@link Paragraph}
+	 * @param font
+	 *            {@link PDFont} for {@link Paragraph}
+	 * @param fontSize
+	 *            font size for {@link Paragraph}
 	 * @return {@link Paragraph} with designated font and font size
 	 */
 	@Deprecated
@@ -621,8 +626,10 @@ public class Paragraph {
 
 	/**
 	 * /**
+	 * 
 	 * @deprecated This method will be removed in a future release
-	 * @param color {@code int} rgb value for color
+	 * @param color
+	 *            {@code int} rgb value for color
 	 * @return Paragraph's {@link Color}
 	 */
 	@Deprecated
@@ -634,7 +641,7 @@ public class Paragraph {
 	/**
 	 * @deprecated This method will be replaced by
 	 *             {@code public Color getColor()} in a future release
-	 * @return Paragraph's {@link Color} 
+	 * @return Paragraph's {@link Color}
 	 */
 	@Deprecated
 	public int getColor() {
