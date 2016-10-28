@@ -1,3 +1,7 @@
+task wrapper(type: Wrapper) {
+	gradleVersion = '2.13'
+}
+
 apply plugin: 'java'
 
 sourceCompatibility = 1.7
