@@ -860,6 +860,40 @@ public class TableTest {
 		doc.save(file);
 		doc.close();
 	}
+    
+    @Test
+    public void IncorrectHTMLListNesting() throws IOException {
+
+        //Set margins
+        float margin = 10;
+
+        //Initialize Document
+        PDDocument doc = new PDDocument();
+        PDPage page = addNewPage(doc);
+
+        //Initialize table
+        float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
+        float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+        boolean drawContent = true;
+        boolean drawLines = true;
+        float yStart = yStartNewPage;
+        float bottomMargin = 70;
+        BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, drawLines,
+                drawContent);
+
+        //Create Header row
+        Row<PDPage> row = table.createRow(15f);
+        Cell<PDPage> cell = row.createCell((100 / 3f), "<ol><li>a</li><ol><li>b1</li><li>b2</li><ol><li>c1</li><li>c2 hello hello hello hello hello hello hello hello hello hello hello </li><li>c3</li><li>c4 hello hello hello hello hello hello hello hello hello hello</li></ol><li>b3</li></ol><li>hello</li><li>hello</li><li>hello</li><li>hello</li><li>hello</li></ol>", HorizontalAlignment.get("left"), VerticalAlignment.get("top"));
+        Cell<PDPage> cell2 = row.createCell((100 / 3f), "<ul><li>a</li><ul><li>b1</li><li>b2</li><ul><li>c1</li><li>c2 hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello </li><li>c3</li><li>c4</li></ul><li>b3</li></ul><li>hello</li><li>hello</li><li>hello</li><li>hello</li></ul>", HorizontalAlignment.get("left"), VerticalAlignment.get("top"));
+        table.draw();
+
+        //Save the document
+        File file = new File("target/ListNesting.pdf");
+        System.out.println("Sample file saved at : " + file.getAbsolutePath());
+        Files.createParentDirs(file);
+        doc.save(file);
+        doc.close();
+    }
 
 	private static PDPage addNewPage(PDDocument doc) {
 		PDPage page = new PDPage();
