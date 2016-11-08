@@ -179,9 +179,6 @@ public class Paragraph {
 						lineCounter++;
 					}
 				} else if (isListElement(token)) {
-					if(!getAlign().equals(HorizontalAlignment.LEFT)) {
-						listLevel = 0;
-					}
 					// wrap at last wrap point?
 					if (textInLine.width() + sinceLastWrapPoint.trimmedWidth() > width) {
 						// this is our line
@@ -267,9 +264,6 @@ public class Paragraph {
 					}
 					// wrapping at last wrap point
 					if (listElement) {
-						if(!getAlign().equals(HorizontalAlignment.LEFT)) {
-							listLevel = 0;
-						}
 						if (numberOfOrderedLists>0) {
 							String tab = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0)) : indentLevel(DEFAULT_TAB);
 							String orderingNumber = stack.isEmpty() ? String.valueOf(orderListElement) + "." : stack.peek().getValue() + "." + String.valueOf(orderListElement-1) + ".";
@@ -345,9 +339,6 @@ public class Paragraph {
 						lineCounter++;
 					}
 				} else if (isListElement(token)) {
-					if(!getAlign().equals(HorizontalAlignment.LEFT)) {
-						listLevel = 0;
-					}
 					listElement = true;
 					// token padding, token bullet
 					try {
