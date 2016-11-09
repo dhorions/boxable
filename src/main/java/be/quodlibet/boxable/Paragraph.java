@@ -358,9 +358,9 @@ public class Paragraph {
 							orderListElement++;
 						} else {
 							// if it's unordered list then just move by bullet character (take care of alignment!)
-							if(getAlign().equals(HorizontalAlignment.LEFT)){
+//							if(getAlign().equals(HorizontalAlignment.LEFT)){
 								textInLine.push(currentFont, fontSize, new Token(TokenType.BULLET, " "));
-							} 
+//							} 
 						}
 					} catch (IOException e) {
 						e.printStackTrace();

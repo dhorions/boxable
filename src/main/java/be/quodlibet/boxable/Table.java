@@ -574,9 +574,9 @@ public abstract class Table<T extends PDPage> {
 							break;
 						case BULLET:
 							// if cell is not left aligned then don't draw the bullet
-							if(!cell.getAlign().equals(HorizontalAlignment.LEFT)){
-								continue;
-							}
+//							if(!cell.getAlign().equals(HorizontalAlignment.LEFT)){
+//								continue;
+//							}
 							if (cell.isTextRotated()) {
 								// move cursorX up because bullet needs to be in the middle of font height
 								cursorX += FontUtils.getHeight(currentFont, cell.getFontSize()) / 2;
