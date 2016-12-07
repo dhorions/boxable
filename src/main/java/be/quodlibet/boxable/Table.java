@@ -448,7 +448,8 @@ public abstract class Table<T extends PDPage> {
 						cursorX += cell.getHorizontalFreeSpace();
 						break;
 					}
-
+					// make tokenize method just in case
+					cell.getParagraph().getLines();
 				} else {
 					// debugging mode - drawing (default!) padding of rotated cells
 					//left
