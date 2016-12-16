@@ -124,7 +124,7 @@ public class Paragraph {
 					if (token.getData().equals("ol")) {
 						numberOfOrderedLists++;
 						if(listLevel > 1){
-							stack.add(new HTMLListNode(orderListElement-1, stack.isEmpty() ? String.valueOf("1.") : stack.peek().getValue() + String.valueOf(orderListElement-1) + "."));
+							stack.add(new HTMLListNode(orderListElement-1, stack.isEmpty() ? String.valueOf(orderListElement-1)+"." : stack.peek().getValue() + String.valueOf(orderListElement-1) + "."));
 						}
 						orderListElement = 1;
 
@@ -171,8 +171,6 @@ public class Paragraph {
 						// reset elements
 						if(numberOfOrderedLists>0){
 							orderListElement = stack.peek().getOrderingNumber()+1;
-						}
-						if(numberOfOrderedLists > 1){
 							stack.pop();
 						}
 					}
@@ -364,9 +362,7 @@ public class Paragraph {
 							orderListElement++;
 						} else {
 							// if it's unordered list then just move by bullet character (take care of alignment!)
-//							if(getAlign().equals(HorizontalAlignment.LEFT)){
-								textInLine.push(currentFont, fontSize, new Token(TokenType.BULLET, " "));
-//							} 
+							textInLine.push(currentFont, fontSize, new Token(TokenType.BULLET, " "));
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -380,6 +376,32 @@ public class Paragraph {
 					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 					textInLine.reset();
 					lineCounter++;
+					if(listLevel>0){
+						// preserve current indent
+						try {
+							if (numberOfOrderedLists>0) {
+								String tab = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0)) : indentLevel(DEFAULT_TAB);
+								// if it's ordering list then move depending on your: ordering number + ". "
+								String orderingNumber;
+								if(listLevel > 1){
+									orderingNumber = stack.peek().getValue() + String.valueOf(orderListElement) + ". "; 
+								} else {
+									orderingNumber = String.valueOf(orderListElement) + ". ";
+								}
+								String tabAndOrderingNumber = tab + orderingNumber;
+								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING, String.valueOf(font.getStringWidth(tabAndOrderingNumber) / 1000 * getFontSize())));
+								orderListElement++;
+							} else {
+								if(getAlign().equals(HorizontalAlignment.LEFT)){
+									String tab = indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0)) + indentLevel(BULLET_SPACE);
+									textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
+											String.valueOf(font.getStringWidth(tab) / 1000 * getFontSize())));
+								}
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
 				}
 				break;
 			case TEXT:
