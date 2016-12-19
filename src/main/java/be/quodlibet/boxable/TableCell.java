@@ -4,13 +4,17 @@ import java.io.IOException;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import be.quodlibet.boxable.utils.FontUtils;
 
 public class TableCell<T extends PDPage> extends Cell<T> {
 
@@ -23,6 +27,14 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	private float height = 0;
 	private final PDDocument doc;
 	private final PDPage page;
+	// keeping margin pattern as normal table
+	private float marginBetweenElementsY = 15;
+	private final HorizontalAlignment align;
+	private final VerticalAlignment valign;
+	// default FreeSans font
+	private PDFont font =  FontUtils.getDefaultfonts().get("font");
+	private PDFont fontBold = FontUtils.getDefaultfonts().get("fontBold");
+	private PDPageContentStream tableCellContentStream;
 	
 	// default paddings
 	private float leftPadding = 5f;
@@ -30,9 +42,16 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	// page margins
 	private final float pageTopMargin;
 	private final float pageBottomMargin;
+	// default title fonts
+	private int tableTitleFontSize = 10;
 	
 	TableCell(Row<T> row, float width, String tableData, boolean isCalculated, PDDocument document, PDPage page,
 			float yStart, float pageTopMargin, float pageBottomMargin) {
+		this(row, width, tableData, isCalculated, document, page, yStart, pageTopMargin, pageBottomMargin, HorizontalAlignment.LEFT, VerticalAlignment.TOP);
+	}
+	
+	TableCell(Row<T> row, float width, String tableData, boolean isCalculated, PDDocument document, PDPage page,
+			float yStart, float pageTopMargin, float pageBottomMargin, final HorizontalAlignment align, final VerticalAlignment valign) {
 		super(row, width, tableData, isCalculated);
 		this.tableData = tableData;
 		this.width = width * row.getWidth() / 100;
@@ -41,8 +60,12 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		this.yStart = yStart;
 		this.pageTopMargin = pageTopMargin;
 		this.pageBottomMargin = pageBottomMargin;
-		fillTable();
+		this.align = align;
+		this.valign = valign;
+		fillTable();	
 	}
+	
+	
 
 	/**
 	 * <p>
@@ -56,15 +79,29 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	 * <th>})
 	 * </p>
 	 */
+	@SuppressWarnings({ "unused", "unchecked" })
 	public void fillTable() {
 		try {
 			// please consider the cell's paddings
 			float tableWidth = this.width - leftPadding - rightPadding;
+			tableCellContentStream = new PDPageContentStream(doc, page, true, true);
+			Document document = Jsoup.parse(tableData);
+			Element captionTag = document.select("caption").first();
+			Paragraph tableTitle = null;
+			String caption = "";
+			if(captionTag != null){
+				caption = captionTag.text();
+				tableTitle = new Paragraph(caption, fontBold, tableTitleFontSize, tableWidth, align,
+						null);
+				yStart -= tableTitle.getHeight() + marginBetweenElementsY;
+			}
+						
 			BaseTable table = new BaseTable(yStart, PDRectangle.A4.getHeight() - pageTopMargin, pageTopMargin,
 					pageBottomMargin, tableWidth, xStart, doc, page, true, true);
-			Document document = Jsoup.parse(tableData);
+			
 			document.outputSettings().prettyPrint(false);
 			Element htmlTable = document.select("table").first();
+			
 			Elements rows = htmlTable.select("tr");
 			for (Element htmlTableRow : rows) {
 				Row<PDPage> row = table.createRow(0);
@@ -96,7 +133,8 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 				}
 				yStart -= row.getHeight();
 			}
-			height = table.getHeaderAndDataHeight();
+			height = table.getHeaderAndDataHeight() + (captionTag != null ? tableTitle.getHeight() : 0) + marginBetweenElementsY;
+			tableCellContentStream.close();
 		} catch (IOException e) {
 			logger.warn("Cannot create table in TableCell. Table data: '{}' " + tableData + e);
 		}
@@ -115,16 +153,32 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	 * 
 	 * @param page
 	 *            {@link PDPage} where table cell be written on
+	 *            
 	 */
+	@SuppressWarnings({ "unused", "unchecked" })
 	public void draw(PDPage page) {
 		try {
 			// please consider the cell's paddings
 			float tableWidth = this.width - leftPadding - rightPadding;
+			
+			// draw table title first
+			Document document = Jsoup.parse(tableData);
+			Element tableCaptionTag = document.select("caption").first();
+			String caption = "";
+			Paragraph tableTitle = null;
+			tableCellContentStream = new PDPageContentStream(doc, page, true, true);
+			if(tableCaptionTag != null){
+				caption = tableCaptionTag.text();
+				tableTitle = new Paragraph(caption, fontBold, tableTitleFontSize, tableWidth, align,
+						null);
+				yStart = tableTitle.write(tableCellContentStream, xStart, yStart) - marginBetweenElementsY;
+			}
+			
+
 			// top and bottom table's margin are determined by cell's top and
 			// bottom padding
 			BaseTable table = new BaseTable(yStart, PDRectangle.A4.getHeight() - pageTopMargin, pageTopMargin,
 					pageBottomMargin, tableWidth, xStart, doc, page, true, true);
-			Document document = Jsoup.parse(tableData);
 			document.outputSettings().prettyPrint(false);
 			Element htmlTable = document.select("table").first();
 			Elements rows = htmlTable.select("tr");
@@ -158,8 +212,9 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 					}
 				}
 			}
-			height = table.getHeaderAndDataHeight();
+			height = table.getHeaderAndDataHeight() + (tableCaptionTag != null ? tableTitle.getHeight() : 0) + marginBetweenElementsY ;
 			table.draw();
+			tableCellContentStream.close();
 		} catch (IOException e) {
 			logger.warn("Cannot draw table for TableCell! Table data: '{}'" + tableData + e);
 		}
@@ -202,6 +257,14 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 
 	public void setRightPadding(float rightPadding) {
 		this.rightPadding = rightPadding;
+	}
+
+	public void setFont(PDFont font) {
+		this.font = font;
+	}
+
+	public void setFontBold(PDFont fontBold) {
+		this.fontBold = fontBold;
 	}
 
 }
