@@ -269,7 +269,7 @@ public class Paragraph {
 					// wrapping at last wrap point
 					if (listElement) {
 						if (numberOfOrderedLists>0) {
-							String tab = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0)) : indentLevel(DEFAULT_TAB);
+							String tab = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0)) + indentLevel(DEFAULT_TAB) : indentLevel(DEFAULT_TAB);
 							String orderingNumber = stack.isEmpty() ? String.valueOf(orderListElement) + "." : stack.peek().getValue() + "." + String.valueOf(orderListElement-1) + ".";
 							try {
 								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
@@ -280,7 +280,7 @@ public class Paragraph {
 						} else {
 							try {
 								// if it's not left aligned then ignore list and list element and deal with it as normal text where <li> mimic <br> behavior
-								String tabBullet = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0)) + indentLevel(BULLET_SPACE)  : indentLevel(DEFAULT_TAB);
+								String tabBullet = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0)) + indentLevel(DEFAULT_TAB_AND_BULLET)  : indentLevel(DEFAULT_TAB);
 								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
 										String.valueOf(font.getStringWidth(tabBullet) / 1000 * getFontSize())));
 							} catch (IOException e) {
@@ -347,7 +347,7 @@ public class Paragraph {
 					// token padding, token bullet
 					try {
 						// if it's not left aligned then ignore list and list element and deal with it as normal text where <li> mimic <br> behaviour
-						String tab = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0)) : indentLevel(DEFAULT_TAB);
+						String tab = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0)) + indentLevel(DEFAULT_TAB) : indentLevel(DEFAULT_TAB);
 						textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
 								String.valueOf(font.getStringWidth(tab) / 1000 * getFontSize())));
 						if (numberOfOrderedLists>0) {
@@ -393,7 +393,7 @@ public class Paragraph {
 								orderListElement++;
 							} else {
 								if(getAlign().equals(HorizontalAlignment.LEFT)){
-									String tab = indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0)) + indentLevel(BULLET_SPACE);
+									String tab = indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0)) + indentLevel(DEFAULT_TAB) + indentLevel(BULLET_SPACE);
 									textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
 											String.valueOf(font.getStringWidth(tab) / 1000 * getFontSize())));
 								}
