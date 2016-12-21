@@ -43,11 +43,11 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	private final float pageTopMargin;
 	private final float pageBottomMargin;
 	// default title fonts
-	private int tableTitleFontSize = 10;
+	private int tableTitleFontSize = 8;
 	
 	TableCell(Row<T> row, float width, String tableData, boolean isCalculated, PDDocument document, PDPage page,
 			float yStart, float pageTopMargin, float pageBottomMargin) {
-		this(row, width, tableData, isCalculated, document, page, yStart, pageTopMargin, pageBottomMargin, HorizontalAlignment.LEFT, VerticalAlignment.TOP);
+		this(row, width, tableData, isCalculated, document, page, yStart, pageTopMargin, pageBottomMargin, HorizontalAlignment.CENTER, VerticalAlignment.TOP);
 	}
 	
 	TableCell(Row<T> row, float width, String tableData, boolean isCalculated, PDDocument document, PDPage page,
