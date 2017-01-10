@@ -38,8 +38,8 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	private final VerticalAlignment valign;
 
 	// default FreeSans font
-	private PDFont font = FontUtils.getDefaultfonts().get("font");
-	private PDFont fontBold = FontUtils.getDefaultfonts().get("fontBold");
+//	private PDFont font = FontUtils.getDefaultfonts().get("font");
+//	private PDFont fontBold = FontUtils.getDefaultfonts().get("fontBold");
 	private PDPageContentStream tableCellContentStream;
 
 	// page margins
@@ -110,7 +110,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 							Paragraph tableTitle = null;
 							if (captionTag != null) {
 								caption = captionTag.text();
-								tableTitle = new Paragraph(caption, fontBold, tableTitleFontSize, tableWidth,
+								tableTitle = new Paragraph(caption, getFontBold(), tableTitleFontSize, tableWidth,
 										HorizontalAlignment.CENTER, null);
 								yStart -= tableTitle.getHeight() + marginBetweenElementsY;
 							}
@@ -118,7 +118,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 							createInnerTable(tableWidth, document, false);
 						} else {
 							// make paragraph and get tokens
-							outerTextParagraph = new Paragraph(chunkie, font, 8, (int) tableWidth);
+							outerTextParagraph = new Paragraph(chunkie, getFont(), 8, (int) tableWidth);
 							outerTextParagraph.getLines();
 							height += (outerTextParagraph != null
 									? outerTextParagraph.getHeight() + marginBetweenElementsY : 0);
@@ -127,7 +127,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 					}
 				} else {
 					// make paragraph and get tokens
-					outerTextParagraph = new Paragraph(element, font, 8, (int) tableWidth);
+					outerTextParagraph = new Paragraph(element, getFont(), 8, (int) tableWidth);
 					outerTextParagraph.getLines();
 					height += (outerTextParagraph != null ? outerTextParagraph.getHeight() + marginBetweenElementsY
 							: 0);
@@ -206,8 +206,8 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 
 		// position at top of current cell descending by font height - font
 		// descent, because we are positioning the base line here
-		float cursorY = yStart - getTopPadding() - FontUtils.getHeight(font, getFontSize())
-				- FontUtils.getDescent(font, getFontSize()) - (getTopBorder() == null ? 0 : getTopBorder().getWidth());
+		float cursorY = yStart - getTopPadding() - FontUtils.getHeight(getFont(), getFontSize())
+				- FontUtils.getDescent(getFont(), getFontSize()) - (getTopBorder() == null ? 0 : getTopBorder().getWidth());
 		float cursorX = xStart;
 
 		// loop through tokens
@@ -352,7 +352,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			}
 			// reset
 			cursorX = xStart;
-			cursorY -= FontUtils.getHeight(font, getFontSize());
+			cursorY -= FontUtils.getHeight(getFont(), getFontSize());
 		}
 		return cursorY;
 	}
@@ -400,7 +400,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 							Paragraph tableTitle = null;
 							if (captionTag != null) {
 								caption = captionTag.text();
-								tableTitle = new Paragraph(caption, fontBold, tableTitleFontSize, tableWidth,
+								tableTitle = new Paragraph(caption, getFontBold(), tableTitleFontSize, tableWidth,
 										HorizontalAlignment.CENTER, null);
 								yStart = tableTitle.write(tableCellContentStream, xStart, yStart)
 										- marginBetweenElementsY;
@@ -409,7 +409,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 							createInnerTable(tableWidth, document, true);
 						} else {
 							// make paragraph and get tokens
-							outerTextParagraph = new Paragraph(chunkie, font, 8, (int) tableWidth);
+							outerTextParagraph = new Paragraph(chunkie, getFont(), 8, (int) tableWidth);
 							outerTextParagraph.getLines();
 							height += (outerTextParagraph != null
 									? outerTextParagraph.getHeight() + marginBetweenElementsY : 0);
@@ -418,7 +418,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 					}
 				} else {
 					// make paragraph and get tokens
-					outerTextParagraph = new Paragraph(element, font, 8, (int) tableWidth);
+					outerTextParagraph = new Paragraph(element, getFont(), 8, (int) tableWidth);
 					outerTextParagraph.getLines();
 					height += (outerTextParagraph != null ? outerTextParagraph.getHeight() + marginBetweenElementsY
 							: 0);
@@ -460,14 +460,6 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	@Override
 	public float getVerticalFreeSpace() {
 		return getInnerHeight() - width;
-	}
-
-	public void setFont(PDFont font) {
-		this.font = font;
-	}
-
-	public void setFontBold(PDFont fontBold) {
-		this.fontBold = fontBold;
 	}
 
 }
