@@ -115,7 +115,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 								yStart -= tableTitle.getHeight() + marginBetweenElementsY;
 							}
 							height += (captionTag != null ? tableTitle.getHeight() + marginBetweenElementsY : 0);
-							createInnerTable(tableWidth, document, false);
+							createInnerTable(tableWidth, document, page, false);
 						} else {
 							// make paragraph and get tokens
 							outerTextParagraph = new Paragraph(chunkie, getFont(), 8, (int) tableWidth);
@@ -140,11 +140,10 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		}
 	}
 
-	private void createInnerTable(float tableWidth, Document document, boolean drawTable) throws IOException {
+	private void createInnerTable(float tableWidth, Document document, PDPage currentPage, boolean drawTable) throws IOException {
 
 		BaseTable table = new BaseTable(yStart, PDRectangle.A4.getHeight() - pageTopMargin, pageTopMargin,
-				pageBottomMargin, tableWidth, xStart, doc, page, true, true);
-
+				pageBottomMargin, tableWidth, xStart, doc, currentPage, true, true);
 		document.outputSettings().prettyPrint(false);
 		Element htmlTable = document.select("table").first();
 
@@ -406,7 +405,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 										- marginBetweenElementsY;
 							}
 							height += (captionTag != null ? tableTitle.getHeight() + marginBetweenElementsY : 0);
-							createInnerTable(tableWidth, document, true);
+							createInnerTable(tableWidth, document, page, true);
 						} else {
 							// make paragraph and get tokens
 							outerTextParagraph = new Paragraph(chunkie, getFont(), 8, (int) tableWidth);
