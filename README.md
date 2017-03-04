@@ -34,7 +34,7 @@ For other build systems, check the [Maven Central Repository](http://search.mave
 
 # Tutorial
 
-A tutorial is being created and will be accessible at http://dhorions.github.io/boxable/.
+A tutorial is being created and will be accessible at https://github.com/dhorions/boxable/wiki.
 If you want to help, please let us know  [here](https://github.com/dhorions/boxable/issues/41).
 
 # Usage examples
@@ -88,19 +88,6 @@ for (String[] fact : facts) {
 }
 table.draw();
 ```
-## Retrieving current table page
-If table is displayed on multiple pages the *current page* can be obtained with `table.getCurrentPage()`.
-Something like :
-```java
-[...]
-// did we change the page?
-if (table.getCurrentPage() != page) {
-    cos.close();
-    page = table.getCurrentPage();
-    cos = new PDPageContentStream(document, page, true, true);
-}
-```
-
 
 Special Thanks to these awesome contributers : 
 - [dgautier](https://github.com/dgautier)
@@ -111,7 +98,7 @@ Special Thanks to these awesome contributers :
 
 =======
 
-Copyright [2016](Quodlibet.be)
+Copyright [2017](Quodlibet.be)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
