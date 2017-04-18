@@ -67,7 +67,7 @@ dataTable.draw();
 ```
 Output : [ListExampleLandscape.pdf](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/ListExampleLandscape.pdf)
 
-##Build tables in pdf documents
+## Build tables in pdf documents
 
 ```java
 BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
