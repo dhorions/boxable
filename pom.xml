@@ -17,6 +17,13 @@
 
     <name>Boxable, a high-level API to creates table on top of Apache Pdfbox</name>
     <description>Easily creates tables in pdf.</description>
+	
+    <licenses>
+      <license>
+        <name>Apache-2.0</name>
+        <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+      </license>
+    </licenses>
 
     <dependencies>
         <dependency>
