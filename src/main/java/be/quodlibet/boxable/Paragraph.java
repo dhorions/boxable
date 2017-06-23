@@ -163,7 +163,8 @@ public class Paragraph {
 					if (token.getData().equals("ol")) {
 						numberOfOrderedLists--;
 						// reset elements
-						orderListElement = stack.peek().getOrderingNumber()+1;
+						if (!stack.isEmpty())
+							orderListElement = stack.peek().getOrderingNumber()+1;
 						if(numberOfOrderedLists > 1){
 							stack.pop();
 						}
