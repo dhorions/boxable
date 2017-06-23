@@ -713,7 +713,7 @@ public class TableTest {
 
 	@Test
 	public void SampleTest9() throws IOException {
-		List<List> table = new ArrayList<>();
+		List<List<String>> table = new ArrayList<>();
 
 		List<String> tableHeader = new ArrayList<>();
 		tableHeader.add("Left Comparison");
@@ -883,8 +883,8 @@ public class TableTest {
 
         //Create Header row
         Row<PDPage> row = table.createRow(15f);
-        Cell<PDPage> cell = row.createCell((100 / 3f), "<ol><li>a</li><ol><li>b1</li><li>b2</li><ol><li>c1</li><li>c2 hello hello hello hello hello hello hello hello hello hello hello </li><li>c3</li><li>c4 hello hello hello hello hello hello hello hello hello hello</li></ol><li>b3</li></ol><li>hello</li><li>hello</li><li>hello</li><li>hello</li><li>hello</li></ol>", HorizontalAlignment.get("left"), VerticalAlignment.get("top"));
-        Cell<PDPage> cell2 = row.createCell((100 / 3f), "<ul><li>a</li><ul><li>b1</li><li>b2</li><ul><li>c1</li><li>c2 hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello </li><li>c3</li><li>c4</li></ul><li>b3</li></ul><li>hello</li><li>hello</li><li>hello</li><li>hello</li></ul>", HorizontalAlignment.get("left"), VerticalAlignment.get("top"));
+        row.createCell((100 / 3f), "<ol><li>a</li><ol><li>b1</li><li>b2</li><ol><li>c1</li><li>c2 hello hello hello hello hello hello hello hello hello hello hello </li><li>c3</li><li>c4 hello hello hello hello hello hello hello hello hello hello</li></ol><li>b3</li></ol><li>hello</li><li>hello</li><li>hello</li><li>hello</li><li>hello</li></ol>", HorizontalAlignment.get("left"), VerticalAlignment.get("top"));
+        row.createCell((100 / 3f), "<ul><li>a</li><ul><li>b1</li><li>b2</li><ul><li>c1</li><li>c2 hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello </li><li>c3</li><li>c4</li></ul><li>b3</li></ul><li>hello</li><li>hello</li><li>hello</li><li>hello</li></ul>", HorizontalAlignment.get("left"), VerticalAlignment.get("top"));
         table.draw();
 
         //Save the document
