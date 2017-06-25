@@ -71,7 +71,7 @@ public class DataTableTest
         float bottomMargin = 0;
 
         //Create the data
-        List<List<String>> data = new ArrayList<>();
+        List<List<? extends Object>> data = new ArrayList<>();
         data.add(new ArrayList<>(
                 Arrays.asList("Column One", "Column Two", "Column Three", "Column Four", "Column Five")));
         for (int i = 1; i <= 100; i++) {
@@ -197,12 +197,12 @@ public class DataTableTest
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
         //Add a few things to the table that's not coming from the csv file
-        Row h1 = dataTable.createRow(0f);
-        Cell c1 = h1.createCell(100, "Electricity Prices by type of user");
+        Row<PDPage> h1 = dataTable.createRow(0f);
+        Cell<PDPage> c1 = h1.createCell(100, "Electricity Prices by type of user");
         c1.setFillColor(new Color(144, 195, 212));
         dataTable.addHeaderRow(h1);
-        Row h2 = dataTable.createRow(0f);
-        Cell c2 = h2.createCell(100, "Eur per kWh for Medium Size Households.<br/>Source <i>http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=ten00117</i>");
+        Row<PDPage> h2 = dataTable.createRow(0f);
+        Cell<PDPage> c2 = h2.createCell(100, "Eur per kWh for Medium Size Households.<br/>Source <i>http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=ten00117</i>");
         c2.setFillColor(new Color(175, 212, 224));
         dataTable.addHeaderRow(h2);
         DataTable t = new DataTable(dataTable, page);
@@ -237,12 +237,12 @@ public class DataTableTest
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
         //Add a few things to the table that's not coming from the csv file
-        Row h1 = dataTable.createRow(0f);
-        Cell c1 = h1.createCell(100, "Electricity Prices by type of user");
+        Row<PDPage> h1 = dataTable.createRow(0f);
+        Cell<PDPage> c1 = h1.createCell(100, "Electricity Prices by type of user");
         c1.setFillColor(new Color(144, 195, 212));
         dataTable.addHeaderRow(h1);
-        Row h2 = dataTable.createRow(0f);
-        Cell c2 = h2.createCell(100, "Eur per kWh for Medium Size Households.<br/>Source <i>http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=ten00117</i>");
+        Row<PDPage> h2 = dataTable.createRow(0f);
+        Cell<PDPage> c2 = h2.createCell(100, "Eur per kWh for Medium Size Households.<br/>Source <i>http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=ten00117</i>");
         c2.setFillColor(new Color(175, 212, 224));
         dataTable.addHeaderRow(h2);
         DataTable t = new DataTable(dataTable, page);
@@ -280,12 +280,5 @@ public class DataTableTest
             IOUtils.closeQuietly(in);
         }
         return "";
-    }
-
-    private static PDPage addNewPage(PDDocument doc)
-    {
-        PDPage page = new PDPage();
-        doc.addPage(page);
-        return page;
     }
 }

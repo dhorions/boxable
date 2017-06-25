@@ -180,14 +180,14 @@ public class DataTable {
 	 * @param hasHeader boolean if {@link Table} has header
 	 * @throws IOException parsing error
 	 */
-	public void addListToTable(List<List<String>> data, Boolean hasHeader) throws IOException {
+	public void addListToTable(List<List<? extends Object>> data, Boolean hasHeader) throws IOException {
 		char separator = ';';
 		if (data == null || data.isEmpty()) {
 			return;
 		}
 		String output = "";
 		// Convert Map of arbitrary objects to a csv String
-		for (List<String> inputList : data) {
+		for (List<? extends Object> inputList : data) {
 			for (Object v : inputList) {
 				String value = v.toString();
 				if (value.contains("" + separator)) {
