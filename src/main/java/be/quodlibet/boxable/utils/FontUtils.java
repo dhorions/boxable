@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 /**
  * <p>
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class FontUtils {
 
-	private final static Logger LOGGER = LoggerFactory.getLogger(FontUtils.class);
+	private final static Log LOGGER = LogFactory.getLog(FontUtils.class);
 
 	private static final class FontMetrics {
 		private final float ascent;
