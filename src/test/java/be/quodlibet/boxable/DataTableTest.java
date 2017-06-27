@@ -330,7 +330,7 @@ public class DataTableTest
 			}});
         //set the style template for first column
         t.getFirstColumnCellTemplate().setFillColor(new Color(13, 164, 214));
-        //set the style template for first column
+        //set the style template for last column
         t.getLastColumnCellTemplate().setFillColor(new Color(144, 195, 212));
         t.addCsvToTable(data, DataTable.HASHEADER, ';');
         yStart = dataTable.draw() - tablesmargin;
