@@ -1,6 +1,8 @@
 package be.quodlibet.boxable;
 
 import be.quodlibet.boxable.datatable.DataTable;
+import be.quodlibet.boxable.datatable.updateCellProperty;
+
 import com.google.common.io.Files;
 import java.awt.Color;
 import java.io.File;
@@ -10,6 +12,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -94,7 +98,11 @@ public class DataTableTest
     @Test
     public void csvTestColWidths() throws IOException
     {
-        String data = readData("https://s3.amazonaws.com/misc.quodlibet.be/Boxable/teknologic.csv");
+        String data1 = readData("https://s3.amazonaws.com/misc.quodlibet.be/Boxable/teknologic.csv");
+        String data = "Discription;narrow;this is wider;and this one is even wider\n"+
+        				"The length of the column widths is given by the constructor; use it; break it; fix it\n"+
+        				"Snap it; work it; quick; erase it\n"+
+        				"Write it; cut it; paste it; save it\n";
         //Initialize Document
         PDDocument doc = new PDDocument();
         PDPage page = new PDPage();
@@ -103,6 +111,7 @@ public class DataTableTest
         doc.addPage(page);
         //Initialize table
         float margin = 10;
+        float tablesmargin = 50;
         float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         float yStart = yStartNewPage;
@@ -110,9 +119,20 @@ public class DataTableTest
 
         BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
                                             true);
-        DataTable t = new DataTable(dataTable, page);
+        DataTable t = new DataTable(dataTable, page, Arrays.asList(3f,1f,1f,1f));
         t.addCsvToTable(data, DataTable.HASHEADER, ';');
-        dataTable.draw();
+        yStart = dataTable.draw() - tablesmargin;
+
+        if (dataTable.getCurrentPage() != page) {
+            page = dataTable.getCurrentPage();
+        }
+        
+        BaseTable dataTable1 = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
+                true);
+        DataTable t1 = new DataTable(dataTable1, page);
+        t1.addCsvToTable(data1, DataTable.HASHEADER, ';');
+        dataTable1.draw();
+        
         File file = new File("target/CSVexampleColWidths.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
         Files.createParentDirs(file);
@@ -140,6 +160,7 @@ public class DataTableTest
         DataTable t = new DataTable(dataTable, page);
         t.addCsvToTable(data, DataTable.HASHEADER, ';');
         dataTable.draw();
+        
         File file = new File("target/CSVexamplePortrait.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
         Files.createParentDirs(file);
@@ -229,6 +250,7 @@ public class DataTableTest
         doc.addPage(page);
         //Initialize table
         float margin = 10;
+        float tablesmargin = 50;
         float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         float yStart = yStartNewPage;
@@ -242,23 +264,160 @@ public class DataTableTest
         c1.setFillColor(new Color(144, 195, 212));
         dataTable.addHeaderRow(h1);
         Row<PDPage> h2 = dataTable.createRow(0f);
-        Cell<PDPage> c2 = h2.createCell(100, "Eur per kWh for Medium Size Households.<br/>Source <i>http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=ten00117</i>");
+        Cell<PDPage> c2 = h2.createCell(100, "Eur per kWh for Medium Size Households.<br/>Source #"
+        		+ "<i>http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=ten00117</i>"
+        		+ "<br>Special HeaderColor");
         c2.setFillColor(new Color(175, 212, 224));
         dataTable.addHeaderRow(h2);
         DataTable t = new DataTable(dataTable, page);
         //set the style template for header cells
         t.getHeaderCellTemplate().setFillColor(new Color(13, 164, 214));
+        t.addCsvToTable(data, DataTable.HASHEADER, ';');
+        yStart = dataTable.draw() - tablesmargin;
+
+        if (dataTable.getCurrentPage() != page) {
+            page = dataTable.getCurrentPage();
+        }
+        
+// Next Table with other design
+        
+        dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
+                true);
+        h1 = dataTable.createRow(0f);
+        c1 = h1.createCell(100, "Same tabel with zebra design");
+        c1.setFillColor(new Color(144, 195, 212));
+        dataTable.addHeaderRow(h1);
+        t = new DataTable(dataTable, page);
+        t.getDataCellTemplateEvenList().forEach(new Consumer<Cell<PDPage>>() {
+			@Override
+			public void accept(Cell<PDPage> t) {
+				t.setFillColor(Color.WHITE);
+				
+			}});
+        t.getDataCellTemplateOddList().forEach(new Consumer<Cell<PDPage>>() {
+			@Override
+			public void accept(Cell<PDPage> t) {
+				t.setFillColor(new Color(250, 242, 242));
+				
+			}});
+        t.addCsvToTable(data, DataTable.HASHEADER, ';');
+        yStart = dataTable.draw() - tablesmargin;
+
+        if (dataTable.getCurrentPage() != page) {
+            page = dataTable.getCurrentPage();
+        }
+        
+// Next Table with other design
+        
+        dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
+                true);
+        h1 = dataTable.createRow(0f);
+        c1 = h1.createCell(100, "Same tabel with zebra design and first and last column with other collors");
+        c1.setFillColor(new Color(144, 195, 212));
+        dataTable.addHeaderRow(h1);
+        t = new DataTable(dataTable, page);
+        t.getDataCellTemplateEvenList().forEach(new Consumer<Cell<PDPage>>() {
+			@Override
+			public void accept(Cell<PDPage> t) {
+				t.setFillColor(Color.WHITE);
+				
+			}});
+        t.getDataCellTemplateOddList().forEach(new Consumer<Cell<PDPage>>() {
+			@Override
+			public void accept(Cell<PDPage> t) {
+				t.setFillColor(new Color(250, 242, 242));
+				
+			}});
         //set the style template for first column
         t.getFirstColumnCellTemplate().setFillColor(new Color(13, 164, 214));
-        //set the style template for last column
+        //set the style template for first column
         t.getLastColumnCellTemplate().setFillColor(new Color(144, 195, 212));
-        //set the style template for normal, data columns
-        t.getDataCellTemplateEven().setFillColor(Color.WHITE);
-        t.getDataCellTemplateOdd().setFillColor(new Color(250, 242, 242));
-
         t.addCsvToTable(data, DataTable.HASHEADER, ';');
+        yStart = dataTable.draw() - tablesmargin;
 
-        dataTable.draw();
+        if (dataTable.getCurrentPage() != page) {
+            page = dataTable.getCurrentPage();
+        }
+        
+// Next Table with other design
+        
+        dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
+                true);
+        h1 = dataTable.createRow(0f);
+        c1 = h1.createCell(100, "Same tabel with zebra design and first and last column with other collors with also zebra design");
+        c1.setFillColor(new Color(144, 195, 212));
+        dataTable.addHeaderRow(h1);
+        t = new DataTable(dataTable, page);
+        t.getDataCellTemplateEvenList().forEach(new Consumer<Cell<PDPage>>() {
+			@Override
+			public void accept(Cell<PDPage> t) {
+				t.setFillColor(Color.WHITE);
+				
+			}});
+        t.getDataCellTemplateOddList().forEach(new Consumer<Cell<PDPage>>() {
+			@Override
+			public void accept(Cell<PDPage> t) {
+				t.setFillColor(new Color(250, 242, 242));
+				
+			}});
+        //set the style template for first column odd
+        t.getFirstColumnCellTemplateOdd().setFillColor(new Color(13, 164, 214));
+        //set the style template for first column even
+        t.getFirstColumnCellTemplateEven().setFillColor(new Color(23, 174, 224));
+        //set the style template for last column odd
+        t.getLastColumnCellTemplateOdd().setFillColor(new Color(144, 195, 212));
+        //set the style template for last column even
+        t.getLastColumnCellTemplateEven().setFillColor(new Color(134, 205, 222));
+        t.addCsvToTable(data, DataTable.HASHEADER, ';');
+        yStart = dataTable.draw() - tablesmargin;
+
+        if (dataTable.getCurrentPage() != page) {
+            page = dataTable.getCurrentPage();
+        }
+        
+// Next Table with other design
+        
+        dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
+                true);
+        h1 = dataTable.createRow(0f);
+        c1 = h1.createCell(100, "Same tabel different alignment and colored data cells");
+        c1.setFillColor(new Color(144, 195, 212));
+        dataTable.addHeaderRow(h1);
+        final Color c01 = new Color(160, 174, 224);
+        final Color c02 = new Color(23, 174, 224);
+        t = new DataTable(dataTable, page,new updateCellProperty() {
+			
+			@Override
+			public void updateCellPropertysAtColumn(Cell<PDPage> c, int column) {
+				if (column == 11){
+					if(c.getText().startsWith("0,2"))
+						c.setFillColor(c02);
+					if (c.getText().startsWith("0,1"))
+						c.setFillColor(c01);
+				}
+			}
+		});
+        t.getDataCellTemplateEvenList().forEach(new Consumer<Cell<PDPage>>() {
+			@Override
+			public void accept(Cell<PDPage> t) {
+				t.setAlign(HorizontalAlignment.RIGHT);
+				
+			}});
+        t.getDataCellTemplateOddList().forEach(new Consumer<Cell<PDPage>>() {
+			@Override
+			public void accept(Cell<PDPage> t) {
+				t.setAlign(HorizontalAlignment.RIGHT);
+				
+			}});
+        //set the style template for first column back to left
+        t.getFirstColumnCellTemplate().setAlign(HorizontalAlignment.LEFT);
+        t.addCsvToTable(data, DataTable.HASHEADER, ';');
+        yStart = dataTable.draw() - tablesmargin;
+
+        if (dataTable.getCurrentPage() != page) {
+            page = dataTable.getCurrentPage();
+        }
+        
         File file = new File("target/CSVexampleAdvanced.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
         Files.createParentDirs(file);
