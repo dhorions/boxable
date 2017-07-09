@@ -61,7 +61,7 @@ public class DataTable {
 	 * <p>
 	 * Create a CSVTable object to be able to add CSV document to a Table. A
 	 * page needs to be passed to the constructor so the Template Cells can be
-	 * created.
+	 * created.The interface allows you to update the cell property
 	 * </p>
 	 *
 	 * @param table {@link Table}
@@ -77,7 +77,7 @@ public class DataTable {
 	 * <p>
 	 * Create a CSVTable object to be able to add CSV document to a Table. A
 	 * page needs to be passed to the constructor so the Template Cells can be
-	 * created.
+	 * created. The column widths can be given
 	 * </p>
 	 *
 	 * @param table {@link Table}
@@ -93,7 +93,7 @@ public class DataTable {
 	 * <p>
 	 * Create a CSVTable object to be able to add CSV document to a Table. A
 	 * page needs to be passed to the constructor so the Template Cells can be
-	 * created.
+	 * created. The column widths can be given and an interface allows you to update the cell property 
 	 * </p>
 	 *
 	 * @param table {@link Table}
