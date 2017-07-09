@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -760,6 +761,76 @@ public class TableTest {
 
 		try {
 			File file = new File("target/BoxableSample9.pdf");
+			System.out.println("Sample file saved at : " + file.getAbsolutePath());
+			Files.createParentDirs(file);
+			document.save(file);
+		} finally {
+			document.close();
+		}
+	}
+
+	@Test
+	public void MultilineSampleTest() throws IOException {
+		List<List<? extends Object>> table = new ArrayList<>();
+
+		List<String> tableHeader = new ArrayList<>();
+		tableHeader.add("Multi Line \nHeader");
+		tableHeader.add("  ");
+		tableHeader.add("Singel Line Header");
+
+		table.add(tableHeader);
+
+		List<String> row1 = new ArrayList<>();
+		row1.add("Normal line column 1");
+		row1.add("Normal line column 2");
+		row1.add("Normal line column 3");
+		table.add(row1);
+
+		List<String> row2 = new ArrayList<>();
+		row2.add("Multi line \ncolumn 1");
+		row2.add("Normal line column 2");
+		row2.add("Normal line column 3");
+		table.add(row2);
+
+		List<String> row3 = new ArrayList<>();
+		row3.add("Normal line column 1");
+		row3.add("Multi line \ncolumn 2");
+		row3.add("Normal line column 3");
+		table.add(row3);
+
+		List<String> row4 = new ArrayList<>();
+		row4.add("Normal line column 1");
+		row4.add("Normal line column 2");
+		row4.add("Multi line \ncolumn 3");
+		table.add(row4);
+
+		List<String> row5 = new ArrayList<>();
+		row5.add("Multi line \ncolumn 1");
+		row5.add("Multi line \ncolumn 2");
+		row5.add("Multi line \ncolumn 3");
+		table.add(row5);
+
+
+		int startNewPageY = 700;
+		int bottomMargin = 100;
+		int tableWidth = 500;
+		int leftMargin = 25;
+
+		PDDocument document = new PDDocument();
+		PDPage currentPage = new PDPage();
+		document.addPage(currentPage);
+		PDPageContentStream contentStream = new PDPageContentStream(document, currentPage);
+
+		BaseTable dataTable = new BaseTable(700, startNewPageY, bottomMargin, tableWidth, leftMargin, document,
+				currentPage, true, true);
+		DataTable t = new DataTable(dataTable, currentPage, Arrays.asList(1f,1f,1f));
+		t.addListToTable(table, DataTable.HASHEADER);
+		dataTable.draw();
+
+		contentStream.close();
+
+		try {
+			File file = new File("target/MultilineSample.pdf");
 			System.out.println("Sample file saved at : " + file.getAbsolutePath());
 			Files.createParentDirs(file);
 			document.save(file);
