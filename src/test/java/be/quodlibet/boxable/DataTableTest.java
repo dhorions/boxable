@@ -264,7 +264,7 @@ public class DataTableTest
         c1.setFillColor(new Color(144, 195, 212));
         dataTable.addHeaderRow(h1);
         Row<PDPage> h2 = dataTable.createRow(0f);
-        Cell<PDPage> c2 = h2.createCell(100, "Eur per kWh for Medium Size Households.<br/>Source #"
+        Cell<PDPage> c2 = h2.createCell(100, "Eur per kWh for Medium Size Households.<br/>Source "
         		+ "<i>http://ec.europa.eu/eurostat/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=ten00117</i>"
         		+ "<br>Special HeaderColor");
         c2.setFillColor(new Color(175, 212, 224));
