@@ -388,7 +388,7 @@ public class DataTableTest
         t = new DataTable(dataTable, page,new updateCellProperty() {
 			
 			@Override
-			public void updateCellPropertysAtColumn(Cell<PDPage> c, int column) {
+			public void updateCellPropertysAtColumn(Cell<PDPage> c, int column, int row) {
 				if (column == 11){
 					if(c.getText().startsWith("0,2"))
 						c.setFillColor(c02);
