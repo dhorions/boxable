@@ -8,6 +8,7 @@ import be.quodlibet.boxable.Table;
 import be.quodlibet.boxable.VerticalAlignment;
 import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.utils.FontUtils;
+
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -403,6 +404,7 @@ public class DataTable {
 		Boolean odd = true;
 		Map<Integer, Float> colWidths = new HashMap<Integer, Float>();
 		int numcols = 0;
+		int numrow = 0;
 		for (CSVRecord line : records) {
 
 			if (isFirst) {
@@ -483,8 +485,9 @@ public class DataTable {
 					c.copyCellStyle(template);
 					c.setText(cellValue);
 					if (updateCellProperty != null)
-						updateCellProperty.updateCellPropertysAtColumn(c,i);
+						updateCellProperty.updateCellPropertysAtColumn(c,i,numrow);
 				}
+				numrow++;
 			}
 			odd = !odd;
 		}

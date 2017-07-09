@@ -6,5 +6,5 @@ import be.quodlibet.boxable.Cell;
 
 public interface updateCellProperty {
 
-	abstract void updateCellPropertysAtColumn(Cell<PDPage> c, int column);
+	abstract void updateCellPropertysAtColumn(Cell<PDPage> cell, int column, int row);
 }
