@@ -52,6 +52,7 @@ public abstract class Table<T extends PDPage> {
 	private boolean tableIsBroken = false;
 	private boolean tableStartedAtNewPage = false;
 	private boolean removeTopBorders = false;
+	private boolean removeAllBorders = false;
 
 	private PageProvider<T> pageProvider;
 
@@ -241,7 +242,7 @@ public abstract class Table<T extends PDPage> {
 				row.removeTopBorders();
 			}
 		}
-
+		
 		// draw the bookmark
 		if (row.getBookmark() != null) {
 			PDPageXYZDestination bookmarkDestination = new PDPageXYZDestination();
@@ -253,6 +254,11 @@ public abstract class Table<T extends PDPage> {
 
 		// we want to remove the borders as often as possible
 		removeTopBorders = true;
+		
+		// check also if we want all borders removed
+		if(allBordersRemoved()) {
+			row.removeAllBorders();
+		}
 
 		if (isEndOfPage(row)) {
 
@@ -947,6 +953,14 @@ public abstract class Table<T extends PDPage> {
 
 	public void setLineSpacing(float lineSpacing) {
 		this.lineSpacing = lineSpacing;
+	}
+
+	public boolean allBordersRemoved() {
+		return removeAllBorders;
+	}
+
+	public void removeAllBorders(boolean removeAllBorders) {
+		this.removeAllBorders = removeAllBorders;
 	}
 
 }
