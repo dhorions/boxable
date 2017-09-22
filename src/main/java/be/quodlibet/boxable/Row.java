@@ -186,6 +186,17 @@ public class Row<T extends PDPage> {
 	
 	/**
 	 * <p>
+	 * Remove all borders of cells.
+	 * </p>
+	 */
+	void removeAllBorders() {
+		for (final Cell<T> cell : cells) {
+			cell.setBorderStyle(null);;
+		}
+	}
+	
+	/**
+	 * <p>
 	 * Gets maximal height of the cells in current row therefore row's height.
 	 * </p>
 	 * 
