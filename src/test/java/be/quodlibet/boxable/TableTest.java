@@ -6,13 +6,16 @@ package be.quodlibet.boxable;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.fontbox.util.BoundingBox;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDocumentOutline;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
@@ -21,7 +24,9 @@ import org.junit.Test;
 import com.google.common.io.Files;
 
 import be.quodlibet.boxable.datatable.DataTable;
+import be.quodlibet.boxable.utils.FontUtils;
 import be.quodlibet.boxable.utils.ImageUtils;
+import be.quodlibet.boxable.utils.PDStreamUtils;
 
 public class TableTest {
 
@@ -700,7 +705,6 @@ public class TableTest {
 		cell = additionArow.createCell(40f, "Added Text From Document");
 
 		cell.setFontSize(6);
-
 		table.draw();
 
 		// Save the document
@@ -767,7 +771,7 @@ public class TableTest {
 			document.close();
 		}
 	}
-
+	
 	@Test
 	public void lineSpacingTest() throws IOException {
 
@@ -998,6 +1002,62 @@ public class TableTest {
 
 		// Save the document
 		File file = new File("target/SampleTest10.pdf");
+		System.out.println("Sample file saved at : " + file.getAbsolutePath());
+		Files.createParentDirs(file);
+		doc.save(file);
+		doc.close();
+	}
+	
+	@Test
+	public void SampleTest11() throws IOException {
+		// Set margins
+		float margin = 10;
+
+		// Initialize Document
+		PDDocument doc = new PDDocument();
+		PDPage page = new PDPage();
+		doc.addPage(page);
+
+		// Initialize table
+		float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
+		float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+		boolean drawContent = true;
+		boolean drawLines = true;
+		float yStart = yStartNewPage;
+		float bottomMargin = 70;
+
+		// draw page title
+		PDPageContentStream cos = new PDPageContentStream(doc, page);
+		PDStreamUtils.write(cos, "Welcome to your first borderless table", PDType1Font.HELVETICA_BOLD, 14, 15, yStart,
+				Color.BLACK);
+		cos.close();
+
+		yStart -= FontUtils.getHeight(PDType1Font.HELVETICA_BOLD, 14) + 15;
+		
+		BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, drawLines,
+				drawContent);
+
+		// Create Header row
+		Row<PDPage> row = table.createRow(15f);
+		Cell<PDPage> cell = row.createCell(40f, "It's amazing what you can do with a little love in your heart. Maybe we got a few little happy bushes here, just covered with snow. Look around, look at what we have. Beauty is everywhere, you only have to look to see it. Anything you want to do you can do here.",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
+		cell = row.createCell(20f, "Let your imagination be your guide. You could sit here for weeks with your one hair brush trying to do that - or you could do it with one stroke with an almighty brush. Let's get wild today. As trees get older they lose their chlorophyll.");
+		cell = row.createCell(40f, "Fluff it up a little and hypnotize it. Every highlight needs it's own personal shadow. If we're gonna walk though the woods, we need a little path. All kinds of happy little splashes. Of course he's a happy little stone, cause we don't have any other kind. In your world you have total and absolute power.");
+
+		table.addHeaderRow(row);
+
+
+		Row<PDPage> additionArow = table.createRow(15f);
+		cell = additionArow.createCell(40f, "If it's not what you want - stop and change it. Don't just keep going and expect it will get better. Nothing wrong with washing your brush. Remember how free clouds are. They just lay around in the sky all day long", HorizontalAlignment.get("center"),
+				VerticalAlignment.get("top"));
+		cell = additionArow.createCell(20f, "You are only limited by your imagination. Son of a gun. Let's have a happy little tree in here. The secret to doing anything is believing that you can do it. Anything that you believe you can do strong enough, you can do. Anything. As long as you believe.");
+		cell = additionArow.createCell(40f, "Everybody's different. Trees are different. Let them all be individuals. That's crazy. Even trees need a friend. We all need friends. Just go back and put one little more happy tree in there.");
+
+		table.removeAllBorders(true);
+		table.draw();
+
+		// Save the document
+		File file = new File("target/BoxableSample11.pdf");
 		System.out.println("Sample file saved at : " + file.getAbsolutePath());
 		Files.createParentDirs(file);
 		doc.save(file);
