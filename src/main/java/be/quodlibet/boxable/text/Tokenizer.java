@@ -62,6 +62,16 @@ public final class Tokenizer {
 							tokens.add(new Token(TokenType.OPEN_TAG, "b"));
 							textIndex += 2;
 							consumed = true;
+						} else if ('s' == lookahead1 && '>' == lookahead2) {
+							// <s>
+							if (sb.length() > 0) {
+								tokens.add(new Token(TokenType.TEXT, sb.toString()));
+								// clean string builder
+								sb.delete(0, sb.length());
+							}
+							tokens.add(new Token(TokenType.OPEN_TAG, "s"));
+							textIndex += 2;
+							consumed = true;
 						} else if ('b' == lookahead1 && 'r' == lookahead2) {
 							if (textIndex < text.length() - 3) {
 								// <br>
