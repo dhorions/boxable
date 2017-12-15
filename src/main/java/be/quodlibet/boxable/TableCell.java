@@ -274,8 +274,6 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 							tableCellContentStream.setTextMatrix(new Matrix(transform));
 							tableCellContentStream.newLineAtOffset(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
-							tableCellContentStream.endText();
-							tableCellContentStream.closePath();
 						}
 						cursorY += currentFont.getStringWidth(token.getData()) / 1000 * getFontSize();
 					} else {
@@ -283,11 +281,11 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 						if (!onlyCalculateHeight) {
 							tableCellContentStream.newLineAtOffset(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
-							tableCellContentStream.endText();
-							tableCellContentStream.closePath();
 						}
 						cursorX += currentFont.getStringWidth(token.getData()) / 1000 * getFontSize();
 					}
+					tableCellContentStream.endText();
+					tableCellContentStream.closePath();
 					break;
 				case BULLET:
 					if (isTextRotated()) {
