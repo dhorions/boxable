@@ -29,7 +29,19 @@ import be.quodlibet.boxable.utils.ImageUtils;
 import be.quodlibet.boxable.utils.PDStreamUtils;
 
 public class TableTest {
-
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> Header Row </li>
+ * <li> Column spanning </li>
+ * <li> Image in cell </li>
+ * <li> Coloured Cells </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void Sample1() throws IOException {
 
@@ -181,7 +193,20 @@ public class TableTest {
 
 		return facts;
 	}
-
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> Repeating header row on new pages </li>
+ * <li> Header Row </li>
+ * <li> Column spanning </li>
+ * <li> Image in cell </li>
+ * <li> Coloured Cells </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest2() throws IOException {
 
@@ -298,13 +323,16 @@ public class TableTest {
 
 	}
 
-	/**
-	 * <p>
-	 * Sample test for text rotation
-	 * </p>
-	 *
-	 * @throws IOException
-	 */
+/**
+ * <p>
+ * Test for a table using the following features : 
+ * <ul>
+ * <li> Text Rotation </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest3() throws IOException {
 		// Set margins
@@ -371,13 +399,16 @@ public class TableTest {
 		doc.close();
 	}
 
-	/**
-	 * <p>
-	 * Multiple header rows in the table
-	 * </p>
-	 *
-	 * @throws IOException
-	 */
+/**
+ * <p>
+ * Test for a table using the following features : 
+ * <ul>
+ * <li> Multiple header rows in a table </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest4() throws IOException {
 
@@ -497,7 +528,16 @@ public class TableTest {
 		doc.close();
 
 	}
-
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> html in cells </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest5() throws IOException {
 
@@ -556,7 +596,16 @@ public class TableTest {
 		doc.save(file);
 		doc.close();
 	}
-
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> text wrapping inside a cell </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest6() throws IOException {
 
@@ -600,7 +649,16 @@ public class TableTest {
 		doc.save(file);
 		doc.close();
 	}
-
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> vertical alignment inside a cell </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest7() throws IOException {
 
@@ -662,7 +720,17 @@ public class TableTest {
 		doc.save(file);
 		doc.close();
 	}
-
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> &lt; and &gt; rendering </li>
+ * <li> vertical alignment inside a cell</li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest8() throws IOException {
 		// Set margins
@@ -714,7 +782,16 @@ public class TableTest {
 		doc.save(file);
 		doc.close();
 	}
-
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> &lt; and &gt; and | rendering </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest9() throws IOException {
 		List<List> table = new ArrayList<>();
@@ -864,7 +941,18 @@ public class TableTest {
 		doc.save(file);
 		doc.close();
 	}
-    
+ /**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> Ordered Lists in Cells </li>
+ * <li> Unordered Lists in Cells </li>
+ * <li> Nested Lists in Cells </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
     @Test
     public void IncorrectHTMLListNesting() throws IOException {
 
@@ -898,7 +986,17 @@ public class TableTest {
         doc.save(file);
         doc.close();
     }
-	
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> html table rendering inside cell </li>
+ * <li> vertical alignment inside a cell</li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest10() throws IOException {
 
@@ -1001,13 +1099,22 @@ public class TableTest {
 		table.draw();
 
 		// Save the document
-		File file = new File("target/SampleTest10.pdf");
+		File file = new File("target/BoxableSample10.pdf");
 		System.out.println("Sample file saved at : " + file.getAbsolutePath());
 		Files.createParentDirs(file);
 		doc.save(file);
 		doc.close();
 	}
-	
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> borderless table </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */	
 	@Test
 	public void SampleTest11() throws IOException {
 		// Set margins
