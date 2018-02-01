@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 
@@ -58,7 +59,7 @@ public class Row<T extends PDPage> {
 
 	/**
 	 * <p>
-	 * Creates a image cell with provided width and {@link Image}
+	 * Creates an image cell with provided width and {@link Image}
 	 * </p>
 	 * 
 	 * @param width
@@ -76,6 +77,30 @@ public class Row<T extends PDPage> {
 
 	public Cell<T> createImageCell(float width, Image img, HorizontalAlignment align, VerticalAlignment valign) {
 		Cell<T> cell = new ImageCell<T>(this, width, img, true, align, valign);
+		setBorders(cell, cells.isEmpty());
+		cells.add(cell);
+		return cell;
+	}
+
+	/**
+	 * <p>
+	 * Creates a table cell with provided width and table data
+	 * </p>
+	 * 
+	 * @param width
+	 *            Table width
+	 * @param tableData
+	 *            Table's data (HTML table tags)
+	 * @param doc
+	 *            {@link PDDocument} where this table will be drawn
+	 * @param page
+	 *            {@link PDPage} where this table cell will be drawn
+	 * @param yStart
+	 *            Y position from which table will be drawn
+	 * @return
+	 */
+	public TableCell<T> createTableCell(float width, String tableData, PDDocument doc, PDPage page, float yStart, float pageTopMargin, float pageBottomMargin) {
+		TableCell<T> cell = new TableCell<T>(this, width, tableData, true, doc, page, yStart, pageTopMargin, pageBottomMargin);
 		setBorders(cell, cells.isEmpty());
 		cells.add(cell);
 		return cell;
@@ -145,6 +170,17 @@ public class Row<T extends PDPage> {
 	void removeTopBorders() {
 		for (final Cell<T> cell : cells) {
 			cell.setTopBorderStyle(null);
+		}
+	}
+	
+	/**
+	 * <p>
+	 * Remove all borders of cells.
+	 * </p>
+	 */
+	void removeAllBorders() {
+		for (final Cell<T> cell : cells) {
+			cell.setBorderStyle(null);;
 		}
 	}
 	
