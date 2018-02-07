@@ -20,13 +20,24 @@ Boxable is a library that can be used to easily create tables in pdf documents. 
 - rotated text (by 90 degrees)
 - writing text outside tables
 
+#### What is new in version 1.5?
+- several HTML ordered lists bugfixes
+- having possibility to make inner tables with TableCell (check `SampleTest10()` JUnit test)
+- using FreeSans as default font to avoid multiple charachter decoding problems
+- added support for drawing "borderless" table (check `SampleTest11()` for that)
+- javadocs bugfix
+
+Check PRs:
+[#142](https://github.com/dhorions/boxable/pull/142)
+[#144](https://github.com/dhorions/boxable/pull/144)
+
 
 # Maven
 ```xml
 <dependency>
     <groupId>com.github.dhorions</groupId>
     <artifactId>boxable</artifactId>
-    <version>1.4</version>
+    <version>1.5</version>
 </dependency>
 ```
 For other build systems, check the [Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22boxable%22).
