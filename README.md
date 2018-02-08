@@ -101,15 +101,15 @@ table.draw();
 ```
 
 Special Thanks to these awesome contributers : 
+- [Frulenzo](https://github.com/Frulenzo)
 - [dgautier](https://github.com/dgautier)
 - [ZeerDonker](https://github.com/ZeerDonker)
-- [Frulenzo](https://github.com/Frulenzo)
 - [dobluth](https://github.com/dobluth)
 - [schmitzhermes](https://github.com/schmitzhermes)
 
 =======
 
-Copyright [2017](Quodlibet.be)
+Copyright [2018](Quodlibet.be)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
