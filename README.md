@@ -2,6 +2,7 @@
 =======
 
 [![Join the chat at https://gitter.im/dhorions/boxable](https://badges.gitter.im/dhorions/boxable.svg)](https://gitter.im/dhorions/boxable?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/dhorions/boxable.svg?branch=master)](https://travis-ci.org/dhorions/boxable)
 
 
 Boxable is a library that can be used to easily create tables in pdf documents.  It uses the [PDFBox](https://pdfbox.apache.org/) PDF library under the hood.
