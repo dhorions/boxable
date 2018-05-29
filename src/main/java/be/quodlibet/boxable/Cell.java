@@ -7,7 +7,6 @@ package be.quodlibet.boxable;
 import java.awt.Color;
 import java.io.IOException;
 
-import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
@@ -15,7 +14,7 @@ import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
 
-public class Cell<T extends PDPage> {
+public class Cell {
 
 	private float width;
 	private Float height;
@@ -27,7 +26,7 @@ public class Cell<T extends PDPage> {
 	private float fontSize = 8;
 	private Color fillColor;
 	private Color textColor = Color.BLACK;
-	private final Row<T> row;
+	private final Row row;
 	private WrappingFunction wrappingFunction;
 	private boolean isHeaderCell = false;
 	private boolean isColspanCell = false;
@@ -59,15 +58,20 @@ public class Cell<T extends PDPage> {
 	 * Constructs a cell with the default alignment
 	 * {@link VerticalAlignment#TOP} {@link HorizontalAlignment#LEFT}.
 	 * </p>
-	 *
-	 * @param row
+	 *	@param row
+	 *            The parent row
 	 * @param width
+	 *            absolute width in points or in % of table width (depending on
+	 *            the parameter {@code isCalculated})
 	 * @param text
+	 *            The text content of the cell
 	 * @param isCalculated
+	 *            If {@code true}, the width is interpreted in % to the table
+	 *            width
 	 * @see Cell#Cell(Row, float, String, boolean, HorizontalAlignment,
 	 *      VerticalAlignment)
 	 */
-	Cell(Row<T> row, float width, String text, boolean isCalculated) {
+	protected Cell(Row row, float width, String text, boolean isCalculated) {
 		this(row, width, text, isCalculated, HorizontalAlignment.LEFT, VerticalAlignment.TOP);
 	}
 
@@ -92,7 +96,7 @@ public class Cell<T extends PDPage> {
 	 *            The {@link VerticalAlignment} of the cell content
 	 * @see Cell#Cell(Row, float, String, boolean)
 	 */
-	Cell(Row<T> row, float width, String text, boolean isCalculated, HorizontalAlignment align,
+	protected Cell(Row row, float width, String text, boolean isCalculated, HorizontalAlignment align,
 			VerticalAlignment valign) {
 		this.row = row;
 		if (isCalculated) {
