@@ -1,10 +1,13 @@
-package be.quodlibet.boxable;
+package be.quodlibet.boxable.image;
 
 import org.apache.pdfbox.pdmodel.PDPage;
 
-import be.quodlibet.boxable.image.Image;
+import be.quodlibet.boxable.Cell;
+import be.quodlibet.boxable.HorizontalAlignment;
+import be.quodlibet.boxable.Row;
+import be.quodlibet.boxable.VerticalAlignment;
 
-public class ImageCell<T extends PDPage> extends Cell<T> {
+public class ImageCell extends Cell {
 
 	private Image img;
 	
@@ -12,7 +15,7 @@ public class ImageCell<T extends PDPage> extends Cell<T> {
 	
 	private final VerticalAlignment valign;
 
-	ImageCell(Row<T> row, float width, Image image, boolean isCalculated) {
+	public ImageCell(Row row, float width, Image image, boolean isCalculated) {
 		super(row, width, null, isCalculated);
 		this.img = image;
 		if(image.getWidth() > getInnerWidth()){
@@ -26,7 +29,7 @@ public class ImageCell<T extends PDPage> extends Cell<T> {
 		img = img.scale(getInnerWidth());
 	}
 
-	ImageCell(Row<T> row, float width, Image image, boolean isCalculated, HorizontalAlignment align,
+	public ImageCell(Row row, float width, Image image, boolean isCalculated, HorizontalAlignment align,
 			VerticalAlignment valign) {
 		super(row, width, null, isCalculated, align, valign);
 		this.img = image;

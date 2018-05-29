@@ -16,7 +16,6 @@ import java.util.Map;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
@@ -25,7 +24,7 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
  *
  * @author Dries Horions {@code <dries@quodlibet.be>}
  */
-public class DataTable {
+public class DataTable{
 	public static final Boolean HASHEADER = true;
 	public static final Boolean NOHEADER = false;
 	private Table table;
@@ -50,12 +49,16 @@ public class DataTable {
 	public DataTable(Table table, PDPage page) throws IOException {
 		this.table = table;
 		// Create a dummy pdf document, page and table to create template cells
-		PDDocument ddoc = new PDDocument();
-		PDPage dpage = new PDPage();
-		dpage.setMediaBox(page.getMediaBox());
-		dpage.setRotation(page.getRotation());
-		ddoc.addPage(dpage);
-		BaseTable dummyTable = new BaseTable(10f, 10f, 10f, table.getWidth(), 10f, ddoc, dpage, false, false);
+		Table dummyTable = new Table.Builder()
+				.yStart(10f)
+				.yStartNewPage(10f)
+				.pageTopMargin(10f)
+				.pageBottomMargin(0)
+				.width(table.getWidth())
+				.margin(10f)
+				.drawLines(false)
+				.drawContent(false)
+				.build();
 		Row dr = dummyTable.createRow(0f);
 		headerCellTemplate = dr.createCell(10f, "A", HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE);
 		dataCellTemplateEven = dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE);
@@ -64,9 +67,31 @@ public class DataTable {
 		lastColumnCellTemplate = dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE);
 		defaultCellTemplate = dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE);
 		setDefaultStyles();
-		ddoc.close();
 	}
 
+	public DataTable(BaseTable baseTable, PDPage page) throws IOException {
+		this.table = baseTable.table;
+		// Create a dummy pdf document, page and table to create template cells
+		Table dummyTable = new Table.Builder()
+				.yStart(10f)
+				.yStartNewPage(10f)
+				.pageTopMargin(10f)
+				.pageBottomMargin(0)
+				.width(table.getWidth())
+				.margin(10f)
+				.drawLines(false)
+				.drawContent(false)
+				.build();
+		Row dr = dummyTable.createRow(0f);
+		headerCellTemplate = dr.createCell(10f, "A", HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE);
+		dataCellTemplateEven = dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE);
+		dataCellTemplateOdd = dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE);
+		firstColumnCellTemplate = dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE);
+		lastColumnCellTemplate = dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE);
+		defaultCellTemplate = dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE);
+		setDefaultStyles();
+	}
+	
 	/**
 	 * <p>
 	 * Default cell styles for all cells. By default, only the header cell has a

@@ -1,22 +1,5 @@
-*.pdf
-build/*
-dist/*
-*.class
-lib/*
-nbproject/*
-build.xml
-manifest.mf
-# Package Files #
-*.jar
-*.war
-*.ear
-
-.idea
-target
-*.iml
+/target/
 /bin/
-/build/
-.settings
-.gradle
-.metadata
-settings.xml
+.project
+.classpath
+/.settings/

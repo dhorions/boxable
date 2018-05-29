@@ -17,6 +17,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
+import be.quodlibet.boxable.html.HTMLListNode;
 import be.quodlibet.boxable.text.PipelineLayer;
 import be.quodlibet.boxable.text.Token;
 import be.quodlibet.boxable.text.TokenType;

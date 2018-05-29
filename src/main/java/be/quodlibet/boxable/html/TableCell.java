@@ -1,4 +1,4 @@
-package be.quodlibet.boxable;
+package be.quodlibet.boxable.html;
 
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
@@ -18,11 +18,17 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import be.quodlibet.boxable.BaseTable;
+import be.quodlibet.boxable.Cell;
+import be.quodlibet.boxable.HorizontalAlignment;
+import be.quodlibet.boxable.Paragraph;
+import be.quodlibet.boxable.Row;
+import be.quodlibet.boxable.VerticalAlignment;
 import be.quodlibet.boxable.text.Token;
 import be.quodlibet.boxable.utils.FontUtils;
 import be.quodlibet.boxable.utils.PDStreamUtils;
 
-public class TableCell<T extends PDPage> extends Cell<T> {
+public class TableCell extends Cell {
 
 	private final static Logger logger = LoggerFactory.getLogger(TableCell.class);
 
@@ -48,13 +54,13 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	// default title fonts
 	private int tableTitleFontSize = 8;
 
-	TableCell(Row<T> row, float width, String tableData, boolean isCalculated, PDDocument document, PDPage page,
+	public TableCell(Row row, float width, String tableData, boolean isCalculated, PDDocument document, PDPage page,
 			float yStart, float pageTopMargin, float pageBottomMargin) {
 		this(row, width, tableData, isCalculated, document, page, yStart, pageTopMargin, pageBottomMargin,
 				HorizontalAlignment.LEFT, VerticalAlignment.TOP);
 	}
 
-	TableCell(Row<T> row, float width, String tableData, boolean isCalculated, PDDocument document, PDPage page,
+	TableCell(Row row, float width, String tableData, boolean isCalculated, PDDocument document, PDPage page,
 			float yStart, float pageTopMargin, float pageBottomMargin, final HorizontalAlignment align,
 			final VerticalAlignment valign) {
 		super(row, width, tableData, isCalculated);
@@ -149,7 +155,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 
 		Elements rows = htmlTable.select("tr");
 		for (Element htmlTableRow : rows) {
-			Row<PDPage> row = table.createRow(0);
+			Row row = table.createRow(0f);
 			Elements tableCols = htmlTableRow.select("td");
 			Elements tableHeaderCols = htmlTableRow.select("th");
 			// do we have header columns?
@@ -169,11 +175,11 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			}
 			for (Element col : tableHasHeaderColumns ? tableHeaderCols : tableCols) {
 				if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
-					Cell<T> cell = (Cell<T>) row.createCell(
+					Cell cell = (Cell) row.createCell(
 							tableWidth / columnsSize * Integer.parseInt(col.attr("colspan")) / row.getWidth() * 100,
 							col.html().replace("&amp;", "&"));
 				} else {
-					Cell<T> cell = (Cell<T>) row.createCell(tableWidth / columnsSize / row.getWidth() * 100,
+					Cell cell = (Cell) row.createCell(tableWidth / columnsSize / row.getWidth() * 100,
 							col.html().replace("&amp;", "&"));
 				}
 			}
@@ -183,7 +189,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			table.draw();
 		}
 
-		height += table.getHeaderAndDataHeight() + marginBetweenElementsY;
+		height += table.tableDrawer.getHeaderAndDataHeight() + marginBetweenElementsY;
 	}
 
 	/**
@@ -357,7 +363,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	/**
 	 * <p>
 	 * This method draw table cell with proper X,Y position which are determined
-	 * in {@link Table#draw()} method
+	 * in TableDrawer.draw method
 	 * </p>
 	 * <p>
 	 * NOTE: if entire row is not header row then use bold instead header cell (
