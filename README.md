@@ -1,11 +1,33 @@
 [Boxable](http://dhorions.github.io/boxable/) - A java library to build tables in PDF documents.
 =======
-
-[![Join the chat at https://gitter.im/dhorions/boxable](https://badges.gitter.im/dhorions/boxable.svg)](https://gitter.im/dhorions/boxable?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.org/dhorions/boxable.svg?branch=master)](https://travis-ci.org/dhorions/boxable)
-
-
 Boxable is a library that can be used to easily create tables in pdf documents.  It uses the [PDFBox](https://pdfbox.apache.org/) PDF library under the hood.
+
+# Changelog
+This fork was made as part of a university project. These changes have been implemented:  
+* Removed abstract modifier from Table class to allow it to be instantiated directly. This is less confusing than instantiating through BaseTable, and allows the user to employ the \<T extends PDPage> generic functionality without writing their own Table sub-class.
+* Split Table\<T> into two classes (as it was huge, and had too many responsibilities):
+    * TableDrawer\<T> does all of the drawing and nothing else. Its only public method is draw().
+    * Table stores the styling and the Rows.  
+This change makes it easier to write the same table to different documents and makes the code easier to understand.
+* Added Table.Builder for more user-friendly construction of Table objects.
+* TableDrawer\<T> is now the only class which interacts with PageProvider\<T>, so the \<T> parameterisation was removed from the Table, Row, and Cell classes.
+* BaseTable now acts as an adapter for sending deprecated method calls to the new objects.
+
+Cleaned up root of main package:
+* Moved ImageCell class into Image sub-package.
+* Moved HTMLNode and TableCell into new HTML sub-package.
+* Deleted deprecated BoxableUtils class.
+* Deleted dead classes (AbstractPageTemplate, AbstractTemplatedTable).
+
+
+Made building from source easier:
+* Removed Gradle, left Maven. Couldn't get it to import into Eclipse error-free with both build tools present.
+* Added .project, .classpath, .settings files to .gitignore.
+
+Miscellaneous fixes:
+* Replaced deprecated PDPageContentStream constructors
+* Fixed some outdated header checks
+* Removed Guava dependency as it was barely doing anything
 
 # Features
 
