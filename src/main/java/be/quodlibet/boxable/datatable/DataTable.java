@@ -16,6 +16,7 @@ import java.util.Map;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
@@ -189,7 +190,7 @@ public class DataTable {
 		// Convert Map of arbitrary objects to a csv String
 		for (List inputList : data) {
 			for (Object v : inputList) {
-				String value = v.toString();
+				String value = StringEscapeUtils.escapeCsv(v.toString());
 				if (value.contains("" + separator)) {
 					// surround value with quotes if it contains the escape
 					// character
