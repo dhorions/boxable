@@ -744,4 +744,8 @@ public class Cell<T extends PDPage> {
 		this.lineSpacing = lineSpacing;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("%s {%s}", getClass().getSimpleName(), text);
+	}
 }

@@ -283,7 +283,7 @@ public abstract class Table<T extends PDPage> {
 			row.removeAllBorders();
 		}
 
-		if (isEndOfPage(row)) {
+		if (isEndOfPage(row) && !header.contains(row)) {
 
 			// Draw line at bottom of table
 			endTable();

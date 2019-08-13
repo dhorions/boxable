@@ -285,4 +285,9 @@ public class Row<T extends PDPage> {
 	public void setLineSpacing(float lineSpacing) {
 		this.lineSpacing = lineSpacing;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("%s { %s }", getClass().getSimpleName(), cells);
+	}
 }
