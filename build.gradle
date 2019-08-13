@@ -1,5 +1,5 @@
-task wrapper(type: Wrapper) {
-	gradleVersion = '2.13'
+wrapper {
+	gradleVersion = '5.2.1'
 }
 
 apply plugin: 'java'
@@ -26,11 +26,11 @@ repositories {
 }
 
 dependencies {
-	compile 'org.apache.pdfbox:pdfbox:2.0.3'
-	compile 'org.slf4j:slf4j-api:1.7.21'
-	compile 'com.google.guava:guava:20.0'
-	compile 'org.apache.commons:commons-csv:1.4'
-	compile group: 'org.jsoup', name: 'jsoup', version: '1.9.2'
+	compile 'org.apache.commons:commons-csv:1.7'
+	compile 'org.apache.pdfbox:pdfbox:2.0.16'
+	compile 'com.google.guava:guava:28.0-jre'
+	compile 'org.jsoup:jsoup:1.12.1'
+	compile 'org.slf4j:slf4j-api:1.8.0-beta4'
+	testCompile 'commons-io:commons-io:2.6'
 	testCompile 'junit:junit:4.12'
-	testCompile 'commons-io:commons-io:2.4'
 }
