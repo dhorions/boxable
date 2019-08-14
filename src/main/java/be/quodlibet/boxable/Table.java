@@ -17,6 +17,7 @@ import java.util.Map;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageXYZDestination;
@@ -344,7 +345,7 @@ public abstract class Table<T extends PDPage> {
 	 * 
 	 * @return
 	 */
-	private T createNewPage() {
+	private T createNewPage() throws IOException {
 		if (pageProvider != null) {
 			return pageProvider.nextPage();
 		}
