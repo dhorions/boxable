@@ -17,6 +17,8 @@ public class Image {
 	private float width;
 
 	private float height;
+	
+	private PDImageXObject imageXObject = null; 
 
 	// standard DPI
 	private float[] dpi = { 72, 72 };
@@ -64,7 +66,9 @@ public class Image {
 	 * @throws IOException if loading image fails
 	 */
 	public void draw(final PDDocument doc, final PDPageContentStream stream, float x, float y) throws IOException {
-		PDImageXObject imageXObject = LosslessFactory.createFromImage(doc, image);
+		if (imageXObject == null) {
+			imageXObject = LosslessFactory.createFromImage(doc, image);
+		}	
 		stream.drawImage(imageXObject, x, y - height, width, height);
 	}
 
