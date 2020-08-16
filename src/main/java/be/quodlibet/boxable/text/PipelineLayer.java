@@ -15,7 +15,19 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 
 public class PipelineLayer {
 
-	private final Pattern whitespace = Pattern.compile("(?:\r\n|\n\r|[ \t\n\r\\f])+\\z");
+	private static String rtrim(String s) {
+		int len = s.length();
+		while ((len > 0) && (s.charAt(len - 1) <= ' ')) {
+			len--;
+		}
+		if (len == s.length()) {
+			return s;
+		}
+		if (len == 0) {
+			return "";
+		}
+		return s.substring(0, len);
+	}
 
 	private final StringBuilder text = new StringBuilder();
 
@@ -61,7 +73,7 @@ public class PipelineLayer {
 			text.append(lastTextToken);
 			width += widthLastToken;
 			lastTextToken = token.getData();
-			trimmedLastTextToken = whitespace.matcher(lastTextToken).replaceAll("");
+			trimmedLastTextToken = rtrim(lastTextToken);
 			widthLastToken = (font.getStringWidth(lastTextToken) / 1000f * fontSize);
 			widthTrimmedLastToken = (font.getStringWidth(trimmedLastTextToken) / 1000f * fontSize);
 			widthCurrentText = (font.getStringWidth(text.toString()) / 1000f * fontSize);
