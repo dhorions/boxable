@@ -27,13 +27,13 @@ import be.quodlibet.boxable.utils.PDStreamUtils;
 
 public class Paragraph {
 
-	private float width = 500;
+	private float width;
 	private final String text;
 	private float fontSize;
-	private PDFont font = PDType1Font.HELVETICA;
-	private PDFont fontBold = PDType1Font.HELVETICA_BOLD;
-	private PDFont fontItalic = PDType1Font.HELVETICA_OBLIQUE;
-	private PDFont fontBoldItalic = PDType1Font.HELVETICA_BOLD_OBLIQUE;
+	private PDFont font;
+	private final PDFont fontBold;
+	private final PDFont fontItalic;
+	private final PDFont fontBoldItalic;
 	private final WrappingFunction wrappingFunction;
 	private HorizontalAlignment align;
 	private TextType textType;
@@ -49,6 +49,7 @@ public class Paragraph {
 	private Map<Integer, List<Token>> mapLineTokens = new LinkedHashMap<>();
 	private float maxLineWidth = Integer.MIN_VALUE;
 	private List<Token> tokens;
+	private List<String> lines;
 
 	public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align) {
 		this(text, font, fontSize, width, align, null);
@@ -81,7 +82,11 @@ public class Paragraph {
 		this.text = text;
 		this.font = font;
 		// check if we have different default font for italic and bold text
-		if(!FontUtils.getDefaultfonts().isEmpty()){
+		if (FontUtils.getDefaultfonts().isEmpty()) {
+			fontBold = PDType1Font.HELVETICA_BOLD;
+			fontItalic = PDType1Font.HELVETICA_OBLIQUE;
+			fontBoldItalic = PDType1Font.HELVETICA_BOLD_OBLIQUE;
+		} else {
 			fontBold = FontUtils.getDefaultfonts().get("fontBold");
 			fontBoldItalic = FontUtils.getDefaultfonts().get("fontBoldItalic");
 			fontItalic = FontUtils.getDefaultfonts().get("fontItalic");
@@ -95,6 +100,11 @@ public class Paragraph {
 	}
 
 	public List<String> getLines() {
+		// memoize this function because it is very expensive
+		if (lines != null) {
+			return lines;
+		}
+
 		final List<String> result = new ArrayList<>();
 
 		// text and wrappingFunction are immutable, so we only ever need to compute tokens once
@@ -111,7 +121,7 @@ public class Paragraph {
 		int numberOfOrderedLists = 0;
 		int listLevel = 0;
 		Stack<HTMLListNode> stack= new Stack<>();
-		
+
 		final PipelineLayer textInLine = new PipelineLayer();
 		final PipelineLayer sinceLastWrapPoint = new PipelineLayer();
 
@@ -252,7 +262,7 @@ public class Paragraph {
 					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 					textInLine.reset();
 					lineCounter++;
-					
+
 					// extra spacing because it's a paragraph
 					result.add(" ");
 					lineWidths.put(lineCounter, 0.0f);
@@ -359,7 +369,7 @@ public class Paragraph {
 							// if it's ordering list then move depending on your: ordering number + ". "
 							String orderingNumber;
 							if(listLevel > 1){
-								orderingNumber = stack.peek().getValue() + String.valueOf(orderListElement) + ". "; 
+								orderingNumber = stack.peek().getValue() + String.valueOf(orderListElement) + ". ";
 							} else {
 								orderingNumber = String.valueOf(orderListElement) + ". ";
 							}
@@ -389,7 +399,7 @@ public class Paragraph {
 								// if it's ordering list then move depending on your: ordering number + ". "
 								String orderingNumber;
 								if(listLevel > 1){
-									orderingNumber = stack.peek().getValue() + String.valueOf(orderListElement) + ". "; 
+									orderingNumber = stack.peek().getValue() + String.valueOf(orderListElement) + ". ";
 								} else {
 									orderingNumber = String.valueOf(orderListElement) + ". ";
 								}
@@ -413,7 +423,7 @@ public class Paragraph {
 				try {
 					String word = token.getData();
 					if(font.getStringWidth(word) / 1000f * fontSize > width && width > font.getAverageFontWidth() / 1000f * fontSize) {
-						// you need to check if you have already something in your line 
+						// you need to check if you have already something in your line
 						boolean alreadyTextInLine = false;
 						if(textInLine.trimmedWidth()>0){
 							alreadyTextInLine = true;
@@ -454,7 +464,7 @@ public class Paragraph {
 									} else {
 										restOfTheWord.append("" + c);
 										restOfTheWordWidth = Math.max(width, restOfTheWordWidth);
-										
+
 									}
 								}
 							}
@@ -477,7 +487,7 @@ public class Paragraph {
 					} else {
 						sinceLastWrapPoint.push(currentFont, fontSize, token);
 					}
-				
+
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -494,27 +504,28 @@ public class Paragraph {
 			maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 		}
 
+		lines = result;
 		return result;
 
 	}
 
-	private boolean isItalic(final Token token) {
+	private static boolean isItalic(final Token token) {
 		return "i".equals(token.getData());
 	}
 
-	private boolean isBold(final Token token) {
+	private static boolean isBold(final Token token) {
 		return "b".equals(token.getData());
 	}
 
-	private boolean isParagraph(final Token token) {
+	private static boolean isParagraph(final Token token) {
 		return "p".equals(token.getData());
 	}
 
-	private boolean isListElement(final Token token) {
+	private static boolean isListElement(final Token token) {
 		return "li".equals(token.getData());
 	}
 
-	private boolean isList(final Token token) {
+	private static boolean isList(final Token token) {
 		return "ul".equals(token.getData()) || "ol".equals(token.getData());
 	}
 
@@ -629,6 +640,7 @@ public class Paragraph {
 	 */
 	@Deprecated
 	public Paragraph withWidth(int width) {
+		invalidateLineWrapping();
 		this.width = width;
 		return this;
 	}
@@ -643,14 +655,21 @@ public class Paragraph {
 	 */
 	@Deprecated
 	public Paragraph withFont(PDFont font, int fontSize) {
+		invalidateLineWrapping();
 		this.font = font;
 		this.fontSize = fontSize;
 		return this;
 	}
 
+	// font, fontSize, width, and align are non-final and used in getLines(),
+	// so if they are mutated, getLines() needs to be recomputed
+	private void invalidateLineWrapping() {
+		lines = null;
+	}
+
 	/**
 	 * /**
-	 * 
+	 *
 	 * @deprecated This method will be removed in a future release
 	 * @param color
 	 *            {@code int} rgb value for color
@@ -702,6 +721,7 @@ public class Paragraph {
 	}
 
 	public void setAlign(HorizontalAlignment align) {
+		invalidateLineWrapping();
 		this.align = align;
 	}
 
