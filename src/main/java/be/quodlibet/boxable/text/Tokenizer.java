@@ -10,19 +10,53 @@ public final class Tokenizer {
 	private Tokenizer() {
 	}
 
+	private static boolean isWrapPointChar(char ch) {
+		return
+				ch == ' '  ||
+				ch == ','  ||
+				ch == '.'  ||
+				ch == '-'  ||
+				ch == '@'  ||
+				ch == ':'  ||
+				ch == ';'  ||
+				ch == '\n' ||
+				ch == '\t' ||
+				ch == '\r' ||
+				ch == '\f' ||
+				ch == '\u000B';
+	}
+
+	private static Stack<Integer> findWrapPoints(String text) {
+		Stack<Integer> result = new Stack<>();
+		result.push(text.length());
+		for (int i = text.length() - 2; i >= 0; i--) {
+			if (isWrapPointChar(text.charAt(i))) {
+				result.push(i + 1);
+			}
+		}
+		return result;
+	}
+
+	private static Stack<Integer> findWrapPointsWithFunction(String text, WrappingFunction wrappingFunction) {
+		final String[] split = wrappingFunction.getLines(text);
+		int textIndex = text.length();
+		final Stack<Integer> possibleWrapPoints = new Stack<>();
+		possibleWrapPoints.push(textIndex);
+		for (int i = split.length - 1; i > 0; i--) {
+			final int splitLength = split[i].length();
+			possibleWrapPoints.push(textIndex - splitLength);
+			textIndex -= splitLength;
+		}
+		return possibleWrapPoints;
+	}
+
 	public static List<Token> tokenize(final String text, final WrappingFunction wrappingFunction) {
 		final List<Token> tokens = new ArrayList<>();
 		if (text != null) {
-			final String[] split = wrappingFunction.getLines(text);
-			int textIndex = text.length();
-			final Stack<Integer> possibleWrapPoints = new Stack<>();
-			possibleWrapPoints.push(textIndex);
-			for (int i = split.length - 1; i > 0; i--) {
-				final int splitLength = split[i].length();
-				possibleWrapPoints.push(textIndex - splitLength);
-				textIndex -= splitLength;
-			}
-			textIndex = 0;
+			final Stack<Integer> possibleWrapPoints = wrappingFunction == null
+					? findWrapPoints(text)
+					: findWrapPointsWithFunction(text, wrappingFunction);
+			int textIndex = 0;
 			final StringBuilder sb = new StringBuilder();
 			// taking first wrap point
 			Integer currentWrapPoint = possibleWrapPoints.pop();

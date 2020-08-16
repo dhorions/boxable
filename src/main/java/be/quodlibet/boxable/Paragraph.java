@@ -55,6 +55,8 @@ public class Paragraph {
 		this(text, font, fontSize, width, align, null);
 	}
 
+	// This function exists only to preserve backwards compatibility for
+	// the getWrappingFunction() method; it has been replaced with a faster implementation in the Tokenizer
 	private static final WrappingFunction DEFAULT_WRAP_FUNC = new WrappingFunction() {
 		@Override
 		public String[] getLines(String t) {
@@ -95,7 +97,7 @@ public class Paragraph {
 		this.width = width;
 		this.textType = textType;
 		this.setAlign(align);
-		this.wrappingFunction = wrappingFunction == null ? DEFAULT_WRAP_FUNC : wrappingFunction;
+		this.wrappingFunction = wrappingFunction;
 		this.lineSpacing = lineSpacing;
 	}
 
@@ -734,7 +736,7 @@ public class Paragraph {
 	}
 
 	public WrappingFunction getWrappingFunction() {
-		return wrappingFunction;
+		return wrappingFunction == null ? DEFAULT_WRAP_FUNC : wrappingFunction;
 	}
 
 	public float getMaxLineWidth() {
