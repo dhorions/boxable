@@ -28,7 +28,7 @@ import be.quodlibet.boxable.utils.PDStreamUtils;
 public class Paragraph {
 
 	private float width = 500;
-	private String text;
+	private final String text;
 	private float fontSize;
 	private PDFont font = PDType1Font.HELVETICA;
 	private PDFont fontBold = PDType1Font.HELVETICA_BOLD;
@@ -48,6 +48,7 @@ public class Paragraph {
 	private final Map<Integer, Float> lineWidths = new HashMap<>();
 	private Map<Integer, List<Token>> mapLineTokens = new LinkedHashMap<>();
 	private float maxLineWidth = Integer.MIN_VALUE;
+	private List<Token> tokens;
 
 	public Paragraph(String text, PDFont font, float fontSize, float width, final HorizontalAlignment align) {
 		this(text, font, fontSize, width, align, null);
@@ -95,7 +96,11 @@ public class Paragraph {
 
 	public List<String> getLines() {
 		final List<String> result = new ArrayList<>();
-		final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
+
+		// text and wrappingFunction are immutable, so we only ever need to compute tokens once
+		if (tokens == null) {
+			tokens = Tokenizer.tokenize(text, wrappingFunction);
+		}
 
 		int lineCounter = 0;
 		boolean italic = false;
