@@ -75,8 +75,15 @@ public class PipelineLayer {
 			lastTextToken = token.getData();
 			trimmedLastTextToken = rtrim(lastTextToken);
 			widthLastToken = (font.getStringWidth(lastTextToken) / 1000f * fontSize);
-			widthTrimmedLastToken = (font.getStringWidth(trimmedLastTextToken) / 1000f * fontSize);
-			widthCurrentText = (font.getStringWidth(text.toString()) / 1000f * fontSize);
+
+			if (trimmedLastTextToken.length() == lastTextToken.length()) {
+				widthTrimmedLastToken = widthLastToken;
+			} else {
+				widthTrimmedLastToken = (font.getStringWidth(trimmedLastTextToken) / 1000f * fontSize);
+			}
+
+			widthCurrentText = text.length() == 0 ? 0 :
+					(font.getStringWidth(text.toString()) / 1000f * fontSize);
 		}
 
 		push(token);
