@@ -258,10 +258,14 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	private void drawRow(Row<T> row) throws IOException {
+		// row.getHeight is currently an extremely expensive function so get the value
+		// once during drawing and reuse it, since it will not change during drawing
+		float rowHeight = row.getHeight();
+
 		// if it is not header row or first row in the table then remove row's
 		// top border
 		if (row != header && row != rows.get(0)) {
-			if (!isEndOfPage(row)) {
+			if (!isEndOfPage(rowHeight)) {
 				row.removeTopBorders();
 			}
 		}
@@ -283,7 +287,7 @@ public abstract class Table<T extends PDPage> {
 			row.removeAllBorders();
 		}
 
-		if (isEndOfPage(row)) {
+		if (isEndOfPage(rowHeight)) {
 
 			// Draw line at bottom of table
 			endTable();
@@ -325,11 +329,11 @@ public abstract class Table<T extends PDPage> {
 		}
 
 		if (drawLines) {
-			drawVerticalLines(row);
+			drawVerticalLines(row, rowHeight);
 		}
 
 		if (drawContent) {
-			drawCellContent(row);
+			drawCellContent(row, rowHeight);
 		}
 	}
 
@@ -367,7 +371,7 @@ public abstract class Table<T extends PDPage> {
 		return new PDPageContentStream(getDocument(), getCurrentPage(), true, true);
 	}
 
-	private void drawCellContent(Row<T> row) throws IOException {
+	private void drawCellContent(Row<T> row, float rowHeight) throws IOException {
 
 		// position into first cell (horizontal)
 		float cursorX = margin;
@@ -725,15 +729,12 @@ public abstract class Table<T extends PDPage> {
 			cursorX = cellStartX + cell.getWidth();
 		}
 		// Set Y position for next row
-		yStart = yStart - row.getHeight();
+		yStart = yStart - rowHeight;
 
 	}
 
-	private void drawVerticalLines(Row<T> row) throws IOException {
+	private void drawVerticalLines(Row<T> row, float rowHeight) throws IOException {
 		float xStart = margin;
-
-		// give an extra margin to the latest cell
-		float xEnd = row.xEnd();
 
 		Iterator<Cell<T>> cellIterator = row.getCells().iterator();
 		while (cellIterator.hasNext()) {
@@ -741,16 +742,16 @@ public abstract class Table<T extends PDPage> {
 
 			fillCellColor(cell, yStart, xStart, cellIterator);
 
-			drawCellBorders(row, cell, xStart, xEnd);
+			drawCellBorders(rowHeight, cell, xStart);
 
 			xStart += getWidth(cell, cellIterator);
 		}
 
 	}
 
-	private void drawCellBorders(Row<T> row, Cell<T> cell, float xStart, float xEnd) throws IOException {
+	private void drawCellBorders(float rowHeight, Cell<T> cell, float xStart) throws IOException {
 
-		float yEnd = yStart - row.getHeight();
+		float yEnd = yStart - rowHeight;
 
 		// top
 		LineStyle topBorder = cell.getTopBorder();
@@ -834,21 +835,6 @@ public abstract class Table<T extends PDPage> {
 	public T getCurrentPage() {
 		checkNotNull(this.currentPage, "No current page defined.");
 		return this.currentPage;
-	}
-
-	private boolean isEndOfPage(Row<T> row) {
-		float currentY = yStart - row.getHeight();
-		boolean isEndOfPage = currentY <= pageBottomMargin;
-		if (isEndOfPage) {
-			setTableIsBroken(true);
-		}
-
-		// If we are closer than bottom margin, consider this as
-		// the end of the currentPage
-		// If you add rows that are higher then bottom margin, this needs to be
-		// checked
-		// manually using getNextYPos
-		return isEndOfPage;
 	}
 
 	private boolean isEndOfPage(float freeSpaceForPageBreak) {
