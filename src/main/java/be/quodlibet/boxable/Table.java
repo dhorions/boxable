@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -36,7 +37,7 @@ public abstract class Table<T extends PDPage> {
 	private float margin;
 
 	private T currentPage;
-	private PDPageContentStream tableContentStream;
+	private PageContentStreamOptimized tableContentStream;
 	private List<PDOutlineItem> bookmarks;
 	private List<Row<T>> header = new ArrayList<>();
 	private List<Row<T>> rows = new ArrayList<>();
@@ -187,7 +188,7 @@ public abstract class Table<T extends PDPage> {
 			// "row"
 			yStart -= height;
 		} else {
-			PDPageContentStream articleTitle = createPdPageContentStream();
+			PageContentStreamOptimized articleTitle = createPdPageContentStream();
 			Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment),
 					wrappingFunction);
 			paragraph.setDrawDebug(drawDebug);
@@ -367,8 +368,10 @@ public abstract class Table<T extends PDPage> {
 				"You either have to provide a " + PageProvider.class.getCanonicalName() + " or override this method");
 	}
 
-	private PDPageContentStream createPdPageContentStream() throws IOException {
-		return new PDPageContentStream(getDocument(), getCurrentPage(), true, true);
+	private PageContentStreamOptimized createPdPageContentStream() throws IOException {
+		return new PageContentStreamOptimized(
+				new PDPageContentStream(getDocument(), getCurrentPage(),
+						PDPageContentStream.AppendMode.APPEND, true));
 	}
 
 	private void drawCellContent(Row<T> row, float rowHeight) throws IOException {

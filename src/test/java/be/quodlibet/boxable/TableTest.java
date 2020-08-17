@@ -11,6 +11,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.fontbox.util.BoundingBox;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -1134,7 +1135,7 @@ public class TableTest {
 		float bottomMargin = 70;
 
 		// draw page title
-		PDPageContentStream cos = new PDPageContentStream(doc, page);
+		PageContentStreamOptimized cos = new PageContentStreamOptimized(new PDPageContentStream(doc, page));
 		PDStreamUtils.write(cos, "Welcome to your first borderless table", PDType1Font.HELVETICA_BOLD, 14, 15, yStart,
 				Color.BLACK);
 		cos.close();

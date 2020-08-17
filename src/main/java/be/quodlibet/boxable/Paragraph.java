@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
@@ -560,7 +560,7 @@ public class Paragraph {
 		}
 	}
 
-	public float write(final PDPageContentStream stream, float cursorX, float cursorY) {
+	public float write(final PageContentStreamOptimized stream, float cursorX, float cursorY) {
 		if (drawDebug) {
 			PDStreamUtils.rectFontMetrics(stream, cursorX, cursorY, font, fontSize);
 
