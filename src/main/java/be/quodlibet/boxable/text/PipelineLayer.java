@@ -60,13 +60,13 @@ public class PipelineLayer {
 		if (token.getType().equals(TokenType.BULLET)) {
 			// just appending one space because our bullet width will be wide as one character of current font
 			text.append(token.getData());
-			width += (font.getStringWidth(token.getData()) / 1000f * fontSize);
+			width += (token.getWidth(font) / 1000f * fontSize);
 		}
 
 		if (token.getType().equals(TokenType.ORDERING)) {
 			// just appending one space because our bullet width will be wide as one character of current font
 			text.append(token.getData());
-			width += (font.getStringWidth(token.getData()) / 1000f * fontSize);
+			width += (token.getWidth(font) / 1000f * fontSize);
 		}
 
 		if (token.getType().equals(TokenType.TEXT)) {
@@ -74,7 +74,7 @@ public class PipelineLayer {
 			width += widthLastToken;
 			lastTextToken = token.getData();
 			trimmedLastTextToken = rtrim(lastTextToken);
-			widthLastToken = (font.getStringWidth(lastTextToken) / 1000f * fontSize);
+			widthLastToken = token.getWidth(font) / 1000f * fontSize;
 
 			if (trimmedLastTextToken.length() == lastTextToken.length()) {
 				widthTrimmedLastToken = widthLastToken;

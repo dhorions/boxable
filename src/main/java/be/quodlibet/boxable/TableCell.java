@@ -275,14 +275,14 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 							tableCellContentStream.newLineAtOffset(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
 						}
-						cursorY += currentFont.getStringWidth(token.getData()) / 1000 * getFontSize();
+						cursorY += token.getWidth(currentFont) / 1000 * getFontSize();
 					} else {
 						// if it is not calculation then draw it
 						if (!onlyCalculateHeight) {
 							tableCellContentStream.newLineAtOffset(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
 						}
-						cursorX += currentFont.getStringWidth(token.getData()) / 1000 * getFontSize();
+						cursorX += token.getWidth(currentFont) / 1000 * getFontSize();
 					}
 					tableCellContentStream.endText();
 					tableCellContentStream.closePath();
@@ -294,7 +294,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 						cursorX += FontUtils.getHeight(currentFont, getFontSize()) / 2;
 						if (!onlyCalculateHeight) {
 							PDStreamUtils.rect(tableCellContentStream, cursorX, cursorY,
-									currentFont.getStringWidth(token.getData()) / 1000 * getFontSize(),
+									token.getWidth(currentFont) / 1000 * getFontSize(),
 									currentFont.getStringWidth(" ") / 1000 * getFontSize(), getTextColor());
 						}
 						// move cursorY for two characters (one for bullet, one
@@ -308,7 +308,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 						cursorY += FontUtils.getHeight(currentFont, getFontSize()) / 2;
 						if (!onlyCalculateHeight) {
 							PDStreamUtils.rect(tableCellContentStream, cursorX, cursorY,
-									currentFont.getStringWidth(token.getData()) / 1000 * getFontSize(),
+									token.getWidth(currentFont) / 1000 * getFontSize(),
 									currentFont.getStringWidth(" ") / 1000 * getFontSize(), getTextColor());
 						}
 						// move cursorX for two characters (one for bullet, one
@@ -333,7 +333,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 							tableCellContentStream.endText();
 							tableCellContentStream.closePath();
 						}
-						cursorY += currentFont.getStringWidth(token.getData()) / 1000 * getFontSize();
+						cursorY += token.getWidth(currentFont) / 1000 * getFontSize();
 					} else {
 						if (!onlyCalculateHeight) {
 							tableCellContentStream.beginText();
@@ -342,7 +342,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 							tableCellContentStream.endText();
 							tableCellContentStream.closePath();
 						}
-						cursorX += currentFont.getStringWidth(token.getData()) / 1000 * getFontSize();
+						cursorX += token.getWidth(currentFont) / 1000 * getFontSize();
 					}
 					break;
 				}

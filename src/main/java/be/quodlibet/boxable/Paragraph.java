@@ -424,13 +424,14 @@ public class Paragraph {
 			case TEXT:
 				try {
 					String word = token.getData();
-					if(currentFont.getStringWidth(word) / 1000f * fontSize > width && width > currentFont.getAverageFontWidth() / 1000f * fontSize) {
+					float wordWidth = token.getWidth(currentFont);
+					if(wordWidth / 1000f * fontSize > width && width > font.getAverageFontWidth() / 1000f * fontSize) {
 						// you need to check if you have already something in your line
 						boolean alreadyTextInLine = false;
 						if(textInLine.trimmedWidth()>0){
 							alreadyTextInLine = true;
 						}
-						while (currentFont.getStringWidth(word) / 1000f * fontSize > width) {
+						while (wordWidth / 1000f * fontSize > width) {
 						float width = 0;
 						float firstPartWordWidth = 0;
 						float restOfTheWordWidth = 0;
@@ -484,6 +485,7 @@ public class Paragraph {
 						textInLine.reset();
 						lineCounter++;
 						word = restOfTheWord.toString();
+						wordWidth = currentFont.getStringWidth(word);
 						}
 						sinceLastWrapPoint.push(currentFont, fontSize, new Token(TokenType.TEXT, word));
 					} else {

@@ -649,13 +649,13 @@ public abstract class Table<T extends PDPage> {
 								this.tableContentStream.showText(token.getData());
 								this.tableContentStream.endText();
 								this.tableContentStream.closePath();
-								cursorY += currentFont.getStringWidth(token.getData()) / 1000 * cell.getFontSize();
+								cursorY += token.getWidth(currentFont) / 1000 * cell.getFontSize();
 							} else {
 								this.tableContentStream.newLineAtOffset(cursorX, cursorY);
 								this.tableContentStream.showText(token.getData());
 								this.tableContentStream.endText();
 								this.tableContentStream.closePath();
-								cursorX += currentFont.getStringWidth(token.getData()) / 1000 * cell.getFontSize();
+								cursorX += token.getWidth(currentFont) / 1000 * cell.getFontSize();
 							}
 							break;
 						case BULLET:
@@ -665,7 +665,7 @@ public abstract class Table<T extends PDPage> {
 								// the middle of font height
 								cursorX += FontUtils.getHeight(currentFont, cell.getFontSize()) / 2;
 								PDStreamUtils.rect(tableContentStream, cursorX, cursorY,
-										currentFont.getStringWidth(token.getData()) / 1000 * cell.getFontSize(),
+										token.getWidth(currentFont) / 1000 * cell.getFontSize(),
 										currentFont.getStringWidth(" ") / 1000 * cell.getFontSize(),
 										cell.getTextColor());
 								// move cursorY for two characters (one for
@@ -678,7 +678,7 @@ public abstract class Table<T extends PDPage> {
 								// the middle of font height
 								cursorY += FontUtils.getHeight(currentFont, cell.getFontSize()) / 2;
 								PDStreamUtils.rect(tableContentStream, cursorX, cursorY,
-										currentFont.getStringWidth(token.getData()) / 1000 * cell.getFontSize(),
+										token.getWidth(currentFont) / 1000 * cell.getFontSize(),
 										currentFont.getStringWidth(" ") / 1000 * cell.getFontSize(),
 										cell.getTextColor());
 								// move cursorX for two characters (one for
@@ -702,14 +702,14 @@ public abstract class Table<T extends PDPage> {
 								this.tableContentStream.showText(token.getData());
 								this.tableContentStream.endText();
 								this.tableContentStream.closePath();
-								cursorY += currentFont.getStringWidth(token.getData()) / 1000 * cell.getFontSize();
+								cursorY += token.getWidth(currentFont) / 1000 * cell.getFontSize();
 							} else {
 								try {
 									this.tableContentStream.newLineAtOffset(cursorX, cursorY);
 									this.tableContentStream.showText(token.getData());
 									this.tableContentStream.endText();
 									this.tableContentStream.closePath();
-									cursorX += currentFont.getStringWidth(token.getData()) / 1000 * cell.getFontSize();
+									cursorX += token.getWidth(currentFont) / 1000 * cell.getFontSize();
 								} catch (IOException e) {
 									e.printStackTrace();
 								}
