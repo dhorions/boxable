@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -40,7 +41,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	// default FreeSans font
 //	private PDFont font = FontUtils.getDefaultfonts().get("font");
 //	private PDFont fontBold = FontUtils.getDefaultfonts().get("fontBold");
-	private PDPageContentStream tableCellContentStream;
+	private PageContentStreamOptimized tableCellContentStream;
 
 	// page margins
 	private final float pageTopMargin;
@@ -88,7 +89,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		try {
 			// please consider the cell's paddings
 			float tableWidth = this.width - getLeftPadding() - getRightPadding();
-			tableCellContentStream = new PDPageContentStream(doc, page, true, true);
+			tableCellContentStream = new PageContentStreamOptimized(new PDPageContentStream(doc, page, true, true));
 			// check if there is some additional text outside inner table
 			String[] outerTableText = tableData.split("<table");
 			// don't forget to attach splited tag
@@ -375,7 +376,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		try {
 			// please consider the cell's paddings
 			float tableWidth = this.width - getLeftPadding() - getRightPadding();
-			tableCellContentStream = new PDPageContentStream(doc, page, true, true);
+			tableCellContentStream = new PageContentStreamOptimized(new PDPageContentStream(doc, page, true, true));
 			// check if there is some additional text outside inner table
 			String[] outerTableText = tableData.split("<table");
 			// don't forget to attach splited tag

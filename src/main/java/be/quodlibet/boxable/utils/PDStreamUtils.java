@@ -43,7 +43,7 @@ public final class PDStreamUtils {
 	 * @param color
 	 *            Color of the text
 	 */
-	public static void write(final PDPageContentStream stream, final String text, final PDFont font,
+	public static void write(final PageContentStreamOptimized stream, final String text, final PDFont font,
 			final float fontSize, final float x, final float y, final Color color) {
 		try {
 			stream.beginText();
@@ -76,7 +76,7 @@ public final class PDStreamUtils {
 	 * @param color
 	 *            Color of the text
 	 */
-	public static void rect(final PDPageContentStream stream, final float x, final float y, final float width,
+	public static void rect(final PageContentStreamOptimized stream, final float x, final float y, final float width,
 			final float height, final Color color) {
 		try {
 			stream.setNonStrokingColor(color);
@@ -109,7 +109,7 @@ public final class PDStreamUtils {
 	 * @param fontSize
 	 *            Font size
 	 */
-	public static void rectFontMetrics(final PDPageContentStream stream, final float x, final float y,
+	public static void rectFontMetrics(final PageContentStreamOptimized stream, final float x, final float y,
 			final PDFont font, final float fontSize) {
 		// height
 		PDStreamUtils.rect(stream, x, y, 3, FontUtils.getHeight(font, fontSize), Color.BLUE);
@@ -132,7 +132,7 @@ public final class PDStreamUtils {
 	 *            The {@link LineStyle} that would be applied
 	 * @throws IOException If the content stream could not be written or the line color cannot be retrieved.
 	 */
-	public static void setLineStyles(final PDPageContentStream stream, final LineStyle line) throws IOException {
+	public static void setLineStyles(final PageContentStreamOptimized stream, final LineStyle line) throws IOException {
 		stream.setNonStrokingColor(line.getColor());
 		stream.setStrokingColor(line.getColor());
 		stream.setLineWidth(line.getWidth());

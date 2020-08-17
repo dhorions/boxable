@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -36,7 +37,7 @@ public abstract class Table<T extends PDPage> {
 	private float margin;
 
 	private T currentPage;
-	private PDPageContentStream tableContentStream;
+	private PageContentStreamOptimized tableContentStream;
 	private List<PDOutlineItem> bookmarks;
 	private List<Row<T>> header = new ArrayList<>();
 	private List<Row<T>> rows = new ArrayList<>();
@@ -187,7 +188,7 @@ public abstract class Table<T extends PDPage> {
 			// "row"
 			yStart -= height;
 		} else {
-			PDPageContentStream articleTitle = createPdPageContentStream();
+			PageContentStreamOptimized articleTitle = new PageContentStreamOptimized(createPdPageContentStream());
 			Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment),
 					wrappingFunction);
 			paragraph.setDrawDebug(drawDebug);
@@ -824,7 +825,7 @@ public abstract class Table<T extends PDPage> {
 
 	private void ensureStreamIsOpen() throws IOException {
 		if (tableContentStream == null) {
-			tableContentStream = createPdPageContentStream();
+			tableContentStream = new PageContentStreamOptimized(createPdPageContentStream());
 		}
 	}
 
@@ -850,7 +851,7 @@ public abstract class Table<T extends PDPage> {
 		tableContentStream.close();
 		this.yStart = yStartNewPage - pageTopMargin;
 		this.currentPage = createNewPage();
-		this.tableContentStream = createPdPageContentStream();
+		this.tableContentStream = new PageContentStreamOptimized(createPdPageContentStream());
 	}
 
 	private void addBookmark(PDOutlineItem bookmark) {
