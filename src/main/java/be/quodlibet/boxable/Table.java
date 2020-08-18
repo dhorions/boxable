@@ -743,7 +743,7 @@ public abstract class Table<T extends PDPage> {
 		while (cellIterator.hasNext()) {
 			Cell<T> cell = cellIterator.next();
 
-			fillCellColor(cell, yStart, xStart, cellIterator);
+			fillCellColor(cell, yStart, xStart, rowHeight, cellIterator);
 
 			drawCellBorders(rowHeight, cell, xStart);
 
@@ -795,15 +795,15 @@ public abstract class Table<T extends PDPage> {
 		tableContentStream.closePath();
 	}
 
-	private void fillCellColor(Cell<T> cell, float yStart, float xStart, Iterator<Cell<T>> cellIterator)
+	private void fillCellColor(Cell<T> cell, float yStart, float xStart, float rowHeight, Iterator<Cell<T>> cellIterator)
 			throws IOException {
 
 		if (cell.getFillColor() != null) {
 			this.tableContentStream.setNonStrokingColor(cell.getFillColor());
 
 			// y start is bottom pos
-			yStart = yStart - cell.getHeight();
-			float height = cell.getHeight() - (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth());
+			yStart = yStart - rowHeight;
+			float height = rowHeight - (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth());
 
 			float cellWidth = getWidth(cell, cellIterator);
 			this.tableContentStream.addRect(xStart, yStart, cellWidth, height);
