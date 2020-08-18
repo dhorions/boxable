@@ -743,11 +743,14 @@ public abstract class Table<T extends PDPage> {
 		while (cellIterator.hasNext()) {
 			Cell<T> cell = cellIterator.next();
 
-			fillCellColor(cell, yStart, xStart, rowHeight, cellIterator);
+			float cellWidth = cellIterator.hasNext()
+                    ? cell.getWidth()
+                    : this.width - (xStart - margin);
+			fillCellColor(cell, yStart, xStart, rowHeight, cellWidth);
 
 			drawCellBorders(rowHeight, cell, xStart);
 
-			xStart += getWidth(cell, cellIterator);
+			xStart += cellWidth;
 		}
 
 	}
@@ -795,7 +798,7 @@ public abstract class Table<T extends PDPage> {
 		tableContentStream.closePath();
 	}
 
-	private void fillCellColor(Cell<T> cell, float yStart, float xStart, float rowHeight, Iterator<Cell<T>> cellIterator)
+	private void fillCellColor(Cell<T> cell, float yStart, float xStart, float rowHeight, float cellWidth)
 			throws IOException {
 
 		if (cell.getFillColor() != null) {
@@ -805,7 +808,6 @@ public abstract class Table<T extends PDPage> {
 			yStart = yStart - rowHeight;
 			float height = rowHeight - (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth());
 
-			float cellWidth = getWidth(cell, cellIterator);
 			this.tableContentStream.addRect(xStart, yStart, cellWidth, height);
 			this.tableContentStream.fill();
 			this.tableContentStream.closePath();
@@ -813,16 +815,6 @@ public abstract class Table<T extends PDPage> {
 			// Reset NonStroking Color to default value
 			this.tableContentStream.setNonStrokingColor(Color.BLACK);
 		}
-	}
-
-	private float getWidth(Cell<T> cell, Iterator<Cell<T>> cellIterator) {
-		float width;
-		if (cellIterator.hasNext()) {
-			width = cell.getWidth();
-		} else {
-			width = cell.getExtraWidth();
-		}
-		return width;
 	}
 
 	private void ensureStreamIsOpen() throws IOException {
