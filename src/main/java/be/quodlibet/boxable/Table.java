@@ -662,33 +662,24 @@ public abstract class Table<T extends PDPage> {
 							}
 							break;
 						case BULLET:
-
+                            float widthOfSpace = currentFont.getStringWidth(" ");
+                            float halfHeight = FontUtils.getHeight(currentFont, cell.getFontSize()) / 2;
 							if (cell.isTextRotated()) {
-								// move cursorX up because bullet needs to be in
-								// the middle of font height
-								cursorX += FontUtils.getHeight(currentFont, cell.getFontSize()) / 2;
-								PDStreamUtils.rect(tableContentStream, cursorX, cursorY,
+								PDStreamUtils.rect(tableContentStream, cursorX + halfHeight, cursorY,
 										token.getWidth(currentFont) / 1000 * cell.getFontSize(),
-										currentFont.getStringWidth(" ") / 1000 * cell.getFontSize(),
+                                        widthOfSpace / 1000 * cell.getFontSize(),
 										cell.getTextColor());
 								// move cursorY for two characters (one for
 								// bullet, one for space after bullet)
-								cursorY += 2 * currentFont.getStringWidth(" ") / 1000 * cell.getFontSize();
-								// return cursorY to his original place
-								cursorX -= FontUtils.getHeight(currentFont, cell.getFontSize()) / 2;
+								cursorY += 2 * widthOfSpace / 1000 * cell.getFontSize();
 							} else {
-								// move cursorY up because bullet needs to be in
-								// the middle of font height
-								cursorY += FontUtils.getHeight(currentFont, cell.getFontSize()) / 2;
-								PDStreamUtils.rect(tableContentStream, cursorX, cursorY,
+								PDStreamUtils.rect(tableContentStream, cursorX, cursorY + halfHeight,
 										token.getWidth(currentFont) / 1000 * cell.getFontSize(),
-										currentFont.getStringWidth(" ") / 1000 * cell.getFontSize(),
+                                        widthOfSpace / 1000 * cell.getFontSize(),
 										cell.getTextColor());
 								// move cursorX for two characters (one for
 								// bullet, one for space after bullet)
-								cursorX += 2 * currentFont.getStringWidth(" ") / 1000 * cell.getFontSize();
-								// return cursorY to his original place
-								cursorY -= FontUtils.getHeight(currentFont, cell.getFontSize()) / 2;
+								cursorX += 2 * widthOfSpace / 1000 * cell.getFontSize();
 							}
 							break;
 						case TEXT:

@@ -289,34 +289,26 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 					tableCellContentStream.closePath();
 					break;
 				case BULLET:
+					float widthOfSpace = currentFont.getStringWidth(" ");
+					float halfHeight = FontUtils.getHeight(currentFont, getFontSize()) / 2;
 					if (isTextRotated()) {
-						// move cursorX up because bullet needs to be in the
-						// middle of font height
-						cursorX += FontUtils.getHeight(currentFont, getFontSize()) / 2;
 						if (!onlyCalculateHeight) {
-							PDStreamUtils.rect(tableCellContentStream, cursorX, cursorY,
+							PDStreamUtils.rect(tableCellContentStream, cursorX + halfHeight, cursorY,
 									token.getWidth(currentFont) / 1000 * getFontSize(),
-									currentFont.getStringWidth(" ") / 1000 * getFontSize(), getTextColor());
+									widthOfSpace / 1000 * getFontSize(), getTextColor());
 						}
 						// move cursorY for two characters (one for bullet, one
 						// for space after bullet)
-						cursorY += 2 * currentFont.getStringWidth(" ") / 1000 * getFontSize();
-						// return cursorY to his original place
-						cursorX -= FontUtils.getHeight(currentFont, getFontSize()) / 2;
+						cursorY += 2 * widthOfSpace / 1000 * getFontSize();
 					} else {
-						// move cursorY up because bullet needs to be in the
-						// middle of font height
-						cursorY += FontUtils.getHeight(currentFont, getFontSize()) / 2;
 						if (!onlyCalculateHeight) {
-							PDStreamUtils.rect(tableCellContentStream, cursorX, cursorY,
+							PDStreamUtils.rect(tableCellContentStream, cursorX, cursorY + halfHeight,
 									token.getWidth(currentFont) / 1000 * getFontSize(),
-									currentFont.getStringWidth(" ") / 1000 * getFontSize(), getTextColor());
+									widthOfSpace / 1000 * getFontSize(), getTextColor());
 						}
 						// move cursorX for two characters (one for bullet, one
 						// for space after bullet)
-						cursorX += 2 * currentFont.getStringWidth(" ") / 1000 * getFontSize();
-						// return cursorY to his original place
-						cursorY -= FontUtils.getHeight(currentFont, getFontSize()) / 2;
+						cursorX += 2 * widthOfSpace / 1000 * getFontSize();
 					}
 					break;
 				case TEXT:
