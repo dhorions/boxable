@@ -375,11 +375,11 @@ public class Paragraph {
 							} else {
 								orderingNumber = String.valueOf(orderListElement) + ". ";
 							}
-							textInLine.push(currentFont, fontSize, new Token(TokenType.ORDERING, orderingNumber));
+							textInLine.push(currentFont, fontSize, Token.text(TokenType.ORDERING, orderingNumber));
 							orderListElement++;
 						} else {
 							// if it's unordered list then just move by bullet character (take care of alignment!)
-							textInLine.push(currentFont, fontSize, new Token(TokenType.BULLET, " "));
+							textInLine.push(currentFont, fontSize, Token.text(TokenType.BULLET, " "));
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -475,7 +475,7 @@ public class Paragraph {
 						// reset
 						alreadyTextInLine = false;
 						sinceLastWrapPoint.push(currentFont, fontSize,
-								new Token(TokenType.TEXT, firstPartOfWord.toString()));
+								Token.text(TokenType.TEXT, firstPartOfWord.toString()));
 						textInLine.push(sinceLastWrapPoint);
 						// this is our line
 						result.add(textInLine.trimmedText());
@@ -487,7 +487,7 @@ public class Paragraph {
 						word = restOfTheWord.toString();
 						wordWidth = currentFont.getStringWidth(word);
 						}
-						sinceLastWrapPoint.push(currentFont, fontSize, new Token(TokenType.TEXT, word));
+						sinceLastWrapPoint.push(currentFont, fontSize, Token.text(TokenType.TEXT, word));
 					} else {
 						sinceLastWrapPoint.push(currentFont, fontSize, token);
 					}
