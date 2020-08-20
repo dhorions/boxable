@@ -289,7 +289,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 					tableCellContentStream.closePath();
 					break;
 				case BULLET:
-					float widthOfSpace = currentFont.getStringWidth(" ");
+					float widthOfSpace = currentFont.getSpaceWidth();
 					float halfHeight = FontUtils.getHeight(currentFont, getFontSize()) / 2;
 					if (isTextRotated()) {
 						if (!onlyCalculateHeight) {
