@@ -442,31 +442,31 @@ public class Paragraph {
 						for (int i = 0; i < lastTextToken.length(); i++) {
 							char c = lastTextToken.charAt(i);
 							try {
-								width += (currentFont.getStringWidth("" + c) / 1000f * fontSize);
+								width += (currentFont.getStringWidth(String.valueOf(c)) / 1000f * fontSize);
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
 							if(alreadyTextInLine){
 								if (width < this.width - textInLine.trimmedWidth()) {
-									firstPartOfWord.append("" + c);
+									firstPartOfWord.append(c);
 									firstPartWordWidth = Math.max(width, firstPartWordWidth);
 								} else {
-									restOfTheWord.append("" + c);
+									restOfTheWord.append(c);
 									restOfTheWordWidth = Math.max(width, restOfTheWordWidth);
 								}
 							} else {
 								if (width < this.width) {
-									firstPartOfWord.append("" + c);
+									firstPartOfWord.append(c);
 									firstPartWordWidth = Math.max(width, firstPartWordWidth);
 								} else {
 									if(i==0){
-										firstPartOfWord.append("" + c);
+										firstPartOfWord.append(c);
 										for (int j = 1; j< lastTextToken.length(); j++){
-											restOfTheWord.append("" + lastTextToken.charAt(j));
+											restOfTheWord.append(lastTextToken.charAt(j));
 										}
 										break;
 									} else {
-										restOfTheWord.append("" + c);
+										restOfTheWord.append(c);
 										restOfTheWordWidth = Math.max(width, restOfTheWordWidth);
 
 									}
