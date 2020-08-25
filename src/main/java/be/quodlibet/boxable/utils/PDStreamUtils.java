@@ -81,9 +81,6 @@ public final class PDStreamUtils {
 			// negative height because we want to draw down (not up!)
 			stream.addRect(x, y, width, -height);
 			stream.fill();
-
-			// Reset NonStroking Color to default value
-			stream.setNonStrokingColor(Color.BLACK);
 		} catch (final IOException e) {
 			throw new IllegalStateException("Unable to draw rectangle", e);
 		}
@@ -130,7 +127,6 @@ public final class PDStreamUtils {
 	 * @throws IOException If the content stream could not be written or the line color cannot be retrieved.
 	 */
 	public static void setLineStyles(final PageContentStreamOptimized stream, final LineStyle line) throws IOException {
-		stream.setNonStrokingColor(line.getColor());
 		stream.setStrokingColor(line.getColor());
 		stream.setLineWidth(line.getWidth());
 		stream.setLineCapStyle(0);

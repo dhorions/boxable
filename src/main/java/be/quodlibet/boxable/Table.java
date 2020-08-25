@@ -790,9 +790,6 @@ public abstract class Table<T extends PDPage> {
 
 			this.tableContentStream.addRect(xStart, yStart, cellWidth, height);
 			this.tableContentStream.fill();
-
-			// Reset NonStroking Color to default value
-			this.tableContentStream.setNonStrokingColor(Color.BLACK);
 		}
 	}
 
