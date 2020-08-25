@@ -639,7 +639,6 @@ public abstract class Table<T extends PDPage> {
 							cursorX += Float.parseFloat(token.getData());
 							break;
 						case ORDERING:
-							this.tableContentStream.beginText();
 							currentFont = cell.getParagraph().getFont(boldCounter > 0, italicCounter > 0);
 							this.tableContentStream.setFont(currentFont, cell.getFontSize());
 							if (cell.isTextRotated()) {
@@ -648,14 +647,12 @@ public abstract class Table<T extends PDPage> {
 								transform.concatenate(AffineTransform.getRotateInstance(Math.PI * 0.5f));
 								transform.concatenate(AffineTransform.getTranslateInstance(-cursorX, -cursorY));
 								tableContentStream.setTextMatrix(new Matrix(transform));
-								tableContentStream.newLineAtOffset(cursorX, cursorY);
+								tableContentStream.newLineAt(cursorX, cursorY);
 								this.tableContentStream.showText(token.getData());
-								this.tableContentStream.endText();
 								cursorY += token.getWidth(currentFont) / 1000 * cell.getFontSize();
 							} else {
-								this.tableContentStream.newLineAtOffset(cursorX, cursorY);
+								this.tableContentStream.newLineAt(cursorX, cursorY);
 								this.tableContentStream.showText(token.getData());
-								this.tableContentStream.endText();
 								cursorX += token.getWidth(currentFont) / 1000 * cell.getFontSize();
 							}
 							break;
@@ -681,7 +678,6 @@ public abstract class Table<T extends PDPage> {
 							}
 							break;
 						case TEXT:
-							this.tableContentStream.beginText();
 							currentFont = cell.getParagraph().getFont(boldCounter > 0, italicCounter > 0);
 							this.tableContentStream.setFont(currentFont, cell.getFontSize());
 							if (cell.isTextRotated()) {
@@ -690,15 +686,13 @@ public abstract class Table<T extends PDPage> {
 								transform.concatenate(AffineTransform.getRotateInstance(Math.PI * 0.5f));
 								transform.concatenate(AffineTransform.getTranslateInstance(-cursorX, -cursorY));
 								tableContentStream.setTextMatrix(new Matrix(transform));
-								tableContentStream.newLineAtOffset(cursorX, cursorY);
+								tableContentStream.newLineAt(cursorX, cursorY);
 								this.tableContentStream.showText(token.getData());
-								this.tableContentStream.endText();
 								cursorY += token.getWidth(currentFont) / 1000 * cell.getFontSize();
 							} else {
 								try {
-									this.tableContentStream.newLineAtOffset(cursorX, cursorY);
+									this.tableContentStream.newLineAt(cursorX, cursorY);
 									this.tableContentStream.showText(token.getData());
-									this.tableContentStream.endText();
 									cursorX += token.getWidth(currentFont) / 1000 * cell.getFontSize();
 								} catch (IOException e) {
 									e.printStackTrace();

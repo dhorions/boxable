@@ -263,7 +263,6 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 					cursorX += Float.parseFloat(token.getData());
 					break;
 				case ORDERING:
-					tableCellContentStream.beginText();
 					currentFont = paragraph.getFont(boldCounter > 0, italicCounter > 0);
 					tableCellContentStream.setFont(currentFont, getFontSize());
 					if (isTextRotated()) {
@@ -273,19 +272,18 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 							transform.concatenate(AffineTransform.getRotateInstance(Math.PI * 0.5f));
 							transform.concatenate(AffineTransform.getTranslateInstance(-cursorX, -cursorY));
 							tableCellContentStream.setTextMatrix(new Matrix(transform));
-							tableCellContentStream.newLineAtOffset(cursorX, cursorY);
+							tableCellContentStream.newLineAt(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
 						}
 						cursorY += token.getWidth(currentFont) / 1000 * getFontSize();
 					} else {
 						// if it is not calculation then draw it
 						if (!onlyCalculateHeight) {
-							tableCellContentStream.newLineAtOffset(cursorX, cursorY);
+							tableCellContentStream.newLineAt(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
 						}
 						cursorX += token.getWidth(currentFont) / 1000 * getFontSize();
 					}
-					tableCellContentStream.endText();
 					break;
 				case BULLET:
 					float widthOfSpace = currentFont.getSpaceWidth();
@@ -315,22 +313,18 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 					tableCellContentStream.setFont(currentFont, getFontSize());
 					if (isTextRotated()) {
 						if (!onlyCalculateHeight) {
-							tableCellContentStream.beginText();
 							final AffineTransform transform = AffineTransform.getTranslateInstance(cursorX, cursorY);
 							transform.concatenate(AffineTransform.getRotateInstance(Math.PI * 0.5f));
 							transform.concatenate(AffineTransform.getTranslateInstance(-cursorX, -cursorY));
 							tableCellContentStream.setTextMatrix(new Matrix(transform));
-							tableCellContentStream.newLineAtOffset(cursorX, cursorY);
+							tableCellContentStream.newLineAt(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
-							tableCellContentStream.endText();
 						}
 						cursorY += token.getWidth(currentFont) / 1000 * getFontSize();
 					} else {
 						if (!onlyCalculateHeight) {
-							tableCellContentStream.beginText();
-							tableCellContentStream.newLineAtOffset(cursorX, cursorY);
+							tableCellContentStream.newLineAt(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
-							tableCellContentStream.endText();
 						}
 						cursorX += token.getWidth(currentFont) / 1000 * getFontSize();
 					}

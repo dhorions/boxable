@@ -46,13 +46,11 @@ public final class PDStreamUtils {
 	public static void write(final PageContentStreamOptimized stream, final String text, final PDFont font,
 			final float fontSize, final float x, final float y, final Color color) {
 		try {
-			stream.beginText();
 			stream.setFont(font, fontSize);
 			// we want to position our text on his baseline
-			stream.newLineAtOffset(x, y - FontUtils.getDescent(font, fontSize) - FontUtils.getHeight(font, fontSize));
+			stream.newLineAt(x, y - FontUtils.getDescent(font, fontSize) - FontUtils.getHeight(font, fontSize));
 			stream.setNonStrokingColor(color);
 			stream.showText(text);
-			stream.endText();
 		} catch (final IOException e) {
 			throw new IllegalStateException("Unable to write text", e);
 		}

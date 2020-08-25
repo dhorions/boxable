@@ -1,6 +1,5 @@
 package be.quodlibet.boxable.utils;
 
-import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
@@ -11,18 +10,29 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class PageContentStreamOptimized {
-    final PDPageContentStream pageContentStream;
+    private final PDPageContentStream pageContentStream;
+    private boolean textMode;
+    private float textCursorAbsoluteX;
+    private float textCursorAbsoluteY;
 
     public PageContentStreamOptimized(PDPageContentStream pageContentStream) {
         this.pageContentStream = pageContentStream;
     }
 
-    public void beginText() throws IOException {
-        pageContentStream.beginText();
+    private void beginText() throws IOException {
+        if (!textMode) {
+            pageContentStream.beginText();
+            textMode = true;
+            textCursorAbsoluteX = 0;
+            textCursorAbsoluteY = 0;
+        }
     }
 
-    public void endText() throws IOException {
-        pageContentStream.endText();
+    private void endText() throws IOException {
+        if (textMode) {
+            pageContentStream.endText();
+            textMode = false;
+        }
     }
 
     private PDFont currentFont;
@@ -37,18 +47,26 @@ public class PageContentStreamOptimized {
     }
 
     public void showText(String text) throws IOException {
+        beginText();
         pageContentStream.showText(text);
     }
 
-    public void newLineAtOffset(float tx, float ty) throws IOException {
-        pageContentStream.newLineAtOffset(tx, ty);
+    public void newLineAt(float tx, float ty) throws IOException {
+        beginText();
+        float dx = tx - textCursorAbsoluteX;
+        float dy = ty - textCursorAbsoluteY;
+        pageContentStream.newLineAtOffset(dx, dy);
+        textCursorAbsoluteX = tx;
+        textCursorAbsoluteY = ty;
     }
 
     public void setTextMatrix(Matrix matrix) throws IOException {
+        beginText();
         pageContentStream.setTextMatrix(matrix);
     }
 
     public void drawImage(PDImageXObject image, float x, float y, float width, float height) throws IOException {
+        endText();
         pageContentStream.drawImage(image, x, y, width, height);
     }
 
@@ -71,22 +89,27 @@ public class PageContentStreamOptimized {
     }
 
     public void addRect(float x, float y, float width, float height) throws IOException {
+        endText();
         pageContentStream.addRect(x, y, width, height);
     }
 
     public void moveTo(float x, float y) throws IOException {
+        endText();
         pageContentStream.moveTo(x, y);
     }
 
     public void lineTo(float x, float y) throws IOException {
+        endText();
         pageContentStream.lineTo(x, y);
     }
 
     public void stroke() throws IOException {
+        endText();
         pageContentStream.stroke();
     }
 
     public void fill() throws IOException {
+        endText();
         pageContentStream.fill();
     }
 
@@ -94,6 +117,7 @@ public class PageContentStreamOptimized {
 
     public void setLineWidth(float lineWidth) throws IOException {
         if (lineWidth != currentLineWidth) {
+            endText();
             pageContentStream.setLineWidth(lineWidth);
             currentLineWidth = lineWidth;
         }
@@ -103,6 +127,7 @@ public class PageContentStreamOptimized {
 
     public void setLineCapStyle(int lineCapStyle) throws IOException {
         if (lineCapStyle != currentLineCapStyle) {
+            endText();
             pageContentStream.setLineCapStyle(lineCapStyle);
             currentLineCapStyle = lineCapStyle;
         }
@@ -114,40 +139,11 @@ public class PageContentStreamOptimized {
     public void setLineDashPattern(float[] pattern, float phase) throws IOException {
         if ((pattern != currentLineDashPattern &&
             !Arrays.equals(pattern, currentLineDashPattern)) || phase != currentLineDashPhase) {
+            endText();
             pageContentStream.setLineDashPattern(pattern, phase);
             currentLineDashPattern = pattern;
             currentLineDashPhase = phase;
         }
-    }
-
-    @Deprecated
-    public void appendRawCommands(String commands) throws IOException {
-        pageContentStream.appendRawCommands(commands);
-    }
-
-    @Deprecated
-    public void appendRawCommands(byte[] commands) throws IOException {
-        pageContentStream.appendRawCommands(commands);
-    }
-
-    @Deprecated
-    public void appendRawCommands(int data) throws IOException {
-        pageContentStream.appendRawCommands(data);
-    }
-
-    @Deprecated
-    public void appendRawCommands(double data) throws IOException {
-        pageContentStream.appendRawCommands(data);
-    }
-
-    @Deprecated
-    public void appendRawCommands(float data) throws IOException {
-        pageContentStream.appendRawCommands(data);
-    }
-
-    @Deprecated
-    public void appendCOSName(COSName name) throws IOException {
-        pageContentStream.appendCOSName(name);
     }
 
     public void close() throws IOException {
