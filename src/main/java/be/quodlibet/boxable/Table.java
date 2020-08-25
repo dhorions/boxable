@@ -651,13 +651,11 @@ public abstract class Table<T extends PDPage> {
 								tableContentStream.newLineAtOffset(cursorX, cursorY);
 								this.tableContentStream.showText(token.getData());
 								this.tableContentStream.endText();
-								this.tableContentStream.closePath();
 								cursorY += token.getWidth(currentFont) / 1000 * cell.getFontSize();
 							} else {
 								this.tableContentStream.newLineAtOffset(cursorX, cursorY);
 								this.tableContentStream.showText(token.getData());
 								this.tableContentStream.endText();
-								this.tableContentStream.closePath();
 								cursorX += token.getWidth(currentFont) / 1000 * cell.getFontSize();
 							}
 							break;
@@ -695,14 +693,12 @@ public abstract class Table<T extends PDPage> {
 								tableContentStream.newLineAtOffset(cursorX, cursorY);
 								this.tableContentStream.showText(token.getData());
 								this.tableContentStream.endText();
-								this.tableContentStream.closePath();
 								cursorY += token.getWidth(currentFont) / 1000 * cell.getFontSize();
 							} else {
 								try {
 									this.tableContentStream.newLineAtOffset(cursorX, cursorY);
 									this.tableContentStream.showText(token.getData());
 									this.tableContentStream.endText();
-									this.tableContentStream.closePath();
 									cursorX += token.getWidth(currentFont) / 1000 * cell.getFontSize();
 								} catch (IOException e) {
 									e.printStackTrace();
@@ -786,7 +782,6 @@ public abstract class Table<T extends PDPage> {
 		tableContentStream.moveTo(xStart, yStart);
 		tableContentStream.lineTo(xEnd, yEnd);
 		tableContentStream.stroke();
-		tableContentStream.closePath();
 	}
 
 	private void fillCellColor(Cell<T> cell, float yStart, float xStart, float rowHeight, float cellWidth)
@@ -801,7 +796,6 @@ public abstract class Table<T extends PDPage> {
 
 			this.tableContentStream.addRect(xStart, yStart, cellWidth, height);
 			this.tableContentStream.fill();
-			this.tableContentStream.closePath();
 
 			// Reset NonStroking Color to default value
 			this.tableContentStream.setNonStrokingColor(Color.BLACK);

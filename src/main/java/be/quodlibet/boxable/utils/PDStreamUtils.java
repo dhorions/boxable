@@ -83,7 +83,6 @@ public final class PDStreamUtils {
 			// negative height because we want to draw down (not up!)
 			stream.addRect(x, y, width, -height);
 			stream.fill();
-			stream.closePath();
 
 			// Reset NonStroking Color to default value
 			stream.setNonStrokingColor(Color.BLACK);

@@ -86,32 +86,8 @@ public class PageContentStreamOptimized {
         pageContentStream.stroke();
     }
 
-    public void closeAndStroke() throws IOException {
-        pageContentStream.closeAndStroke();
-    }
-
     public void fill() throws IOException {
         pageContentStream.fill();
-    }
-
-    public void fillAndStroke() throws IOException {
-        pageContentStream.fillAndStroke();
-    }
-
-    public void fillAndStrokeEvenOdd() throws IOException {
-        pageContentStream.fillAndStrokeEvenOdd();
-    }
-
-    public void closeAndFillAndStroke() throws IOException {
-        pageContentStream.closeAndFillAndStroke();
-    }
-
-    public void closeAndFillAndStrokeEvenOdd() throws IOException {
-        pageContentStream.closeAndFillAndStrokeEvenOdd();
-    }
-
-    public void closePath() throws IOException {
-        pageContentStream.closePath();
     }
 
     private float currentLineWidth = -1;

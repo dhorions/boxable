@@ -286,7 +286,6 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 						cursorX += token.getWidth(currentFont) / 1000 * getFontSize();
 					}
 					tableCellContentStream.endText();
-					tableCellContentStream.closePath();
 					break;
 				case BULLET:
 					float widthOfSpace = currentFont.getSpaceWidth();
@@ -324,7 +323,6 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 							tableCellContentStream.newLineAtOffset(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
 							tableCellContentStream.endText();
-							tableCellContentStream.closePath();
 						}
 						cursorY += token.getWidth(currentFont) / 1000 * getFontSize();
 					} else {
@@ -333,7 +331,6 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 							tableCellContentStream.newLineAtOffset(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
 							tableCellContentStream.endText();
-							tableCellContentStream.closePath();
 						}
 						cursorX += token.getWidth(currentFont) / 1000 * getFontSize();
 					}
