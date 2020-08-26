@@ -444,9 +444,6 @@ public abstract class Table<T extends PDPage> {
 					throw new IllegalArgumentException("Font is null on Cell=" + cell.getText());
 				}
 
-				// font settings
-				this.tableContentStream.setFont(cell.getFont(), cell.getFontSize());
-
 				if (cell.isTextRotated()) {
 					// debugging mode - drawing (default!) padding of rotated
 					// cells
@@ -570,11 +567,6 @@ public abstract class Table<T extends PDPage> {
 				float lineStartX = cursorX;
 				float lineStartY = cursorY;
 
-				// if it is head row or if it is header cell then please use
-				// bold font
-				if (row.equals(header) || cell.isHeaderCell()) {
-					this.tableContentStream.setFont(cell.getParagraph().getFont(true, false), cell.getFontSize());
-				}
 				this.tableContentStream.setNonStrokingColor(cell.getTextColor());
 
 				int italicCounter = 0;
