@@ -7,7 +7,6 @@ package be.quodlibet.boxable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.awt.Color;
-import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -22,7 +21,6 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageXYZDestination;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
-import org.apache.pdfbox.util.Matrix;
 
 import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.page.PageProvider;
@@ -581,6 +579,8 @@ public abstract class Table<T extends PDPage> {
 				int italicCounter = 0;
 				int boldCounter = 0;
 
+				this.tableContentStream.setRotated(cell.isTextRotated());
+
 				// print all lines of the cell
 				for (Map.Entry<Integer, List<Token>> entry : cell.getParagraph().getMapLineTokens().entrySet()) {
 
@@ -642,11 +642,6 @@ public abstract class Table<T extends PDPage> {
 							currentFont = cell.getParagraph().getFont(boldCounter > 0, italicCounter > 0);
 							this.tableContentStream.setFont(currentFont, cell.getFontSize());
 							if (cell.isTextRotated()) {
-								final AffineTransform transform = AffineTransform.getTranslateInstance(cursorX,
-										cursorY);
-								transform.concatenate(AffineTransform.getRotateInstance(Math.PI * 0.5f));
-								transform.concatenate(AffineTransform.getTranslateInstance(-cursorX, -cursorY));
-								tableContentStream.setTextMatrix(new Matrix(transform));
 								tableContentStream.newLineAt(cursorX, cursorY);
 								this.tableContentStream.showText(token.getData());
 								cursorY += token.getWidth(currentFont) / 1000 * cell.getFontSize();
@@ -681,11 +676,6 @@ public abstract class Table<T extends PDPage> {
 							currentFont = cell.getParagraph().getFont(boldCounter > 0, italicCounter > 0);
 							this.tableContentStream.setFont(currentFont, cell.getFontSize());
 							if (cell.isTextRotated()) {
-								final AffineTransform transform = AffineTransform.getTranslateInstance(cursorX,
-										cursorY);
-								transform.concatenate(AffineTransform.getRotateInstance(Math.PI * 0.5f));
-								transform.concatenate(AffineTransform.getTranslateInstance(-cursorX, -cursorY));
-								tableContentStream.setTextMatrix(new Matrix(transform));
 								tableContentStream.newLineAt(cursorX, cursorY);
 								this.tableContentStream.showText(token.getData());
 								cursorY += token.getWidth(currentFont) / 1000 * cell.getFontSize();

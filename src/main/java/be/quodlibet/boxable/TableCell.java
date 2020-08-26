@@ -1,6 +1,5 @@
 package be.quodlibet.boxable;
 
-import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +10,6 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.util.Matrix;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -204,6 +202,10 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		int boldCounter = 0;
 		int italicCounter = 0;
 
+		if (!onlyCalculateHeight) {
+			tableCellContentStream.setRotated(isTextRotated());
+		}
+
 		// position at top of current cell descending by font height - font
 		// descent, because we are positioning the base line here
 		float cursorY = yStart - getTopPadding() - FontUtils.getHeight(getFont(), getFontSize())
@@ -268,10 +270,6 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 					if (isTextRotated()) {
 						// if it is not calculation then draw it
 						if (!onlyCalculateHeight) {
-							final AffineTransform transform = AffineTransform.getTranslateInstance(cursorX, cursorY);
-							transform.concatenate(AffineTransform.getRotateInstance(Math.PI * 0.5f));
-							transform.concatenate(AffineTransform.getTranslateInstance(-cursorX, -cursorY));
-							tableCellContentStream.setTextMatrix(new Matrix(transform));
 							tableCellContentStream.newLineAt(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
 						}
@@ -313,10 +311,6 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 					tableCellContentStream.setFont(currentFont, getFontSize());
 					if (isTextRotated()) {
 						if (!onlyCalculateHeight) {
-							final AffineTransform transform = AffineTransform.getTranslateInstance(cursorX, cursorY);
-							transform.concatenate(AffineTransform.getRotateInstance(Math.PI * 0.5f));
-							transform.concatenate(AffineTransform.getTranslateInstance(-cursorX, -cursorY));
-							tableCellContentStream.setTextMatrix(new Matrix(transform));
 							tableCellContentStream.newLineAt(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
 						}

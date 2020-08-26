@@ -10,18 +10,38 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class PageContentStreamOptimized {
+    private static final Matrix ROTATION = Matrix.getRotateInstance(Math.PI * 0.5, 0, 0);
+
     private final PDPageContentStream pageContentStream;
     private boolean textMode;
     private float textCursorAbsoluteX;
     private float textCursorAbsoluteY;
+    private boolean rotated;
 
     public PageContentStreamOptimized(PDPageContentStream pageContentStream) {
         this.pageContentStream = pageContentStream;
     }
 
+    public void setRotated(boolean rotated) throws IOException {
+        if (this.rotated == rotated) return;
+        if (rotated) {
+            if (textMode) {
+                pageContentStream.setTextMatrix(ROTATION);
+                textCursorAbsoluteX = 0;
+                textCursorAbsoluteY = 0;
+            }
+        } else {
+            endText();
+        }
+        this.rotated = rotated;
+    }
+
     private void beginText() throws IOException {
         if (!textMode) {
             pageContentStream.beginText();
+            if (rotated) {
+                pageContentStream.setTextMatrix(ROTATION);
+            }
             textMode = true;
             textCursorAbsoluteX = 0;
             textCursorAbsoluteY = 0;
@@ -55,14 +75,13 @@ public class PageContentStreamOptimized {
         beginText();
         float dx = tx - textCursorAbsoluteX;
         float dy = ty - textCursorAbsoluteY;
-        pageContentStream.newLineAtOffset(dx, dy);
+        if (rotated) {
+            pageContentStream.newLineAtOffset(dy, -dx);
+        } else {
+            pageContentStream.newLineAtOffset(dx, dy);
+        }
         textCursorAbsoluteX = tx;
         textCursorAbsoluteY = ty;
-    }
-
-    public void setTextMatrix(Matrix matrix) throws IOException {
-        beginText();
-        pageContentStream.setTextMatrix(matrix);
     }
 
     public void drawImage(PDImageXObject image, float x, float y, float width, float height) throws IOException {
