@@ -436,6 +436,7 @@ public abstract class Table<T extends PDPage> {
 				cursorX += cell.getLeftPadding() + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth());
 				tableCell.setXPosition(cursorX);
 				tableCell.setYPosition(cursorY);
+				this.tableContentStream.endText();
 				tableCell.draw(currentPage);
 			} else {
 				// no text without font

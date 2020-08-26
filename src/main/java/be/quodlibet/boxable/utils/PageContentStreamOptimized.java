@@ -36,7 +36,7 @@ public class PageContentStreamOptimized {
         this.rotated = rotated;
     }
 
-    private void beginText() throws IOException {
+    public void beginText() throws IOException {
         if (!textMode) {
             pageContentStream.beginText();
             if (rotated) {
@@ -48,7 +48,7 @@ public class PageContentStreamOptimized {
         }
     }
 
-    private void endText() throws IOException {
+    public void endText() throws IOException {
         if (textMode) {
             pageContentStream.endText();
             textMode = false;
@@ -166,6 +166,7 @@ public class PageContentStreamOptimized {
     }
 
     public void close() throws IOException {
+        endText();
         pageContentStream.close();
     }
 }
