@@ -3,7 +3,6 @@ package be.quodlibet.boxable.image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
@@ -18,6 +17,8 @@ public class Image {
 	private float width;
 
 	private float height;
+	
+	private PDImageXObject imageXObject = null; 
 
 	// standard DPI
 	private float[] dpi = { 72, 72 };
@@ -64,8 +65,10 @@ public class Image {
 	 *            Y coordinate for image drawing
 	 * @throws IOException if loading image fails
 	 */
-	public void draw(final PDDocument doc, final PageContentStreamOptimized stream, float x, float y) throws IOException {
-		PDImageXObject imageXObject = LosslessFactory.createFromImage(doc, image);
+	public void draw(final PDDocument doc, final PDPageContentStream stream, float x, float y) throws IOException {
+		if (imageXObject == null) {
+			imageXObject = LosslessFactory.createFromImage(doc, image);
+		}	
 		stream.drawImage(imageXObject, x, y - height, width, height);
 	}
 
