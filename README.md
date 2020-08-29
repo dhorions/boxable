@@ -21,16 +21,18 @@ Boxable is a library that can be used to easily create tables in pdf documents. 
 - rotated text (by 90 degrees)
 - writing text outside tables
 
-#### What is new in version 1.5?
-- several HTML ordered lists bugfixes
-- having possibility to make inner tables with TableCell (check `SampleTest10()` JUnit test)
-- using FreeSans as default font to avoid multiple charachter decoding problems
-- added support for drawing "borderless" table (check `SampleTest11()` for that)
-- javadocs bugfix
+#### What is new in version 1.6?
+- performance optimizations by [@Vobarian](https://github.com/vobarian)
+- reduced pdf file output size by  [@Vobarian](https://github.com/vobarian) and  [@Giboow](https://github.com/giboow)
+- fix for infinite loop when header rows were below page bottom margin.  [@Ogmios-Voice](https://github.com/ogmios-voice)
+- added COPYING file [@zaqpiotr](https://github.com/zaqpiotr)
+- Updated pdfbox library to 2.0.21
+- Updated guava library to 29-android
 
 Check PRs:
-[#142](https://github.com/dhorions/boxable/pull/142)
-[#144](https://github.com/dhorions/boxable/pull/144)
+[#183](https://github.com/dhorions/boxable/pull/183)
+[#202](https://github.com/dhorions/boxable/pull/202)
+[#190](https://github.com/dhorions/boxable/pull/190)
 
 
 # Maven
@@ -38,7 +40,7 @@ Check PRs:
 <dependency>
     <groupId>com.github.dhorions</groupId>
     <artifactId>boxable</artifactId>
-    <version>1.5</version>
+    <version>1.6</version>
 </dependency>
 ```
 For other build systems, check the [Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22boxable%22).
@@ -102,6 +104,10 @@ table.draw();
 ```
 
 Special Thanks to these awesome contributers : 
+- [@Vobarian](https://github.com/vobarian)
+- [@Giboow](https://github.com/giboow)
+- [@Ogmios-Voice](https://github.com/ogmios-voice)
+- [@zaqpiotr](https://github.com/zaqpiotr)
 - [Frulenzo](https://github.com/Frulenzo)
 - [dgautier](https://github.com/dgautier)
 - [ZeerDonker](https://github.com/ZeerDonker)

@@ -4,16 +4,20 @@
  */
 package be.quodlibet.boxable;
 
+import be.quodlibet.boxable.line.LineStyle;
+import be.quodlibet.boxable.page.PageProvider;
+import be.quodlibet.boxable.text.Token;
+import be.quodlibet.boxable.text.WrappingFunction;
+import be.quodlibet.boxable.utils.FontUtils;
+import be.quodlibet.boxable.utils.PDStreamUtils;
+import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -21,13 +25,6 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageXYZDestination;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
-
-import be.quodlibet.boxable.line.LineStyle;
-import be.quodlibet.boxable.page.PageProvider;
-import be.quodlibet.boxable.text.Token;
-import be.quodlibet.boxable.text.WrappingFunction;
-import be.quodlibet.boxable.utils.FontUtils;
-import be.quodlibet.boxable.utils.PDStreamUtils;
 
 public abstract class Table<T extends PDPage> {
 
@@ -230,11 +227,11 @@ public abstract class Table<T extends PDPage> {
 	 * <p>
 	 * Draws table
 	 * </p>
-	 * 
+	 *
 	 * @return Y position of the table
 	 * @throws IOException
 	 *             if underlying stream has problem being written to.
-	 * 
+	 *
 	 */
 	public float draw() throws IOException {
 		ensureStreamIsOpen();
@@ -286,7 +283,7 @@ public abstract class Table<T extends PDPage> {
 			row.removeAllBorders();
 		}
 
-		if (isEndOfPage(rowHeight)) {
+            if (isEndOfPage(rowHeight) && !header.contains(row)) {
 
 			// Draw line at bottom of table
 			endTable();
@@ -344,7 +341,7 @@ public abstract class Table<T extends PDPage> {
 	 * <p>
 	 * Will be removed once {@link #createPage()} is removed.
 	 * </p>
-	 * 
+	 *
 	 * @return
 	 */
 	private T createNewPage() {
@@ -518,7 +515,7 @@ public abstract class Table<T extends PDPage> {
 							- (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth());
 
 					if (drawDebug) {
-						// @formatter:off 
+						// @formatter:off
 						// top padding
 						PDStreamUtils.rect(tableContentStream, cursorX + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth()), yStart - (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth()), cell.getWidth() - (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth()) - (cell.getRightBorder() == null ? 0 : cell.getRightBorder().getWidth()), cell.getTopPadding(), Color.RED);
 						// bottom padding
@@ -527,7 +524,7 @@ public abstract class Table<T extends PDPage> {
 						PDStreamUtils.rect(tableContentStream, cursorX + (cell.getLeftBorder() == null ? 0 : cell.getLeftBorder().getWidth()), yStart - (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth()), cell.getLeftPadding(), cell.getHeight() - (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth()) - (cell.getBottomBorder() == null ? 0 : cell.getBottomBorder().getWidth()), Color.RED);
 						// right padding
 						PDStreamUtils.rect(tableContentStream, cursorX + cell.getWidth() - (cell.getRightBorder() == null ? 0 : cell.getRightBorder().getWidth()) , yStart - (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth()), -cell.getRightPadding(), cell.getHeight() - (cell.getTopBorder() == null ? 0 : cell.getTopBorder().getWidth()) - (cell.getBottomBorder() == null ? 0 : cell.getBottomBorder().getWidth()), Color.RED);
-						// @formatter:on 
+						// @formatter:on
 					}
 
 					// respect left padding
@@ -819,7 +816,7 @@ public abstract class Table<T extends PDPage> {
 
 	/**
 	 * /**
-	 * 
+	 *
 	 * @deprecated Use {@link #addHeaderRow(Row)} instead, as it supports
 	 *             multiple header rows
 	 * @param header
@@ -838,7 +835,7 @@ public abstract class Table<T extends PDPage> {
 	 * <p>
 	 * IMPORTANT: Doesn't acknowledge possible page break. Use with caution.
 	 * </p>
-	 * 
+	 *
 	 * @return {@link Table}'s height
 	 */
 	public float getHeaderAndDataHeight() {
@@ -854,7 +851,7 @@ public abstract class Table<T extends PDPage> {
 	 * Calculates minimum table height that needs to be drawn (all header rows +
 	 * first data row heights).
 	 * </p>
-	 * 
+	 *
 	 * @return height
 	 */
 	public float getMinimumHeight() {
@@ -879,7 +876,7 @@ public abstract class Table<T extends PDPage> {
 	 * <p>
 	 * Setting current row as table header row
 	 * </p>
-	 * 
+	 *
 	 * @param row
 	 *            The row that would be added as table's header row
 	 */
@@ -892,7 +889,7 @@ public abstract class Table<T extends PDPage> {
 	 * <p>
 	 * Retrieves last table's header row
 	 * </p>
-	 * 
+	 *
 	 * @return header row
 	 */
 	public Row<T> getHeader() {
