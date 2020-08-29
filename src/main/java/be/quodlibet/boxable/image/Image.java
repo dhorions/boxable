@@ -1,14 +1,13 @@
 package be.quodlibet.boxable.image;
 
+import be.quodlibet.boxable.utils.ImageUtils;
+import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-
-import be.quodlibet.boxable.utils.ImageUtils;
 
 public class Image {
 
@@ -17,8 +16,8 @@ public class Image {
 	private float width;
 
 	private float height;
-	
-	private PDImageXObject imageXObject = null; 
+
+	private PDImageXObject imageXObject = null;
 
 	// standard DPI
 	private float[] dpi = { 72, 72 };
@@ -27,7 +26,7 @@ public class Image {
 	 * <p>
 	 * Constructor for default images
 	 * </p>
-	 * 
+	 *
 	 * @param image
 	 *            {@link BufferedImage}
 	 */
@@ -54,7 +53,7 @@ public class Image {
 	 * <p>
 	 * Drawing simple {@link Image} in {@link PDPageContentStream}.
 	 * </p>
-	 * 
+	 *
 	 * @param doc
 	 *            {@link PDDocument} where drawing will be applied
 	 * @param stream
@@ -65,10 +64,11 @@ public class Image {
 	 *            Y coordinate for image drawing
 	 * @throws IOException if loading image fails
 	 */
-	public void draw(final PDDocument doc, final PDPageContentStream stream, float x, float y) throws IOException {
+    public void draw(final PDDocument doc, final PageContentStreamOptimized stream, float x, float y) throws IOException
+    {
 		if (imageXObject == null) {
 			imageXObject = LosslessFactory.createFromImage(doc, image);
-		}	
+		}
 		stream.drawImage(imageXObject, x, y - height, width, height);
 	}
 
@@ -76,7 +76,7 @@ public class Image {
 	 * <p>
 	 * Method which scale {@link Image} with designated width
 	 * </p>
-	 * 
+	 *
 	 * @deprecated Use {@link #scaleByWidth}
 	 * @param width
 	 *            Maximal height where {@link Image} needs to be scaled
@@ -90,7 +90,7 @@ public class Image {
 	 * <p>
 	 * Method which scale {@link Image} with designated width
 	 * </p>
-	 * 
+	 *
 	 * @param width
 	 *            Maximal width where {@link Image} needs to be scaled
 	 * @return Scaled {@link Image}
@@ -109,7 +109,7 @@ public class Image {
 	/**
 	 * <p>
 	 * Method which scale {@link Image} with designated height
-	 * 
+	 *
 	 * @param height
 	 *            Maximal height where {@link Image} needs to be scaled
 	 * @return Scaled {@link Image}
@@ -130,7 +130,7 @@ public class Image {
 	/**
 	 * <p>
 	 * Method which scale {@link Image} with designated width und height
-	 * 
+	 *
 	 * @param boundWidth
 	 *            Maximal width where {@link Image} needs to be scaled
 	 * @param boundHeight
