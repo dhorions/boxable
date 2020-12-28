@@ -6,14 +6,17 @@ package be.quodlibet.boxable;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import be.quodlibet.boxable.utils.PageContentStreamOptimized;
+import org.apache.fontbox.util.BoundingBox;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDocumentOutline;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
@@ -22,10 +25,24 @@ import org.junit.Test;
 import com.google.common.io.Files;
 
 import be.quodlibet.boxable.datatable.DataTable;
+import be.quodlibet.boxable.utils.FontUtils;
 import be.quodlibet.boxable.utils.ImageUtils;
+import be.quodlibet.boxable.utils.PDStreamUtils;
 
 public class TableTest {
-
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> Header Row </li>
+ * <li> Column spanning </li>
+ * <li> Image in cell </li>
+ * <li> Coloured Cells </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void Sample1() throws IOException {
 
@@ -177,7 +194,20 @@ public class TableTest {
 
 		return facts;
 	}
-
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> Repeating header row on new pages </li>
+ * <li> Header Row </li>
+ * <li> Column spanning </li>
+ * <li> Image in cell </li>
+ * <li> Coloured Cells </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest2() throws IOException {
 
@@ -294,13 +324,16 @@ public class TableTest {
 
 	}
 
-	/**
-	 * <p>
-	 * Sample test for text rotation
-	 * </p>
-	 *
-	 * @throws IOException
-	 */
+/**
+ * <p>
+ * Test for a table using the following features : 
+ * <ul>
+ * <li> Text Rotation </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest3() throws IOException {
 		// Set margins
@@ -367,13 +400,16 @@ public class TableTest {
 		doc.close();
 	}
 
-	/**
-	 * <p>
-	 * Multiple header rows in the table
-	 * </p>
-	 *
-	 * @throws IOException
-	 */
+/**
+ * <p>
+ * Test for a table using the following features : 
+ * <ul>
+ * <li> Multiple header rows in a table </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest4() throws IOException {
 
@@ -493,7 +529,16 @@ public class TableTest {
 		doc.close();
 
 	}
-
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> html in cells </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest5() throws IOException {
 
@@ -552,7 +597,16 @@ public class TableTest {
 		doc.save(file);
 		doc.close();
 	}
-
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> text wrapping inside a cell </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest6() throws IOException {
 
@@ -596,7 +650,16 @@ public class TableTest {
 		doc.save(file);
 		doc.close();
 	}
-
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> vertical alignment inside a cell </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest7() throws IOException {
 
@@ -658,7 +721,17 @@ public class TableTest {
 		doc.save(file);
 		doc.close();
 	}
-
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> &lt; and &gt; rendering </li>
+ * <li> vertical alignment inside a cell</li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest8() throws IOException {
 		// Set margins
@@ -701,7 +774,6 @@ public class TableTest {
 		cell = additionArow.createCell(40f, "Added Text From Document");
 
 		cell.setFontSize(6);
-
 		table.draw();
 
 		// Save the document
@@ -711,7 +783,16 @@ public class TableTest {
 		doc.save(file);
 		doc.close();
 	}
-
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> &lt; and &gt; and | rendering </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
 	@Test
 	public void SampleTest9() throws IOException {
 		List<List<? extends Object>> table = new ArrayList<>();
@@ -768,77 +849,7 @@ public class TableTest {
 			document.close();
 		}
 	}
-
-	@Test
-	public void MultilineSampleTest() throws IOException {
-		List<List<? extends Object>> table = new ArrayList<>();
-
-		List<String> tableHeader = new ArrayList<>();
-		tableHeader.add("Multi Line \nHeader");
-		tableHeader.add("  ");
-		tableHeader.add("Singel Line Header");
-
-		table.add(tableHeader);
-
-		List<String> row1 = new ArrayList<>();
-		row1.add("Normal line column 1");
-		row1.add("Normal line column 2");
-		row1.add("Normal line column 3");
-		table.add(row1);
-
-		List<String> row2 = new ArrayList<>();
-		row2.add("Multi line \ncolumn 1");
-		row2.add("Normal line column 2");
-		row2.add("Normal line column 3");
-		table.add(row2);
-
-		List<String> row3 = new ArrayList<>();
-		row3.add("Normal line column 1");
-		row3.add("Multi line \ncolumn 2");
-		row3.add("Normal line column 3");
-		table.add(row3);
-
-		List<String> row4 = new ArrayList<>();
-		row4.add("Normal line column 1");
-		row4.add("Normal line column 2");
-		row4.add("Multi line \ncolumn 3");
-		table.add(row4);
-
-		List<String> row5 = new ArrayList<>();
-		row5.add("Multi line \ncolumn 1");
-		row5.add("Multi line \ncolumn 2");
-		row5.add("Multi line \ncolumn 3");
-		table.add(row5);
-
-
-		int startNewPageY = 700;
-		int bottomMargin = 100;
-		int tableWidth = 500;
-		int leftMargin = 25;
-
-		PDDocument document = new PDDocument();
-		PDPage currentPage = new PDPage();
-		document.addPage(currentPage);
-		PDPageContentStream contentStream = new PDPageContentStream(document, currentPage);
-
-		BaseTable dataTable = new BaseTable(700, startNewPageY, bottomMargin, tableWidth, leftMargin, document,
-				currentPage, true, true);
-		DataTable t = new DataTable(dataTable, currentPage, Arrays.asList(1f,1f,1f));
-		t.addListToTable(table, DataTable.HASHEADER);
-		dataTable.draw();
-
-		contentStream.close();
-
-		try {
-			File file = new File("target/MultilineSample.pdf");
-			System.out.println("Sample file saved at : " + file.getAbsolutePath());
-			Files.createParentDirs(file);
-			document.save(file);
-		} finally {
-			document.close();
-		}
-	}
-
+	
 	@Test
 	public void lineSpacingTest() throws IOException {
 
@@ -931,7 +942,18 @@ public class TableTest {
 		doc.save(file);
 		doc.close();
 	}
-    
+ /**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> Ordered Lists in Cells </li>
+ * <li> Unordered Lists in Cells </li>
+ * <li> Nested Lists in Cells </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
     @Test
     public void IncorrectHTMLListNesting() throws IOException {
 
@@ -954,8 +976,8 @@ public class TableTest {
 
         //Create Header row
         Row<PDPage> row = table.createRow(15f);
-        row.createCell((100 / 3f), "<ol><li>a</li><ol><li>b1</li><li>b2</li><ol><li>c1</li><li>c2 hello hello hello hello hello hello hello hello hello hello hello </li><li>c3</li><li>c4 hello hello hello hello hello hello hello hello hello hello</li></ol><li>b3</li></ol><li>hello</li><li>hello</li><li>hello</li><li>hello</li><li>hello</li></ol>", HorizontalAlignment.get("left"), VerticalAlignment.get("top"));
-        row.createCell((100 / 3f), "<ul><li>a</li><ul><li>b1</li><li>b2</li><ul><li>c1</li><li>c2 hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello </li><li>c3</li><li>c4</li></ul><li>b3</li></ul><li>hello</li><li>hello</li><li>hello</li><li>hello</li></ul>", HorizontalAlignment.get("left"), VerticalAlignment.get("top"));
+        Cell<PDPage> cell = row.createCell((100 / 3f), "<ol><li>a</li><ol><li>b1</li><li>b2</li><ol><li>c1</li><li>c2 hello hello hello hello hello hello hello hello hello hello hello </li><li>c3</li><li>c4 hello hello hello hello hello hello hello hello hello hello</li></ol><li>b3</li></ol><li>hello</li><li>hello</li><li>hello</li><li>hello</li><li>hello</li></ol>", HorizontalAlignment.get("left"), VerticalAlignment.get("top"));
+        Cell<PDPage> cell2 = row.createCell((100 / 3f), "<ul><li>a</li><ul><li>b1</li><li>b2</li><ul><li>c1</li><li>c2 hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello </li><li>c3</li><li>c4</li></ul><li>b3</li></ul><li>hello</li><li>hello</li><li>hello</li><li>hello</li></ul>", HorizontalAlignment.get("left"), VerticalAlignment.get("top"));
         table.draw();
 
         //Save the document
@@ -965,6 +987,190 @@ public class TableTest {
         doc.save(file);
         doc.close();
     }
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> html table rendering inside cell </li>
+ * <li> vertical alignment inside a cell</li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */
+	@Test
+	public void SampleTest10() throws IOException {
+
+		// Set margins
+		float margin = 10;
+
+		// Initialize Document
+		PDDocument doc = new PDDocument();
+		PDPage page = addNewPage(doc);
+
+		// Initialize table
+		float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
+		float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+		boolean drawContent = true;
+		boolean drawLines = true;
+		float yStart = yStartNewPage;
+		float pageBottomMargin = 70;
+		float pageTopMargin = 2*margin;
+		BaseTable table = new BaseTable(yStart, yStartNewPage, pageBottomMargin, tableWidth, margin, doc, page, drawLines,
+				drawContent);
+
+		// set default line spacing for entire table
+		table.setLineSpacing(1.5f);
+
+		// first row (header row)
+		Row<PDPage> row = table.createRow(10f);
+
+		Cell<PDPage> cell4 = row.createCell((100 / 3f),
+				"header cell I.",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
+		cell4.setFontSize(6);
+		
+		Cell<PDPage> cell5 = row.createCell((100 / 3f),
+				"header cell II.",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+		cell5.setFontSize(6);
+		
+		Cell<PDPage> cell6 = row.createCell((100 / 3f), "header cell III.", HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+		cell6.setFontSize(6);
+		table.addHeaderRow(row);
+		
+		// keep track of y position
+		yStart -= row.getHeight();
+		
+		Row<PDPage> row2 = table.createRow(10f);
+
+		Cell<PDPage> cell = row2.createCell((100 / 3f),
+				"<p>SINGLE SPACING</p><p>Integer eget elit vitae est feugiat laoreet. <b>Nam vitae ex commodo, euismod risus in, sodales dolor. Mauris condimentum urna neque, non condimentum odio</b> posuere a. Aenean nisl ex, semper eu malesuada sit amet, luctus nec enim. <br>Pellentesque eu ultrices magna, non porta dolor. Fus<b><i>ce eu neque nulla. Curabitur eu eros tristique leo efficitur fringilla sit amet sed neque. Aliquam</i></b> a tempor enim. Praesent pellentesque volutpat dolor, non rhoncus est posuere id. Aenean nunc purus, gravida at mauris et, pretium volutpat nisl. Mauris lacus urna, sodales ac eros in, mollis scelerisque neque.</p> Unordered List <ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
+		cell.setFontSize(6);
+
+		Cell<PDPage> cell2 = row2.createCell((100 / 3f),
+				"<p>SINGLE SPACING</p><p>Proin dui dolor, lacinia at dui at, placerat ullamcorper arcu. Sed auctor sagittis elit, at eleifend ex aliquet ut. Duis lobortis est nec placerat condimentum. Aliquam erat volutpat. In a sem massa. Phasellus eget tortor iaculis, condimentum turpis a, sodales lorem. Aenean egestas congue ex<i> eu condimentum. Fusce sed</i> fringilla lorem. Vestibulum luctus ni<b>si ac turpis congue, vitae pharetra lorem suscipit.</b></p>Ordered List <ol><li>Item 1</li><li>Item 2</li><li>Item 3</li></ol>",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+		cell2.setFontSize(6);
+
+		Cell<PDPage> cell3 = row2.createTableCell((100 / 3f),
+				"<table><tr><td>Hello Hello Hello Hello Hello Hello Hello it's me</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1 b1 b1 b1 b1 b1 b1 b1 </td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr></table>",
+				doc, page, yStart, pageBottomMargin, margin);
+		cell3.setFontSize(6);
+
+		// keep track of y position
+		yStart -= row.getHeight();
+		
+		Row<PDPage> row3 = table.createRow(10f);
+
+		Cell<PDPage> cell7 = row3.createCell((100 / 3f),
+				"<p>SINGLE SPACING</p><p>Integer eget elit vitae est feugiat laoreet. <b>Nam vitae ex commodo, euismod risus in, sodales dolor. Mauris condimentum urna neque, non condimentum odio</b> posuere a. Aenean nisl ex, semper eu malesuada sit amet, luctus nec enim. <br>Pellentesque eu ultrices magna, non porta dolor. Fus<b><i>ce eu neque nulla. Curabitur eu eros tristique leo efficitur fringilla sit amet sed neque. Aliquam</i></b> a tempor enim. Praesent pellentesque volutpat dolor, non rhoncus est posuere id. Aenean nunc purus, gravida at mauris et, pretium volutpat nisl. Mauris lacus urna, sodales ac eros in, mollis scelerisque neque.</p> Unordered List <ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
+		cell7.setFontSize(6);
+		
+		Cell<PDPage> cell8 = row3.createCell((100 / 3f),
+				"<p>SINGLE SPACING</p><p>Integer eget elit vitae est feugiat laoreet. <b>Nam vitae ex commodo, euismod risus in, sodales dolor. Mauris condimentum urna neque, non condimentum odio</b> posuere a. Aenean nisl ex, semper eu malesuada sit amet, luctus nec enim. <br>Pellentesque eu ultrices magna, non porta dolor. Fus<b><i>ce eu neque nulla. Curabitur eu eros tristique leo efficitur fringilla sit amet sed neque. Aliquam</i></b> a tempor enim. Praesent pellentesque volutpat dolor, non rhoncus est posuere id. Aenean nunc purus, gravida at mauris et, pretium volutpat nisl. Mauris lacus urna, sodales ac eros in, mollis scelerisque neque.</p> Unordered List <ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+		cell8.setFontSize(6);
+		
+		Cell<PDPage> cell9 = row3.createCell((100 / 3f), "hello 3", HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+		cell9.setFontSize(6);
+		
+		// keep track of y position
+		yStart -= row3.getHeight();
+		
+		// fourth row that actually breaks first page with big inner table 
+		Row<PDPage> row4 = table.createRow(10f);
+		Cell<PDPage> cell10 = row4.createCell((100 / 3f),
+				"<p>SINGLE SPACING</p><p>Integer eget elit vitae est feugiat laoreet. <b>Nam vitae ex commodo, euismod risus in, sodales dolor. Mauris condimentum urna neque, non condimentum odio</b> posuere a. Aenean nisl ex, semper eu malesuada sit amet, luctus nec enim. <br>Pellentesque eu ultrices magna, non porta dolor. Fus<b><i>ce eu neque nulla. Curabitur eu eros tristique leo efficitur fringilla sit amet sed neque. Aliquam</i></b> a tempor enim. Praesent pellentesque volutpat dolor, non rhoncus est posuere id. Aenean nunc purus, gravida at mauris et, pretium volutpat nisl. Mauris lacus urna, sodales ac eros in, mollis scelerisque neque.</p> Unordered List <ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
+		cell10.setFontSize(6);
+
+		Cell<PDPage> cell11 = row4.createCell((100 / 3f),
+				"<p>SINGLE SPACING</p><p>Proin dui dolor, lacinia at dui at, placerat ullamcorper arcu. Sed auctor sagittis elit, at eleifend ex aliquet ut. Duis lobortis est nec placerat condimentum. Aliquam erat volutpat. In a sem massa. Phasellus eget tortor iaculis, condimentum turpis a, sodales lorem. Aenean egestas congue ex<i> eu condimentum. Fusce sed</i> fringilla lorem. Vestibulum luctus ni<b>si ac turpis congue, vitae pharetra lorem suscipit.</b></p>Ordered List <ol><li>Item 1</li><li>Item 2</li><li>Item 3</li></ol>",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("middle"));
+		cell11.setFontSize(6);
+
+		Cell<PDPage> cell12 = row4.createTableCell((100 / 3f),
+				"<table><tr><th colspan=\"5\">Header Colspan 5</th></tr><tr><td colspan=\"2\"><i>Italic Colspan 2</i></td><td>no colspan</td><td colspan=\"2\"><b>Bold Colspan 2</b></td></tr><tr><td>a1</td><td>a2</td><td>a3</td><td>a4</td><td>a5</td></tr></table>",
+				doc, page, yStart, pageBottomMargin, pageTopMargin);
+		cell12.setFontSize(6);
+		
+		table.draw();
+
+		// Save the document
+		File file = new File("target/BoxableSample10.pdf");
+		System.out.println("Sample file saved at : " + file.getAbsolutePath());
+		Files.createParentDirs(file);
+		doc.save(file);
+		doc.close();
+	}
+/**
+ * <p>
+ * Test for a  table using the following features : 
+ * <ul>
+ * <li> borderless table </li>
+ * </ul>
+ * </p>
+ *
+ * @throws IOException
+ */	
+	@Test
+	public void SampleTest11() throws IOException {
+		// Set margins
+		float margin = 10;
+
+		// Initialize Document
+		PDDocument doc = new PDDocument();
+		PDPage page = new PDPage();
+		doc.addPage(page);
+
+		// Initialize table
+		float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
+		float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+		boolean drawContent = true;
+		boolean drawLines = true;
+		float yStart = yStartNewPage;
+		float bottomMargin = 70;
+
+		// draw page title
+		PageContentStreamOptimized cos = new PageContentStreamOptimized(new PDPageContentStream(doc, page));
+		PDStreamUtils.write(cos, "Welcome to your first borderless table", PDType1Font.HELVETICA_BOLD, 14, 15, yStart,
+				Color.BLACK);
+		cos.close();
+
+		yStart -= FontUtils.getHeight(PDType1Font.HELVETICA_BOLD, 14) + 15;
+		
+		BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, drawLines,
+				drawContent);
+
+		// Create Header row
+		Row<PDPage> row = table.createRow(15f);
+		Cell<PDPage> cell = row.createCell(40f, "It's amazing what you can do with a little love in your heart. Maybe we got a few little happy bushes here, just covered with snow. Look around, look at what we have. Beauty is everywhere, you only have to look to see it. Anything you want to do you can do here.",
+				HorizontalAlignment.get("center"), VerticalAlignment.get("top"));
+		cell = row.createCell(20f, "Let your imagination be your guide. You could sit here for weeks with your one hair brush trying to do that - or you could do it with one stroke with an almighty brush. Let's get wild today. As trees get older they lose their chlorophyll.");
+		cell = row.createCell(40f, "Fluff it up a little and hypnotize it. Every highlight needs it's own personal shadow. If we're gonna walk though the woods, we need a little path. All kinds of happy little splashes. Of course he's a happy little stone, cause we don't have any other kind. In your world you have total and absolute power.");
+
+		table.addHeaderRow(row);
+
+
+		Row<PDPage> additionArow = table.createRow(15f);
+		cell = additionArow.createCell(40f, "If it's not what you want - stop and change it. Don't just keep going and expect it will get better. Nothing wrong with washing your brush. Remember how free clouds are. They just lay around in the sky all day long", HorizontalAlignment.get("center"),
+				VerticalAlignment.get("top"));
+		cell = additionArow.createCell(20f, "You are only limited by your imagination. Son of a gun. Let's have a happy little tree in here. The secret to doing anything is believing that you can do it. Anything that you believe you can do strong enough, you can do. Anything. As long as you believe.");
+		cell = additionArow.createCell(40f, "Everybody's different. Trees are different. Let them all be individuals. That's crazy. Even trees need a friend. We all need friends. Just go back and put one little more happy tree in there.");
+
+		table.removeAllBorders(true);
+		table.draw();
+
+		// Save the document
+		File file = new File("target/BoxableSample11.pdf");
+		System.out.println("Sample file saved at : " + file.getAbsolutePath());
+		Files.createParentDirs(file);
+		doc.save(file);
+		doc.close();
+	}
 
 	private static PDPage addNewPage(PDDocument doc) {
 		PDPage page = new PDPage();

@@ -1,11 +1,10 @@
 package be.quodlibet.boxable;
 
-import java.io.IOException;
-
+import be.quodlibet.boxable.utils.FontUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 
-import be.quodlibet.boxable.utils.FontUtils;
+import java.io.IOException;
 
 /**
  * Created by dgautier on 3/19/2015.

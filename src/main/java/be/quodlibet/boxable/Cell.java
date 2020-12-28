@@ -6,11 +6,13 @@ package be.quodlibet.boxable;
 
 import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.text.WrappingFunction;
-import java.awt.Color;
-import java.io.IOException;
+import be.quodlibet.boxable.utils.FontUtils;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+
+import java.awt.*;
+import java.io.IOException;
 
 public class Cell<T extends PDPage> {
 
@@ -102,6 +104,11 @@ public class Cell<T extends PDPage> {
 		if (getWidth() > row.getWidth()) {
 			throw new IllegalArgumentException(
 					"Cell Width=" + getWidth() + " can't be bigger than row width=" + row.getWidth());
+		}
+		//check if we have new default font
+		if(!FontUtils.getDefaultfonts().isEmpty()){
+			font = FontUtils.getDefaultfonts().get("font");
+			fontBold = FontUtils.getDefaultfonts().get("fontBold");
 		}
 		this.text = text == null ? "" : text;
 		this.align = align;
@@ -675,7 +682,7 @@ public class Cell<T extends PDPage> {
 	 *
 	 * @param sourceCell Source {@link Cell} from which cell style will be copied.
 	 */
-	public void copyCellStyle(Cell<PDPage> sourceCell) {
+	public void copyCellStyle(Cell sourceCell) {
 		Boolean leftBorder = this.leftBorderStyle == null;
 		setBorderStyle(sourceCell.getTopBorder());
 		if (leftBorder) {
@@ -699,7 +706,7 @@ public class Cell<T extends PDPage> {
 	 * @param sourceCell Source {@link Cell} which will be used for style comparation
 	 * @return boolean if source cell has the same style
 	 */
-	public Boolean hasSameStyle(Cell<PDPage> sourceCell) {
+	public Boolean hasSameStyle(Cell sourceCell) {
 		if (!sourceCell.getTopBorder().equals(getTopBorder())) {
 			return false;
 		}

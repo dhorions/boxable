@@ -1,13 +1,12 @@
 package be.quodlibet.boxable.utils;
 
-import java.awt.Dimension;
+import be.quodlibet.boxable.image.Image;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
-import javax.imageio.ImageIO;
-
-import be.quodlibet.boxable.image.Image;
 
 /**
  * <p>

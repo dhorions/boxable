@@ -1,7 +1,6 @@
 package be.quodlibet.boxable.line;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
+import java.awt.*;
 import java.util.Objects;
 
 /**

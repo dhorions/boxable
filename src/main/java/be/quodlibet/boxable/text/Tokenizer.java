@@ -7,32 +7,81 @@ import java.util.Stack;
 
 public final class Tokenizer {
 
+	private static final Token OPEN_TAG_I = new Token(TokenType.OPEN_TAG, "i");
+	private static final Token OPEN_TAG_B = new Token(TokenType.OPEN_TAG, "b");
+	private static final Token OPEN_TAG_OL = new Token(TokenType.OPEN_TAG, "ol");
+	private static final Token OPEN_TAG_UL = new Token(TokenType.OPEN_TAG, "ul");
+	private static final Token CLOSE_TAG_I = new Token(TokenType.CLOSE_TAG, "i");
+	private static final Token CLOSE_TAG_B = new Token(TokenType.CLOSE_TAG, "b");
+	private static final Token CLOSE_TAG_OL = new Token(TokenType.CLOSE_TAG, "ol");
+	private static final Token CLOSE_TAG_UL = new Token(TokenType.CLOSE_TAG, "ul");
+	private static final Token CLOSE_TAG_P = new Token(TokenType.CLOSE_TAG, "p");
+	private static final Token CLOSE_TAG_LI = new Token(TokenType.CLOSE_TAG, "li");
+	private static final Token POSSIBLE_WRAP_POINT = new Token(TokenType.POSSIBLE_WRAP_POINT, "");
+	private static final Token WRAP_POINT_P = new Token(TokenType.WRAP_POINT, "p");
+	private static final Token WRAP_POINT_LI = new Token(TokenType.WRAP_POINT, "li");
+	private static final Token WRAP_POINT_BR = new Token(TokenType.WRAP_POINT, "br");
+
 	private Tokenizer() {
+	}
+
+	private static boolean isWrapPointChar(char ch) {
+		return
+				ch == ' '  ||
+				ch == ','  ||
+				ch == '.'  ||
+				ch == '-'  ||
+				ch == '@'  ||
+				ch == ':'  ||
+				ch == ';'  ||
+				ch == '\n' ||
+				ch == '\t' ||
+				ch == '\r' ||
+				ch == '\f' ||
+				ch == '\u000B';
+	}
+
+	private static Stack<Integer> findWrapPoints(String text) {
+		Stack<Integer> result = new Stack<>();
+		result.push(text.length());
+		for (int i = text.length() - 2; i >= 0; i--) {
+			if (isWrapPointChar(text.charAt(i))) {
+				result.push(i + 1);
+			}
+		}
+		return result;
+	}
+
+	private static Stack<Integer> findWrapPointsWithFunction(String text, WrappingFunction wrappingFunction) {
+		final String[] split = wrappingFunction.getLines(text);
+		int textIndex = text.length();
+		final Stack<Integer> possibleWrapPoints = new Stack<>();
+		possibleWrapPoints.push(textIndex);
+		for (int i = split.length - 1; i > 0; i--) {
+			final int splitLength = split[i].length();
+			possibleWrapPoints.push(textIndex - splitLength);
+			textIndex -= splitLength;
+		}
+		return possibleWrapPoints;
 	}
 
 	public static List<Token> tokenize(final String text, final WrappingFunction wrappingFunction) {
 		final List<Token> tokens = new ArrayList<>();
 		if (text != null) {
-			final String[] split = wrappingFunction.getLines(text);
-			int textIndex = text.length();
-			final Stack<Integer> possibleWrapPoints = new Stack<>();
-			possibleWrapPoints.push(textIndex);
-			for (int i = split.length - 1; i > 0; i--) {
-				final int splitLength = split[i].length();
-				possibleWrapPoints.push(textIndex - splitLength);
-				textIndex -= splitLength;
-			}
-			textIndex = 0;
+			final Stack<Integer> possibleWrapPoints = wrappingFunction == null
+					? findWrapPoints(text)
+					: findWrapPointsWithFunction(text, wrappingFunction);
+			int textIndex = 0;
 			final StringBuilder sb = new StringBuilder();
 			// taking first wrap point
 			Integer currentWrapPoint = possibleWrapPoints.pop();
 			while (textIndex < text.length()) {
 				if (textIndex == currentWrapPoint) {
 					if (sb.length() > 0) {
-						tokens.add(new Token(TokenType.TEXT, sb.toString()));
+						tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 						sb.delete(0, sb.length());
 					}
-					tokens.add(new Token(TokenType.POSSIBLE_WRAP_POINT, "" + textIndex));
+					tokens.add(POSSIBLE_WRAP_POINT);
 					currentWrapPoint = possibleWrapPoints.pop();
 				}
 				final char c = text.charAt(textIndex);
@@ -45,21 +94,21 @@ public final class Tokenizer {
 						if ('i' == lookahead1 && '>' == lookahead2) {
 							// <i>
 							if (sb.length() > 0) {
-								tokens.add(new Token(TokenType.TEXT, sb.toString()));
+								tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 								// clean string builder
 								sb.delete(0, sb.length());
 							}
-							tokens.add(new Token(TokenType.OPEN_TAG, "i"));
+							tokens.add(OPEN_TAG_I);
 							textIndex += 2;
 							consumed = true;
 						} else if ('b' == lookahead1 && '>' == lookahead2) {
 							// <b>
 							if (sb.length() > 0) {
-								tokens.add(new Token(TokenType.TEXT, sb.toString()));
+								tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 								// clean string builder
 								sb.delete(0, sb.length());
 							}
-							tokens.add(new Token(TokenType.OPEN_TAG, "b"));
+							tokens.add(OPEN_TAG_B);
 							textIndex += 2;
 							consumed = true;
 						} else if ('b' == lookahead1 && 'r' == lookahead2) {
@@ -68,11 +117,11 @@ public final class Tokenizer {
 								final char lookahead3 = text.charAt(textIndex + 3);
 								if (lookahead3 == '>') {
 									if (sb.length() > 0) {
-										tokens.add(new Token(TokenType.TEXT, sb.toString()));
+										tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 										// clean string builder
 										sb.delete(0, sb.length());
 									}
-									tokens.add(new Token(TokenType.WRAP_POINT, "br"));
+									tokens.add(WRAP_POINT_BR);
 									// normal notation <br>
 									textIndex += 3;
 									consumed = true;
@@ -81,11 +130,11 @@ public final class Tokenizer {
 									final char lookahead4 = text.charAt(textIndex + 4);
 									if (lookahead3 == '/' && lookahead4 == '>') {
 										if (sb.length() > 0) {
-											tokens.add(new Token(TokenType.TEXT, sb.toString()));
+											tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 											// clean string builder
 											sb.delete(0, sb.length());
 										}
-										tokens.add(new Token(TokenType.WRAP_POINT, "br"));
+										tokens.add(WRAP_POINT_BR);
 										// normal notation <br/>
 										textIndex += 4;
 										consumed = true;
@@ -93,11 +142,11 @@ public final class Tokenizer {
 										final char lookahead5 = text.charAt(textIndex + 5);
 										if (lookahead3 == ' ' && lookahead4 == '/' && lookahead5 == '>') {
 											if (sb.length() > 0) {
-												tokens.add(new Token(TokenType.TEXT, sb.toString()));
+												tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 												// clean string builder
 												sb.delete(0, sb.length());
 											}
-											tokens.add(new Token(TokenType.WRAP_POINT, "br"));
+											tokens.add(WRAP_POINT_BR);
 											// in case it is notation <br />
 											textIndex += 5;
 											consumed = true;
@@ -108,11 +157,11 @@ public final class Tokenizer {
 						} else if ('p' == lookahead1 && '>' == lookahead2) {
 							// <p>
 							if (sb.length() > 0) {
-								tokens.add(new Token(TokenType.TEXT, sb.toString()));
+								tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 								// clean string builder
 								sb.delete(0, sb.length());
 							}
-							tokens.add(new Token(TokenType.WRAP_POINT, "p"));
+							tokens.add(WRAP_POINT_P);
 							textIndex += 2;
 							consumed = true;
 						} else if ('o' == lookahead1 && 'l' == lookahead2) {
@@ -121,11 +170,11 @@ public final class Tokenizer {
 								final char lookahead3 = text.charAt(textIndex + 3);
 								if (lookahead3 == '>') {
 									if (sb.length() > 0) {
-										tokens.add(new Token(TokenType.TEXT, sb.toString()));
+										tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 										// clean string builder
 										sb.delete(0, sb.length());
 									}
-									tokens.add(new Token(TokenType.OPEN_TAG, "ol"));
+									tokens.add(OPEN_TAG_OL);
 									textIndex += 3;
 									consumed = true;
 								}
@@ -136,11 +185,11 @@ public final class Tokenizer {
 								final char lookahead3 = text.charAt(textIndex + 3);
 								if (lookahead3 == '>') {
 									if (sb.length() > 0) {
-										tokens.add(new Token(TokenType.TEXT, sb.toString()));
+										tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 										// clean string builder
 										sb.delete(0, sb.length());
 									}
-									tokens.add(new Token(TokenType.OPEN_TAG, "ul"));
+									tokens.add(OPEN_TAG_UL);
 									textIndex += 3;
 									consumed = true;
 								}
@@ -151,11 +200,11 @@ public final class Tokenizer {
 								final char lookahead3 = text.charAt(textIndex + 3);
 								if (lookahead3 == '>') {
 									if (sb.length() > 0) {
-										tokens.add(new Token(TokenType.TEXT, sb.toString()));
+										tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 										// clean string builder
 										sb.delete(0, sb.length());
 									}
-									tokens.add(new Token(TokenType.WRAP_POINT, "li"));
+									tokens.add(WRAP_POINT_LI);
 									textIndex += 3;
 									consumed = true;
 								}
@@ -168,28 +217,28 @@ public final class Tokenizer {
 									if ('i' == lookahead2) {
 										// </i>
 										if (sb.length() > 0) {
-											tokens.add(new Token(TokenType.TEXT, sb.toString()));
+											tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 											sb.delete(0, sb.length());
 										}
-										tokens.add(new Token(TokenType.CLOSE_TAG, "i"));
+										tokens.add(CLOSE_TAG_I);
 										textIndex += 3;
 										consumed = true;
 									} else if ('b' == lookahead2) {
 										// </b>
 										if (sb.length() > 0) {
-											tokens.add(new Token(TokenType.TEXT, sb.toString()));
+											tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 											sb.delete(0, sb.length());
 										}
-										tokens.add(new Token(TokenType.CLOSE_TAG, "b"));
+										tokens.add(CLOSE_TAG_B);
 										textIndex += 3;
 										consumed = true;
 									} else if ('p' == lookahead2) {
 										//</p>
 										if (sb.length() > 0) {
-											tokens.add(new Token(TokenType.TEXT, sb.toString()));
+											tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 											sb.delete(0, sb.length());
 										}
-										tokens.add(new Token(TokenType.CLOSE_TAG, "p"));
+										tokens.add(CLOSE_TAG_P);
 										textIndex += 3;
 										consumed = true;
 									}
@@ -203,19 +252,19 @@ public final class Tokenizer {
 									if ('o' == lookahead2 && '>' == lookahead4) {
 										// </ol>
 										if (sb.length() > 0) {
-											tokens.add(new Token(TokenType.TEXT, sb.toString()));
+											tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 											sb.delete(0, sb.length());
 										}
-										tokens.add(new Token(TokenType.CLOSE_TAG, "ol"));
+										tokens.add(CLOSE_TAG_OL);
 										textIndex += 4;
 										consumed = true;
 									} else if ('u' == lookahead2 && '>' == lookahead4) {
 										// </ul>
 										if (sb.length() > 0) {
-											tokens.add(new Token(TokenType.TEXT, sb.toString()));
+											tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 											sb.delete(0, sb.length());
 										}
-										tokens.add(new Token(TokenType.CLOSE_TAG, "ul"));
+										tokens.add(CLOSE_TAG_UL);
 										textIndex += 4;
 										consumed = true;
 									}
@@ -223,10 +272,10 @@ public final class Tokenizer {
 									// </li>
 									if ('>' == lookahead4) {
 										if (sb.length() > 0) {
-											tokens.add(new Token(TokenType.TEXT, sb.toString()));
+											tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 											sb.delete(0, sb.length());
 										}
-										tokens.add(new Token(TokenType.CLOSE_TAG, "li"));
+										tokens.add(CLOSE_TAG_LI);
 										textIndex += 4;
 										consumed = true;
 									}
@@ -247,10 +296,10 @@ public final class Tokenizer {
 			}
 
 			if (sb.length() > 0) {
-				tokens.add(new Token(TokenType.TEXT, sb.toString()));
+				tokens.add(Token.text(TokenType.TEXT, sb.toString()));
 				sb.delete(0, sb.length());
 			}
-			tokens.add(new Token(TokenType.POSSIBLE_WRAP_POINT, "" + textIndex));
+			tokens.add(POSSIBLE_WRAP_POINT);
 
 			return tokens;
 		} else
