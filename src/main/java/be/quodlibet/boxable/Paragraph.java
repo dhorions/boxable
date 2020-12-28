@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 

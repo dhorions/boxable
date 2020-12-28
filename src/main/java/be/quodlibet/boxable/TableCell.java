@@ -1,8 +1,9 @@
 package be.quodlibet.boxable;
 
-import be.quodlibet.boxable.text.Token;
-import be.quodlibet.boxable.utils.FontUtils;
-import be.quodlibet.boxable.utils.PDStreamUtils;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
 import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -16,9 +17,9 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import be.quodlibet.boxable.text.Token;
+import be.quodlibet.boxable.utils.FontUtils;
+import be.quodlibet.boxable.utils.PDStreamUtils;
 
 public class TableCell<T extends PDPage> extends Cell<T> {
 

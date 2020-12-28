@@ -5,7 +5,7 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.util.Matrix;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 import java.util.Arrays;
 

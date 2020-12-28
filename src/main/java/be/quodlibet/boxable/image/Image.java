@@ -2,13 +2,12 @@ package be.quodlibet.boxable.image;
 
 import be.quodlibet.boxable.utils.ImageUtils;
 import be.quodlibet.boxable.utils.PageContentStreamOptimized;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 public class Image {
 

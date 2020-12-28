@@ -20,3 +20,5 @@ target
 .gradle
 .metadata
 settings.xml
+nbactions.xml
+nb-configuration.xml

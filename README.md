@@ -53,14 +53,14 @@ If you want to help, please let us know  [here](https://github.com/dhorions/boxa
 
 # Usage examples
 
-## Create a pdf from a csv file
+## Create a pdf from a csv file 
 
 ```java
 String data = readData("https://s3.amazonaws.com/misc.quodlibet.be/Boxable/Eurostat_Immigration_Applications.csv");
-        BaseTable pdfTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,true);
-        DataTable t = new DataTable(pdfTable, page);
-        t.addCsvToTable(data, DataTable.HASHEADER, ';');
-        pdfTable.draw();
+BaseTable pdfTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,true);
+DataTable t = new DataTable(pdfTable, page);
+t.addCsvToTable(data, DataTable.HASHEADER, ';');
+pdfTable.draw();
 ```
 Output : [CSVExamplePortrait.pdf](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/CSVexamplePortrait.pdf)
 
@@ -68,16 +68,16 @@ Output : [CSVExamplePortrait.pdf](https://s3.amazonaws.com/misc.quodlibet.be/Box
 
 ```java
 List<List> data = new ArrayList();
-        data.add(new ArrayList<>(
-        Arrays.asList("Column One", "Column Two", "Column Three", "Column Four", "Column Five")));
-        for (int i = 1; i <= 100; i++) {
-        data.add(new ArrayList<>(
-        Arrays.asList("Row " + i + " Col One", "Row " + i + " Col Two", "Row " + i + " Col Three", "Row " + i + " Col Four", "Row " + i + " Col Five")));
-        }
-        BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, true);
-        DataTable t = new DataTable(dataTable, page);
-        t.addListToTable(data, DataTable.HASHEADER);
-        dataTable.draw();
+data.add(new ArrayList<>(
+               Arrays.asList("Column One", "Column Two", "Column Three", "Column Four", "Column Five")));
+for (int i = 1; i <= 100; i++) {
+  data.add(new ArrayList<>(
+      Arrays.asList("Row " + i + " Col One", "Row " + i + " Col Two", "Row " + i + " Col Three", "Row " + i + " Col Four", "Row " + i + " Col Five")));
+}
+BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, true);
+DataTable t = new DataTable(dataTable, page);
+t.addListToTable(data, DataTable.HASHEADER);
+dataTable.draw();
 ```
 Output : [ListExampleLandscape.pdf](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/ListExampleLandscape.pdf)
 
@@ -85,25 +85,25 @@ Output : [ListExampleLandscape.pdf](https://s3.amazonaws.com/misc.quodlibet.be/B
 
 ```java
 BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
-        drawContent);
+				drawContent);
 //Create Header row
-        Row<PDPage> headerRow = table.createRow(15f);
-        Cell<PDPage> cell = headerRow.createCell(100, "Awesome Facts About Belgium");
-        cell.setFont(PDType1Font.HELVETICA_BOLD);
-        cell.setFillColor(Color.BLACK);
-        table.addHeaderRow(headerRow);
-        List<String[]> facts = getFacts();
-        for (String[] fact : facts) {
-        Row<PDPage> row = table.createRow(10f);
-        cell = row.createCell((100 / 3.0f) * 2, fact[0] );
-        for (int i = 1; i < fact.length; i++) {
-        cell = row.createCell((100 / 9f), fact[i]);
-        }
-        }
-        table.draw();
+Row<PDPage> headerRow = table.createRow(15f);
+Cell<PDPage> cell = headerRow.createCell(100, "Awesome Facts About Belgium");
+cell.setFont(PDType1Font.HELVETICA_BOLD);
+cell.setFillColor(Color.BLACK);
+table.addHeaderRow(headerRow);
+List<String[]> facts = getFacts();
+for (String[] fact : facts) {
+			Row<PDPage> row = table.createRow(10f);
+			cell = row.createCell((100 / 3.0f) * 2, fact[0] );
+			for (int i = 1; i < fact.length; i++) {
+			   cell = row.createCell((100 / 9f), fact[i]);
+			}
+}
+table.draw();
 ```
 
-Special Thanks to these awesome contributers :
+Special Thanks to these awesome contributers : 
 - [@Vobarian](https://github.com/vobarian)
 - [@Giboow](https://github.com/giboow)
 - [@Ogmios-Voice](https://github.com/ogmios-voice)
