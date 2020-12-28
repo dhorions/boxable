@@ -4,8 +4,6 @@
  */
 package be.quodlibet.boxable;
 
-import be.quodlibet.boxable.line.LineStyle;
-import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;

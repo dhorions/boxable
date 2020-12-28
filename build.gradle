@@ -1,4 +1,4 @@
-task wrapper(type: Wrapper) {
+wrapper {
 	gradleVersion = '2.13'
 }
 
@@ -26,10 +26,11 @@ repositories {
 }
 
 dependencies {
-	compile 'org.apache.pdfbox:pdfbox:2.0.0-RC2'
-	compile 'org.slf4j:slf4j-api:1.7.10'
-	compile 'com.google.guava:guava:18.0'
-	compile 'org.apache.commons:commons-csv:1.2'
+	compile 'org.apache.pdfbox:pdfbox:2.0.3'
+	compile 'org.slf4j:slf4j-api:1.7.21'
+	compile 'com.google.guava:guava:20.0'
+	compile 'org.apache.commons:commons-csv:1.4'
+	compile group: 'org.jsoup', name: 'jsoup', version: '1.9.2'
 	testCompile 'junit:junit:4.12'
 	testCompile 'commons-io:commons-io:2.4'
 }
