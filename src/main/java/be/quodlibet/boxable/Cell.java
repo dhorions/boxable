@@ -4,13 +4,16 @@
  */
 package be.quodlibet.boxable;
 
-import be.quodlibet.boxable.utils.FontUtils;
+import java.awt.Color;
+import java.io.IOException;
+
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
-import java.awt.*;
-import java.io.IOException;
+import be.quodlibet.boxable.line.LineStyle;
+import be.quodlibet.boxable.text.WrappingFunction;
+import be.quodlibet.boxable.utils.FontUtils;
 
 public class Cell<T extends PDPage> {
 
