@@ -2,7 +2,8 @@
 =======
 
 [![Join the chat at https://gitter.im/dhorions/boxable](https://badges.gitter.im/dhorions/boxable.svg)](https://gitter.im/dhorions/boxable?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
+[![Build Status](https://travis-ci.org/dhorions/boxable.svg?branch=master)](https://travis-ci.org/dhorions/boxable)
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5UL3NVLA852MN&source=url)
 
 Boxable is a library that can be used to easily create tables in pdf documents.  It uses the [PDFBox](https://pdfbox.apache.org/) PDF library under the hood.
 
@@ -20,13 +21,26 @@ Boxable is a library that can be used to easily create tables in pdf documents. 
 - rotated text (by 90 degrees)
 - writing text outside tables
 
+#### What is new in version 1.6?
+- performance optimizations by [@Vobarian](https://github.com/vobarian)
+- reduced pdf file output size by  [@Vobarian](https://github.com/vobarian) and  [@Giboow](https://github.com/giboow)
+- fix for infinite loop when header rows were below page bottom margin.  [@Ogmios-Voice](https://github.com/ogmios-voice)
+- added COPYING file [@zaqpiotr](https://github.com/zaqpiotr)
+- Updated pdfbox library to 2.0.21
+- Updated guava library to 29-android
+
+Check PRs:
+[#183](https://github.com/dhorions/boxable/pull/183)
+[#202](https://github.com/dhorions/boxable/pull/202)
+[#190](https://github.com/dhorions/boxable/pull/190)
+
 
 # Maven
 ```xml
 <dependency>
     <groupId>com.github.dhorions</groupId>
     <artifactId>boxable</artifactId>
-    <version>1.4.1</version>
+    <version>1.6</version>
 </dependency>
 ```
 For other build systems, check the [Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22boxable%22).
@@ -39,14 +53,14 @@ If you want to help, please let us know  [here](https://github.com/dhorions/boxa
 
 # Usage examples
 
-## Create a pdf from a csv file 
+## Create a pdf from a csv file
 
 ```java
 String data = readData("https://s3.amazonaws.com/misc.quodlibet.be/Boxable/Eurostat_Immigration_Applications.csv");
-BaseTable pdfTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,true);
-DataTable t = new DataTable(pdfTable, page);
-t.addCsvToTable(data, DataTable.HASHEADER, ';');
-pdfTable.draw();
+        BaseTable pdfTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,true);
+        DataTable t = new DataTable(pdfTable, page);
+        t.addCsvToTable(data, DataTable.HASHEADER, ';');
+        pdfTable.draw();
 ```
 Output : [CSVExamplePortrait.pdf](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/CSVexamplePortrait.pdf)
 
@@ -54,16 +68,16 @@ Output : [CSVExamplePortrait.pdf](https://s3.amazonaws.com/misc.quodlibet.be/Box
 
 ```java
 List<List> data = new ArrayList();
-data.add(new ArrayList<>(
-               Arrays.asList("Column One", "Column Two", "Column Three", "Column Four", "Column Five")));
-for (int i = 1; i <= 100; i++) {
-  data.add(new ArrayList<>(
-               Arrays.asList("Row " + i + " Col One", "Row " + i + " Col Two", "Row " + i + " Col Three", "Row " + i + " Col Four", "Row " + i + " Col Five")));
-BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, true);
-DataTable t = new DataTable(dataTable, page);
-t.addListToTable(data, DataTable.HASHEADER);
-dataTable.draw();
-}
+        data.add(new ArrayList<>(
+        Arrays.asList("Column One", "Column Two", "Column Three", "Column Four", "Column Five")));
+        for (int i = 1; i <= 100; i++) {
+        data.add(new ArrayList<>(
+        Arrays.asList("Row " + i + " Col One", "Row " + i + " Col Two", "Row " + i + " Col Three", "Row " + i + " Col Four", "Row " + i + " Col Five")));
+        }
+        BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, true);
+        DataTable t = new DataTable(dataTable, page);
+        t.addListToTable(data, DataTable.HASHEADER);
+        dataTable.draw();
 ```
 Output : [ListExampleLandscape.pdf](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/ListExampleLandscape.pdf)
 
@@ -71,34 +85,38 @@ Output : [ListExampleLandscape.pdf](https://s3.amazonaws.com/misc.quodlibet.be/B
 
 ```java
 BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
-				drawContent);
+        drawContent);
 //Create Header row
-Row<PDPage> headerRow = table.createRow(15f);
-Cell<PDPage> cell = headerRow.createCell(100, "Awesome Facts About Belgium");
-cell.setFont(PDType1Font.HELVETICA_BOLD);
-cell.setFillColor(Color.BLACK);
-table.addHeaderRow(headerRow);
-List<String[]> facts = getFacts();
-for (String[] fact : facts) {
-			Row<PDPage> row = table.createRow(10f);
-			cell = row.createCell((100 / 3.0f) * 2, fact[0] );
-			for (int i = 1; i < fact.length; i++) {
-			   cell = row.createCell((100 / 9f), fact[i]);
-			}
-}
-table.draw();
+        Row<PDPage> headerRow = table.createRow(15f);
+        Cell<PDPage> cell = headerRow.createCell(100, "Awesome Facts About Belgium");
+        cell.setFont(PDType1Font.HELVETICA_BOLD);
+        cell.setFillColor(Color.BLACK);
+        table.addHeaderRow(headerRow);
+        List<String[]> facts = getFacts();
+        for (String[] fact : facts) {
+        Row<PDPage> row = table.createRow(10f);
+        cell = row.createCell((100 / 3.0f) * 2, fact[0] );
+        for (int i = 1; i < fact.length; i++) {
+        cell = row.createCell((100 / 9f), fact[i]);
+        }
+        }
+        table.draw();
 ```
 
-Special Thanks to these awesome contributers : 
+Special Thanks to these awesome contributers :
+- [@Vobarian](https://github.com/vobarian)
+- [@Giboow](https://github.com/giboow)
+- [@Ogmios-Voice](https://github.com/ogmios-voice)
+- [@zaqpiotr](https://github.com/zaqpiotr)
+- [Frulenzo](https://github.com/Frulenzo)
 - [dgautier](https://github.com/dgautier)
 - [ZeerDonker](https://github.com/ZeerDonker)
-- [Frulenzo](https://github.com/Frulenzo)
 - [dobluth](https://github.com/dobluth)
 - [schmitzhermes](https://github.com/schmitzhermes)
 
 =======
 
-Copyright [2017](Quodlibet.be)
+Copyright [2020](Quodlibet.be)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
