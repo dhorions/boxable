@@ -9,7 +9,7 @@ import be.quodlibet.boxable.Cell;
  *
  * @author Christoph Schemmelmann {@code <CSchemmy@gmx.de>}
  */
-public interface updateCellProperty {
+public interface UpdateCellProperty {
 
 	abstract void updateCellPropertysAtColumn(Cell<PDPage> cell, int column, int row);
 }

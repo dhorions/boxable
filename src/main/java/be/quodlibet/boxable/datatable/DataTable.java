@@ -13,9 +13,9 @@ import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -40,7 +40,7 @@ public class DataTable {
 	private final Cell defaultCellTemplate;
 	private boolean copyFirstColumnCellTemplateoddToEven = false; 
 	private boolean copyLastColumnCellTemplateoddToEven = false;
-	private updateCellProperty updateCellProperty = null; 
+	private UpdateCellProperty updateCellProperty = null;
 
 	/**
 	 * <p>
@@ -54,7 +54,7 @@ public class DataTable {
 	 * @throws IOException  If there is an error releasing resources
 	 */
 	public DataTable(Table table, PDPage page) throws IOException {
-		this(table, page, new ArrayList<>(),null);
+		this(table, page, new ArrayList<Float>(),null);
 	}
 
 	/**
@@ -66,11 +66,11 @@ public class DataTable {
 	 *
 	 * @param table {@link Table}
 	 * @param page {@link PDPage}
-	 * @param updateCellProperty {@link updateCellProperty}
+	 * @param updateCellProperty {@link UpdateCellProperty}
 	 * @throws IOException  If there is an error releasing resources
 	 */
-	public DataTable(Table table, PDPage page, updateCellProperty updateCellProperty) throws IOException {
-		this(table, page, new ArrayList<>(), updateCellProperty);
+	public DataTable(Table table, PDPage page, UpdateCellProperty updateCellProperty) throws IOException {
+		this(table, page, new ArrayList<Float>(), updateCellProperty);
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class DataTable {
 	 *
 	 * @param table {@link Table}
 	 * @param page {@link PDPage}
-	 * @param colWidths {@link List<Float>}
+	 * @param colWidths
 	 * @throws IOException If there is an error releasing resources
 	 */
 	public DataTable(Table table, PDPage page, List<Float> colWidths) throws IOException {
@@ -98,11 +98,11 @@ public class DataTable {
 	 *
 	 * @param table {@link Table}
 	 * @param page {@link PDPage}
-	 * @param colWidths {@link List<Float>}
-	 * @param updateCellProperty {@link updateCellProperty}
+	 * @param colWidths
+	 * @param updateCellProperty {@link UpdateCellProperty}
 	 * @throws IOException If there is an error releasing resources
 	 */
-	public DataTable(Table table, PDPage page, List<Float> colWidths, updateCellProperty updateCellProperty) throws IOException {
+	public DataTable(Table table, PDPage page, List<Float> colWidths, UpdateCellProperty updateCellProperty) throws IOException {
 		this.table = table;
 		this.colWidths = (colWidths.size() == 0) ? null : colWidths;
 		this.updateCellProperty = updateCellProperty;
@@ -152,18 +152,14 @@ public class DataTable {
 		defaultCellTemplate.setTextColor(Color.BLACK);
 		defaultCellTemplate.setFont(PDType1Font.HELVETICA);
 		defaultCellTemplate.setBorderStyle(thinline);
-		dataCellTemplateEvenList.forEach(new Consumer<Cell>() {
-			@Override
-			public void accept(Cell dcte) {
-				dcte.copyCellStyle(defaultCellTemplate);
-			}
-		});
-		dataCellTemplateOddList.forEach(new Consumer<Cell>() {
-			@Override
-			public void accept(Cell dcto) {
-				dcto.copyCellStyle(defaultCellTemplate);
-			}
-		});
+		Iterator<Cell> iterator = dataCellTemplateEvenList.iterator();
+		while (iterator.hasNext()){
+			iterator.next().copyCellStyle(defaultCellTemplate);
+		}
+		iterator = dataCellTemplateOddList.iterator();
+		while (iterator.hasNext()){
+			iterator.next().copyCellStyle(defaultCellTemplate);
+		}
 	}
 
 	/**
@@ -204,7 +200,7 @@ public class DataTable {
 	 * Set the column widths
 	 * </p>
 	 *
-	 * @param colWidths {@link List<Float>}
+	 * @param colWidths
 	 */
 	public void setColWidths(List<Float> colWidths) {
 		this.colWidths = colWidths;

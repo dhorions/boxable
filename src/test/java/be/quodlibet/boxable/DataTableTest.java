@@ -1,7 +1,7 @@
 package be.quodlibet.boxable;
 
 import be.quodlibet.boxable.datatable.DataTable;
-import be.quodlibet.boxable.datatable.updateCellProperty;
+import be.quodlibet.boxable.datatable.UpdateCellProperty;
 
 import com.google.common.io.Files;
 import java.awt.Color;
@@ -384,7 +384,7 @@ public class DataTableTest
         dataTable.addHeaderRow(h1);
         final Color c01 = new Color(160, 174, 224);
         final Color c02 = new Color(23, 174, 224);
-        t = new DataTable(dataTable, page,new updateCellProperty() {
+        t = new DataTable(dataTable, page,new UpdateCellProperty() {
 			
 			@Override
 			public void updateCellPropertysAtColumn(Cell<PDPage> c, int column, int row) {
