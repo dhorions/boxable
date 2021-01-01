@@ -54,7 +54,7 @@ public class DataTable {
 	 * @throws IOException  If there is an error releasing resources
 	 */
 	public DataTable(Table table, PDPage page) throws IOException {
-		this(table, page, new ArrayList<Float>(),null);
+		this(table, page, new ArrayList<>(),null);
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class DataTable {
 	 * @throws IOException  If there is an error releasing resources
 	 */
 	public DataTable(Table table, PDPage page, updateCellProperty updateCellProperty) throws IOException {
-		this(table, page, new ArrayList<Float>(), updateCellProperty);
+		this(table, page, new ArrayList<>(), updateCellProperty);
 	}
 
 	/**
@@ -401,7 +401,7 @@ public class DataTable {
 		Boolean isHeader = hasHeader;
 		Boolean isFirst = true;
 		Boolean odd = true;
-		Map<Integer, Float> colWidths = new HashMap<Integer, Float>();
+		Map<Integer, Float> colWidths = new HashMap<>();
 		int numcols = 0;
 		int numrow = 0;
 		for (CSVRecord line : records) {

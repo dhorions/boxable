@@ -286,16 +286,17 @@ public class DataTableTest
         c1.setFillColor(new Color(144, 195, 212));
         dataTable.addHeaderRow(h1);
         t = new DataTable(dataTable, page);
-        t.getDataCellTemplateEvenList().forEach(new Consumer<Cell<PDPage>>() {
+        t.getDataCellTemplateEvenList().forEach(new Consumer<Cell>() {
+            @Override
+            public void accept(Cell cell) {
+                cell.setFillColor(Color.WHITE);
+            }
+
+			});
+        t.getDataCellTemplateOddList().forEach(new Consumer<Cell>() {
 			@Override
-			public void accept(Cell<PDPage> t) {
-				t.setFillColor(Color.WHITE);
-				
-			}});
-        t.getDataCellTemplateOddList().forEach(new Consumer<Cell<PDPage>>() {
-			@Override
-			public void accept(Cell<PDPage> t) {
-				t.setFillColor(new Color(250, 242, 242));
+			public void accept(Cell cell) {
+                cell.setFillColor(new Color(250, 242, 242));
 				
 			}});
         t.addCsvToTable(data, DataTable.HASHEADER, ';');
@@ -314,16 +315,16 @@ public class DataTableTest
         c1.setFillColor(new Color(144, 195, 212));
         dataTable.addHeaderRow(h1);
         t = new DataTable(dataTable, page);
-        t.getDataCellTemplateEvenList().forEach(new Consumer<Cell<PDPage>>() {
+        t.getDataCellTemplateEvenList().forEach(new Consumer<Cell>() {
 			@Override
-			public void accept(Cell<PDPage> t) {
-				t.setFillColor(Color.WHITE);
+			public void accept(Cell cell) {
+                cell.setFillColor(Color.WHITE);
 				
 			}});
-        t.getDataCellTemplateOddList().forEach(new Consumer<Cell<PDPage>>() {
+        t.getDataCellTemplateOddList().forEach(new Consumer<Cell>() {
 			@Override
-			public void accept(Cell<PDPage> t) {
-				t.setFillColor(new Color(250, 242, 242));
+			public void accept(Cell cell) {
+                cell.setFillColor(new Color(250, 242, 242));
 				
 			}});
         //set the style template for first column
@@ -346,16 +347,16 @@ public class DataTableTest
         c1.setFillColor(new Color(144, 195, 212));
         dataTable.addHeaderRow(h1);
         t = new DataTable(dataTable, page);
-        t.getDataCellTemplateEvenList().forEach(new Consumer<Cell<PDPage>>() {
+        t.getDataCellTemplateEvenList().forEach(new Consumer<Cell>() {
 			@Override
-			public void accept(Cell<PDPage> t) {
-				t.setFillColor(Color.WHITE);
+			public void accept(Cell cell) {
+                cell.setFillColor(Color.WHITE);
 				
 			}});
-        t.getDataCellTemplateOddList().forEach(new Consumer<Cell<PDPage>>() {
+        t.getDataCellTemplateOddList().forEach(new Consumer<Cell>() {
 			@Override
-			public void accept(Cell<PDPage> t) {
-				t.setFillColor(new Color(250, 242, 242));
+			public void accept(Cell cell) {
+                cell.setFillColor(new Color(250, 242, 242));
 				
 			}});
         //set the style template for first column odd
@@ -395,16 +396,16 @@ public class DataTableTest
 				}
 			}
 		});
-        t.getDataCellTemplateEvenList().forEach(new Consumer<Cell<PDPage>>() {
+        t.getDataCellTemplateEvenList().forEach(new Consumer<Cell>() {
 			@Override
-			public void accept(Cell<PDPage> t) {
-				t.setAlign(HorizontalAlignment.RIGHT);
+			public void accept(Cell cell) {
+                cell.setAlign(HorizontalAlignment.RIGHT);
 				
 			}});
-        t.getDataCellTemplateOddList().forEach(new Consumer<Cell<PDPage>>() {
+        t.getDataCellTemplateOddList().forEach(new Consumer<Cell>() {
 			@Override
-			public void accept(Cell<PDPage> t) {
-				t.setAlign(HorizontalAlignment.RIGHT);
+			public void accept(Cell cell) {
+                cell.setAlign(HorizontalAlignment.RIGHT);
 				
 			}});
         //set the style template for first column back to left
