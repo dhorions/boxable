@@ -1,11 +1,12 @@
 package be.quodlibet.boxable.utils;
 
-import be.quodlibet.boxable.line.LineStyle;
+import java.awt.Color;
+import java.io.IOException;
+
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 
-import java.awt.*;
-import java.io.IOException;
+import be.quodlibet.boxable.line.LineStyle;
 
 /**
  * <p>

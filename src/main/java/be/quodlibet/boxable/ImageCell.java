@@ -1,7 +1,8 @@
 package be.quodlibet.boxable;
 
-import be.quodlibet.boxable.image.Image;
 import org.apache.pdfbox.pdmodel.PDPage;
+
+import be.quodlibet.boxable.image.Image;
 
 public class ImageCell<T extends PDPage> extends Cell<T> {
 

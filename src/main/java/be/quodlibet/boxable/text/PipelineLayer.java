@@ -1,10 +1,11 @@
 package be.quodlibet.boxable.text;
 
-import org.apache.pdfbox.pdmodel.font.PDFont;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+
+import org.apache.pdfbox.pdmodel.font.PDFont;
 
 /**
  * 

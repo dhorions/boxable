@@ -795,7 +795,7 @@ public class TableTest {
  */
 	@Test
 	public void SampleTest9() throws IOException {
-		List<List<? extends Object>> table = new ArrayList<>();
+		List<List> table = new ArrayList<>();
 
 		List<String> tableHeader = new ArrayList<>();
 		tableHeader.add("Left Comparison");

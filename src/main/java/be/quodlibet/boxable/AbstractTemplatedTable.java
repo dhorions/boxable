@@ -1,9 +1,10 @@
 package be.quodlibet.boxable;
 
-import be.quodlibet.boxable.page.PageProvider;
+import java.io.IOException;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 
-import java.io.IOException;
+import be.quodlibet.boxable.page.PageProvider;
 
 /**
  * Created by dgautier on 3/18/2015.

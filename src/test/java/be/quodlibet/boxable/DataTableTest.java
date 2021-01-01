@@ -75,7 +75,7 @@ public class DataTableTest
         float bottomMargin = 0;
 
         //Create the data
-        List<List<? extends Object>> data = new ArrayList<>();
+        List<List> data = new ArrayList<>();
         data.add(new ArrayList<>(
                 Arrays.asList("Column One", "Column Two", "Column Three", "Column Four", "Column Five")));
         for (int i = 1; i <= 100; i++) {

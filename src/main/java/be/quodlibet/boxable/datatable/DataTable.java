@@ -82,7 +82,7 @@ public class DataTable {
 	 *
 	 * @param table {@link Table}
 	 * @param page {@link PDPage}
-	 * @param colWidths {@link colWidths}
+	 * @param colWidths {@link List<Float>}
 	 * @throws IOException If there is an error releasing resources
 	 */
 	public DataTable(Table<PDPage> table, PDPage page, List<Float> colWidths) throws IOException {
@@ -98,7 +98,7 @@ public class DataTable {
 	 *
 	 * @param table {@link Table}
 	 * @param page {@link PDPage}
-	 * @param colWidths {@link colWidths}
+	 * @param colWidths {@link List<Float>}
 	 * @param updateCellProperty {@link updateCellProperty}
 	 * @throws IOException If there is an error releasing resources
 	 */
@@ -204,8 +204,7 @@ public class DataTable {
 	 * Set the column widths
 	 * </p>
 	 *
-	 * @param colWidths
-	 *            {@link colWidths}
+	 * @param colWidths {@link List<Float>}
 	 */
 	public void setColWidths(List<Float> colWidths) {
 		this.colWidths = colWidths;
@@ -358,7 +357,7 @@ public class DataTable {
 	 * @param hasHeader boolean if {@link Table} has header
 	 * @throws IOException parsing error
 	 */
-	public void addListToTable(List<List<? extends Object>> data, Boolean hasHeader) throws IOException {
+	public void addListToTable(List<List> data, Boolean hasHeader) throws IOException {
 		char separator = ';';
 		if (data == null || data.isEmpty()) {
 			return;

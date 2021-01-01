@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>9</version>    
+    </parent>
+
     <modelVersion>4.0.0</modelVersion>
-
-
     <groupId>com.github.dhorions</groupId>
     <artifactId>boxable</artifactId>
     <version>1.6</version>
@@ -57,6 +63,12 @@
             <type>jar</type>
         </dependency>
     </dependencies>
+    <distributionManagement>
+  <snapshotRepository>
+        <id>ossrh</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
     <build>
         <plugins>
             <plugin>
@@ -75,17 +87,70 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.1</version>
                 <configuration>
-                    <source>${java.lang.level}</source>
-                    <target>${java.lang.level}</target>
+                    <source>8</source>
+                    <target>8</target>
+                    <compilerArguments>
+                        <bootclasspath>${sun.boot.class.path}${path.separator}${java.home}/lib/jfxrt.jar</bootclasspath>
+                    </compilerArguments>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>external.atlassian.jgitflow</groupId>
+                <artifactId>jgitflow-maven-plugin</artifactId>
+                <version>1.0-m4.3</version>
+                <configuration>
+                    <enableSshAgent>true</enableSshAgent>
+                    <pushReleases>true</pushReleases>
+                    <pushFeatures>true</pushFeatures>
+                    <pushHotfixes>true</pushHotfixes>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <allowUntracked>true</allowUntracked>
+                    <allowSnapshots>true</allowSnapshots>
+                    <noDeploy>true</noDeploy>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.3</version>
+                <extensions>true</extensions>
+                <configuration>
+                  <serverId>ossrh</serverId>
+                  <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                  <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                  <execution>
+                    <id>sign-artifacts</id>
+                    <phase>verify</phase>
+                    <goals>
+                      <goal>sign</goal>
+                    </goals>
+                  </execution>
+                </executions>
+              </plugin>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                        <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                        <goal>jar</goal>
+                                </goals>
+                        </execution>
+                </executions>
+		</plugin>
         </plugins>
     </build>
     <properties>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.lang.level>1.7</java.lang.level>
     </properties>
 </project>
