@@ -32,12 +32,12 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 public class DataTable {
 	public static final Boolean HASHEADER = true;
 	public static final Boolean NOHEADER = false;
-	private Table<PDPage> table;
+	private Table table;
 	private List<Float> colWidths;
-	private final Cell<PDPage> headerCellTemplate;
-	private final List<Cell<PDPage>> dataCellTemplateEvenList = new ArrayList<>();
-	private final List<Cell<PDPage>> dataCellTemplateOddList = new ArrayList<>();
-	private final Cell<PDPage> defaultCellTemplate;
+	private final Cell headerCellTemplate;
+	private final List<Cell> dataCellTemplateEvenList = new ArrayList<>();
+	private final List<Cell> dataCellTemplateOddList = new ArrayList<>();
+	private final Cell defaultCellTemplate;
 	private boolean copyFirstColumnCellTemplateoddToEven = false; 
 	private boolean copyLastColumnCellTemplateoddToEven = false;
 	private updateCellProperty updateCellProperty = null; 
@@ -53,7 +53,7 @@ public class DataTable {
 	 * @param page {@link PDPage}
 	 * @throws IOException  If there is an error releasing resources
 	 */
-	public DataTable(Table<PDPage> table, PDPage page) throws IOException {
+	public DataTable(Table table, PDPage page) throws IOException {
 		this(table, page, new ArrayList<Float>(),null);
 	}
 
@@ -69,7 +69,7 @@ public class DataTable {
 	 * @param updateCellProperty {@link updateCellProperty}
 	 * @throws IOException  If there is an error releasing resources
 	 */
-	public DataTable(Table<PDPage> table, PDPage page, updateCellProperty updateCellProperty) throws IOException {
+	public DataTable(Table table, PDPage page, updateCellProperty updateCellProperty) throws IOException {
 		this(table, page, new ArrayList<Float>(), updateCellProperty);
 	}
 
@@ -85,7 +85,7 @@ public class DataTable {
 	 * @param colWidths {@link List<Float>}
 	 * @throws IOException If there is an error releasing resources
 	 */
-	public DataTable(Table<PDPage> table, PDPage page, List<Float> colWidths) throws IOException {
+	public DataTable(Table table, PDPage page, List<Float> colWidths) throws IOException {
 		this(table, page, colWidths, null);
 	}
 	
@@ -102,7 +102,7 @@ public class DataTable {
 	 * @param updateCellProperty {@link updateCellProperty}
 	 * @throws IOException If there is an error releasing resources
 	 */
-	public DataTable(Table<PDPage> table, PDPage page, List<Float> colWidths, updateCellProperty updateCellProperty) throws IOException {
+	public DataTable(Table table, PDPage page, List<Float> colWidths, updateCellProperty updateCellProperty) throws IOException {
 		this.table = table;
 		this.colWidths = (colWidths.size() == 0) ? null : colWidths;
 		this.updateCellProperty = updateCellProperty;
@@ -113,7 +113,7 @@ public class DataTable {
 		dpage.setRotation(page.getRotation());
 		ddoc.addPage(dpage);
 		BaseTable dummyTable = new BaseTable(10f, 10f, 10f, table.getWidth(), 10f, ddoc, dpage, false, false);
-		Row<PDPage> dr = dummyTable.createRow(0f);
+		Row dr = dummyTable.createRow(0f);
 		headerCellTemplate = dr.createCell(10f, "A", HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE);
 		if (this.colWidths == null) {
 			dataCellTemplateEvenList.add(dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
@@ -152,15 +152,15 @@ public class DataTable {
 		defaultCellTemplate.setTextColor(Color.BLACK);
 		defaultCellTemplate.setFont(PDType1Font.HELVETICA);
 		defaultCellTemplate.setBorderStyle(thinline);
-		dataCellTemplateEvenList.forEach(new Consumer<Cell<PDPage>>() {
+		dataCellTemplateEvenList.forEach(new Consumer<Cell>() {
 			@Override
-			public void accept(Cell<PDPage> dcte) {
+			public void accept(Cell dcte) {
 				dcte.copyCellStyle(defaultCellTemplate);
 			}
 		});
-		dataCellTemplateOddList.forEach(new Consumer<Cell<PDPage>>() {
+		dataCellTemplateOddList.forEach(new Consumer<Cell>() {
 			@Override
-			public void accept(Cell<PDPage> dcto) {
+			public void accept(Cell dcto) {
 				dcto.copyCellStyle(defaultCellTemplate);
 			}
 		});
@@ -173,7 +173,7 @@ public class DataTable {
 	 *
 	 * @return {@link Table}
 	 */
-	public Table<PDPage> getTable() {
+	public Table getTable() {
 		return table;
 	}
 
@@ -184,7 +184,7 @@ public class DataTable {
 	 *
 	 * @param table {@link Table}
 	 */
-	public void setTable(Table<PDPage> table) {
+	public void setTable(Table table) {
 		this.table = table;
 	}
 
@@ -217,7 +217,7 @@ public class DataTable {
 	 * 
 	 * @return header {@link Cell}'s template
 	 */
-	public Cell<PDPage> getHeaderCellTemplate() {
+	public Cell getHeaderCellTemplate() {
 		return headerCellTemplate;
 	}
 
@@ -230,7 +230,7 @@ public class DataTable {
 	 * @return data {@link Cell}'s template
 	 */
 	@Deprecated
-	public Cell<PDPage> getDataCellTemplateEven() {
+	public Cell getDataCellTemplateEven() {
 		return dataCellTemplateEvenList.get(1);
 	}
 
@@ -243,7 +243,7 @@ public class DataTable {
 	 * @return data {@link Cell}'s template
 	 */
 	@Deprecated
-	public Cell<PDPage> getDataCellTemplateOdd() {
+	public Cell getDataCellTemplateOdd() {
 		return dataCellTemplateOddList.get(1);
 	}
 
@@ -256,7 +256,7 @@ public class DataTable {
 	 *
 	 * @return data {@link Cell}'s template
 	 */
-	public List<Cell<PDPage>> getDataCellTemplateEvenList() {
+	public List<Cell> getDataCellTemplateEvenList() {
 		return dataCellTemplateEvenList;
 	}
 
@@ -269,7 +269,7 @@ public class DataTable {
 	 *
 	 * @return data {@link Cell}'s template
 	 */
-	public List<Cell<PDPage>> getDataCellTemplateOddList() {
+	public List<Cell> getDataCellTemplateOddList() {
 		return dataCellTemplateOddList;
 	}
 
@@ -280,7 +280,7 @@ public class DataTable {
 	 *
 	 * @return {@link Cell}'s template
 	 */
-	public Cell<PDPage> getFirstColumnCellTemplate() {
+	public Cell getFirstColumnCellTemplate() {
 		copyFirstColumnCellTemplateoddToEven=true;
 		return dataCellTemplateOddList.get(0);
 	}
@@ -292,7 +292,7 @@ public class DataTable {
 	 *
 	 * @return {@link Cell}'s template
 	 */
-	public Cell<PDPage> getLastColumnCellTemplate() {
+	public Cell getLastColumnCellTemplate() {
 		copyLastColumnCellTemplateoddToEven=true;
 		return dataCellTemplateOddList.get(dataCellTemplateOddList.size()-1);
 	}
@@ -305,7 +305,7 @@ public class DataTable {
 	 *
 	 * @return {@link Cell}'s template
 	 */
-	public Cell<PDPage> getFirstColumnCellTemplateOdd() {
+	public Cell getFirstColumnCellTemplateOdd() {
 		copyFirstColumnCellTemplateoddToEven = false;
 		return dataCellTemplateOddList.get(0);
 	}
@@ -318,7 +318,7 @@ public class DataTable {
 	 *
 	 * @return {@link Cell}'s template
 	 */
-	public Cell<PDPage> getLastColumnCellTemplateOdd() {
+	public Cell getLastColumnCellTemplateOdd() {
 		copyLastColumnCellTemplateoddToEven = false;
 		return dataCellTemplateOddList.get(dataCellTemplateOddList.size()-1);
 	}
@@ -331,7 +331,7 @@ public class DataTable {
 	 *
 	 * @return {@link Cell}'s template
 	 */
-	public Cell<PDPage> getFirstColumnCellTemplateEven() {
+	public Cell getFirstColumnCellTemplateEven() {
 		copyFirstColumnCellTemplateoddToEven = false;
 		return dataCellTemplateEvenList.get(0);
 	}
@@ -343,7 +343,7 @@ public class DataTable {
 	 *
 	 * @return {@link Cell}'s template
 	 */
-	public Cell<PDPage> getLastColumnCellTemplateEven() {
+	public Cell getLastColumnCellTemplateEven() {
 		copyLastColumnCellTemplateoddToEven = false;
 		return dataCellTemplateEvenList.get(dataCellTemplateOddList.size()-1);
 	}
@@ -455,10 +455,10 @@ public class DataTable {
 			}
 			if (isHeader) {
 				// Add Header Row
-				Row<PDPage> h = table.createRow(headerCellTemplate.getCellHeight());
+				Row h = table.createRow(headerCellTemplate.getCellHeight());
 				for (int i = 0; i <= numcols; i++) {
 					String cellValue = line.get(i);
-					Cell<PDPage> c = h.createCell(colWidths.get(i), cellValue, headerCellTemplate.getAlign(),
+					Cell c = h.createCell(colWidths.get(i), cellValue, headerCellTemplate.getAlign(),
 							headerCellTemplate.getValign());
 					// Apply style of header cell to this cell
 					c.copyCellStyle(headerCellTemplate);
@@ -467,10 +467,10 @@ public class DataTable {
 				table.addHeaderRow(h);
 				isHeader = false;
 			} else {
-				Row<PDPage> r = table.createRow(dataCellTemplateEvenList.get(0).getCellHeight());
+				Row r = table.createRow(dataCellTemplateEvenList.get(0).getCellHeight());
 				for (int i = 0; i <= numcols; i++) {
 					// Choose the correct template for the cell
-					Cell<PDPage> template = dataCellTemplateEvenList.get(i);
+					Cell template = dataCellTemplateEvenList.get(i);
 					if (odd) {
 						template = dataCellTemplateOddList.get(i);;
 					}
@@ -479,7 +479,7 @@ public class DataTable {
 					if (line.size() >= i) {
 						cellValue = line.get(i);
 					}
-					Cell<PDPage> c = r.createCell(colWidths.get(i), cellValue, template.getAlign(), template.getValign());
+					Cell c = r.createCell(colWidths.get(i), cellValue, template.getAlign(), template.getValign());
 					// Apply style of header cell to this cell
 					c.copyCellStyle(template);
 					c.setText(cellValue);
