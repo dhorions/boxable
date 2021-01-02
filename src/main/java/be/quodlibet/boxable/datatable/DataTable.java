@@ -38,8 +38,8 @@ public class DataTable {
 	private final List<Cell> dataCellTemplateEvenList = new ArrayList<>();
 	private final List<Cell> dataCellTemplateOddList = new ArrayList<>();
 	private final Cell defaultCellTemplate;
-	private boolean copyFirstColumnCellTemplateoddToEven = false; 
-	private boolean copyLastColumnCellTemplateoddToEven = false;
+	private boolean copyFirstColumnCellTemplateOddToEven = false;
+	private boolean copyLastColumnCellTemplateOddToEven = false;
 	private UpdateCellProperty updateCellProperty = null;
 
 	/**
@@ -277,7 +277,7 @@ public class DataTable {
 	 * @return {@link Cell}'s template
 	 */
 	public Cell getFirstColumnCellTemplate() {
-		copyFirstColumnCellTemplateoddToEven=true;
+		copyFirstColumnCellTemplateOddToEven =true;
 		return dataCellTemplateOddList.get(0);
 	}
 
@@ -289,7 +289,7 @@ public class DataTable {
 	 * @return {@link Cell}'s template
 	 */
 	public Cell getLastColumnCellTemplate() {
-		copyLastColumnCellTemplateoddToEven=true;
+		copyLastColumnCellTemplateOddToEven =true;
 		return dataCellTemplateOddList.get(dataCellTemplateOddList.size()-1);
 	}
 
@@ -302,7 +302,7 @@ public class DataTable {
 	 * @return {@link Cell}'s template
 	 */
 	public Cell getFirstColumnCellTemplateOdd() {
-		copyFirstColumnCellTemplateoddToEven = false;
+		copyFirstColumnCellTemplateOddToEven = false;
 		return dataCellTemplateOddList.get(0);
 	}
 
@@ -315,7 +315,7 @@ public class DataTable {
 	 * @return {@link Cell}'s template
 	 */
 	public Cell getLastColumnCellTemplateOdd() {
-		copyLastColumnCellTemplateoddToEven = false;
+		copyLastColumnCellTemplateOddToEven = false;
 		return dataCellTemplateOddList.get(dataCellTemplateOddList.size()-1);
 	}
 
@@ -328,7 +328,7 @@ public class DataTable {
 	 * @return {@link Cell}'s template
 	 */
 	public Cell getFirstColumnCellTemplateEven() {
-		copyFirstColumnCellTemplateoddToEven = false;
+		copyFirstColumnCellTemplateOddToEven = false;
 		return dataCellTemplateEvenList.get(0);
 	}
 
@@ -340,7 +340,7 @@ public class DataTable {
 	 * @return {@link Cell}'s template
 	 */
 	public Cell getLastColumnCellTemplateEven() {
-		copyLastColumnCellTemplateoddToEven = false;
+		copyLastColumnCellTemplateOddToEven = false;
 		return dataCellTemplateEvenList.get(dataCellTemplateOddList.size()-1);
 	}
 
@@ -489,9 +489,9 @@ public class DataTable {
 	}
 
 	private void updateTemplateList(int size) {
-		if (copyFirstColumnCellTemplateoddToEven)
+		if (copyFirstColumnCellTemplateOddToEven)
 			dataCellTemplateEvenList.set(0, dataCellTemplateOddList.get(0));
-		if (copyLastColumnCellTemplateoddToEven)
+		if (copyLastColumnCellTemplateOddToEven)
 			dataCellTemplateEvenList.set(dataCellTemplateEvenList.size()-1, dataCellTemplateOddList.get(dataCellTemplateOddList.size()-1));
 		if (size <= 3) return; // Only in case of more than 3 columns there are first last and data template 
 		while (dataCellTemplateEvenList.size() < size) dataCellTemplateEvenList.add(1,dataCellTemplateEvenList.get(1) );
