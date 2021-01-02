@@ -82,7 +82,7 @@ public class DataTable {
 	 *
 	 * @param table {@link Table}
 	 * @param page {@link PDPage}
-	 * @param colWidths
+	 * @param colWidths column widths
 	 * @throws IOException If there is an error releasing resources
 	 */
 	public DataTable(Table table, PDPage page, List<Float> colWidths) throws IOException {
@@ -98,7 +98,7 @@ public class DataTable {
 	 *
 	 * @param table {@link Table}
 	 * @param page {@link PDPage}
-	 * @param colWidths
+	 * @param colWidths column widths
 	 * @param updateCellProperty {@link UpdateCellProperty}
 	 * @throws IOException If there is an error releasing resources
 	 */
