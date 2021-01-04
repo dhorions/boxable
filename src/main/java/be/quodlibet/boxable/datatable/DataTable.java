@@ -480,7 +480,7 @@ public class DataTable {
 					c.copyCellStyle(template);
 					c.setText(cellValue);
 					if (updateCellProperty != null)
-						updateCellProperty.updateCellPropertysAtColumn(c,i,numrow);
+						updateCellProperty.updateCellPropertiesAtColumn(c,i,numrow);
 				}
 				numrow++;
 			}
