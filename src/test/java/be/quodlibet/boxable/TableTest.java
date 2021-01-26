@@ -1055,7 +1055,7 @@ public class TableTest {
 		cell2.setFontSize(6);
 
 		Cell<PDPage> cell3 = row2.createTableCell((100 / 3f),
-				"<table><tr><td>Hello Hello Hello Hello Hello Hello Hello it's me</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1 b1 b1 b1 b1 b1 b1 b1 </td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr></table>",
+				"<table><tr><td>Hello->Hello<-Hello & Hello Hello Hello Hello it's me</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1 b1 b1 b1 b1 b1 b1 b1 </td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr><tr><td>a1</td><td>b1</td></tr></table>",
 				doc, page, yStart, pageBottomMargin, margin);
 		cell3.setFontSize(6);
 
