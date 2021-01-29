@@ -170,10 +170,10 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 				if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
 					Cell<T> cell = (Cell<T>) row.createCell(
 							tableWidth / columnsSize * Integer.parseInt(col.attr("colspan")) / row.getWidth() * 100,
-							col.text());
+							col.html().replace("&amp;", "&").replace("&gt;", ">").replace("&lt;", "<"));
 				} else {
 					Cell<T> cell = (Cell<T>) row.createCell(tableWidth / columnsSize / row.getWidth() * 100,
-							col.text());
+							col.html().replace("&amp;", "&").replace("&gt;", ">").replace("&lt;", "<"));
 				}
 			}
 			yStart -= row.getHeight();
