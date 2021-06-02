@@ -363,7 +363,7 @@ public abstract class Table<T extends PDPage> {
 				"You either have to provide a " + PageProvider.class.getCanonicalName() + " or override this method");
 	}
 
-	private PageContentStreamOptimized createPdPageContentStream() throws IOException {
+	protected PageContentStreamOptimized createPdPageContentStream() throws IOException {
 		return new PageContentStreamOptimized(
 				new PDPageContentStream(getDocument(), getCurrentPage(),
 						PDPageContentStream.AppendMode.APPEND, true));
@@ -779,7 +779,7 @@ public abstract class Table<T extends PDPage> {
 		}
 	}
 
-	private void endTable() throws IOException {
+	protected void endTable() throws IOException {
 		this.tableContentStream.close();
 	}
 
