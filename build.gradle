@@ -28,9 +28,9 @@ repositories {
 dependencies {
 	compile 'org.apache.pdfbox:pdfbox:2.0.3'
 	compile 'org.slf4j:slf4j-api:1.7.21'
-	compile 'com.google.guava:guava:20.0'
 	compile 'org.apache.commons:commons-csv:1.4'
 	compile group: 'org.jsoup', name: 'jsoup', version: '1.9.2'
+	testCompile 'com.google.guava:guava:20.0'
 	testCompile 'junit:junit:4.12'
 	testCompile 'commons-io:commons-io:2.4'
 }

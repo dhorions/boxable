@@ -11,7 +11,6 @@ import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
 import be.quodlibet.boxable.utils.PDStreamUtils;
 import be.quodlibet.boxable.utils.PageContentStreamOptimized;
-import static com.google.common.base.Preconditions.checkNotNull;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -784,7 +783,9 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	public T getCurrentPage() {
-		checkNotNull(this.currentPage, "No current page defined.");
+		if (this.currentPage == null) { 
+			throw new NullPointerException("No current page defined."); 
+		}
 		return this.currentPage;
 	}
 
