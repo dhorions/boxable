@@ -6,28 +6,25 @@ package be.quodlibet.boxable;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 import be.quodlibet.boxable.utils.PageContentStreamOptimized;
-import org.apache.fontbox.util.BoundingBox;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDocumentOutline;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 import org.junit.Test;
 
-import com.google.common.io.Files;
 
 import be.quodlibet.boxable.datatable.DataTable;
 import be.quodlibet.boxable.utils.FontUtils;
 import be.quodlibet.boxable.utils.ImageUtils;
 import be.quodlibet.boxable.utils.PDStreamUtils;
+import java.nio.file.Files;
 
 public class TableTest {
 /**
@@ -130,7 +127,7 @@ public class TableTest {
 		// Close Stream and save pdf
 		File file = new File("target/BoxableSample1.pdf");
 		System.out.println("Sample file saved at : " + file.getAbsolutePath());
-		Files.createParentDirs(file);
+		file.getParentFile().mkdirs();
 		doc.save(file);
 		doc.close();
 
@@ -318,7 +315,7 @@ public class TableTest {
 		// Save the document
 		File file = new File("target/BoxableSample2.pdf");
 		System.out.println("Sample file saved at : " + file.getAbsolutePath());
-		Files.createParentDirs(file);
+		file.getParentFile().mkdirs();
 		doc.save(file);
 		doc.close();
 
@@ -395,7 +392,7 @@ public class TableTest {
 		// Save the document
 		File file = new File("target/BoxableSample3.pdf");
 		System.out.println("Sample file saved at : " + file.getAbsolutePath());
-		Files.createParentDirs(file);
+		file.getParentFile().mkdirs();
 		doc.save(file);
 		doc.close();
 	}
@@ -524,7 +521,7 @@ public class TableTest {
 		// Save the document
 		File file = new File("target/BoxableSample4.pdf");
 		System.out.println("Sample file saved at : " + file.getAbsolutePath());
-		Files.createParentDirs(file);
+		file.getParentFile().mkdirs();
 		doc.save(file);
 		doc.close();
 
@@ -593,7 +590,7 @@ public class TableTest {
 		// Save the document
 		File file = new File("target/BoxableSample5.pdf");
 		System.out.println("Sample file saved at : " + file.getAbsolutePath());
-		Files.createParentDirs(file);
+		file.getParentFile().mkdirs();
 		doc.save(file);
 		doc.close();
 	}
@@ -646,7 +643,7 @@ public class TableTest {
 		// Save the document
 		File file = new File("target/BoxableSample6.pdf");
 		System.out.println("Sample file saved at : " + file.getAbsolutePath());
-		Files.createParentDirs(file);
+		file.getParentFile().mkdirs();
 		doc.save(file);
 		doc.close();
 	}
@@ -717,7 +714,7 @@ public class TableTest {
 		// Save the document
 		File file = new File("target/BoxableSample7.pdf");
 		System.out.println("Sample file saved at : " + file.getAbsolutePath());
-		Files.createParentDirs(file);
+		file.getParentFile().mkdirs();
 		doc.save(file);
 		doc.close();
 	}
@@ -779,7 +776,7 @@ public class TableTest {
 		// Save the document
 		File file = new File("target/BoxableSample8.pdf");
 		System.out.println("Sample file saved at : " + file.getAbsolutePath());
-		Files.createParentDirs(file);
+		file.getParentFile().mkdirs();
 		doc.save(file);
 		doc.close();
 	}
@@ -843,7 +840,7 @@ public class TableTest {
 		try {
 			File file = new File("target/BoxableSample9.pdf");
 			System.out.println("Sample file saved at : " + file.getAbsolutePath());
-			Files.createParentDirs(file);
+			file.getParentFile().mkdirs();
 			document.save(file);
 		} finally {
 			document.close();
@@ -938,7 +935,7 @@ public class TableTest {
 		// Save the document
 		File file = new File("target/lineSpacingTest.pdf");
 		System.out.println("Sample file saved at : " + file.getAbsolutePath());
-		Files.createParentDirs(file);
+		file.getParentFile().mkdirs();
 		doc.save(file);
 		doc.close();
 	}
@@ -983,7 +980,7 @@ public class TableTest {
         //Save the document
         File file = new File("target/ListNesting.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
-        Files.createParentDirs(file);
+        file.getParentFile().mkdirs();
         doc.save(file);
         doc.close();
     }
@@ -1102,7 +1099,7 @@ public class TableTest {
 		// Save the document
 		File file = new File("target/BoxableSample10.pdf");
 		System.out.println("Sample file saved at : " + file.getAbsolutePath());
-		Files.createParentDirs(file);
+		file.getParentFile().mkdirs();
 		doc.save(file);
 		doc.close();
 	}
@@ -1167,7 +1164,7 @@ public class TableTest {
 		// Save the document
 		File file = new File("target/BoxableSample11.pdf");
 		System.out.println("Sample file saved at : " + file.getAbsolutePath());
-		Files.createParentDirs(file);
+		file.getParentFile().mkdirs();
 		doc.save(file);
 		doc.close();
 	}
