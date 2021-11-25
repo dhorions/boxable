@@ -11,7 +11,6 @@ import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
 import be.quodlibet.boxable.utils.PDStreamUtils;
 import be.quodlibet.boxable.utils.PageContentStreamOptimized;
-import static com.google.common.base.Preconditions.checkNotNull;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -784,7 +783,8 @@ public abstract class Table<T extends PDPage> {
 	}
 
 	public T getCurrentPage() {
-		checkNotNull(this.currentPage, "No current page defined.");
+		// checkNotNull(this.currentPage, "No current page defined.");
+	    // the only reference to guava code, makes not much sense
 		return this.currentPage;
 	}
 
