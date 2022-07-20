@@ -21,20 +21,6 @@ Boxable is a library that can be used to easily create tables in pdf documents. 
 - rotated text (by 90 degrees)
 - writing text outside tables
 
-#### What is new in version 1.6?
-- performance optimizations by [@Vobarian](https://github.com/vobarian)
-- reduced pdf file output size by  [@Vobarian](https://github.com/vobarian) and  [@Giboow](https://github.com/giboow)
-- fix for infinite loop when header rows were below page bottom margin.  [@Ogmios-Voice](https://github.com/ogmios-voice)
-- added COPYING file [@zaqpiotr](https://github.com/zaqpiotr)
-- Updated pdfbox library to 2.0.21
-- Updated guava library to 29-android
-
-Check PRs:
-[#183](https://github.com/dhorions/boxable/pull/183)
-[#202](https://github.com/dhorions/boxable/pull/202)
-[#190](https://github.com/dhorions/boxable/pull/190)
-
-
 # Maven
 ```xml
 <dependency>
