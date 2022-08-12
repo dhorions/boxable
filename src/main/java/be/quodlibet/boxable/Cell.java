@@ -21,8 +21,8 @@ public class Cell<T extends PDPage> {
 	private Float height;
 	private String text;
 
-	private PDFont font = PDType1Font.HELVETICA;
-	private PDFont fontBold = PDType1Font.HELVETICA_BOLD;
+	private PDFont font = new PDType1Font(Standard14Font.FontName.HELVETICA);
+	private PDFont fontBold = new PDType1Font(Standard14Font.FontName.HELVETICA_BOLD);
 
 	private float fontSize = 8;
 	private Color fillColor;
