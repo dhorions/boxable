@@ -10,7 +10,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.github.RachidLeLaborantin</groupId>
+    <groupId>com.github.dhorions</groupId>
     <artifactId>boxable</artifactId>
     <version>1.7.1</version>
     <packaging>jar</packaging>
