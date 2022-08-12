@@ -10,9 +10,9 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.github.dhorions</groupId>
+    <groupId>com.github.RachidLeLaborantin</groupId>
     <artifactId>boxable</artifactId>
-    <version>1.7.1-SNAPSHOT</version>
+    <version>1.7.1</version>
     <packaging>jar</packaging>
 
     <name>Boxable, a high-level API to creates table on top of Apache Pdfbox</name>
