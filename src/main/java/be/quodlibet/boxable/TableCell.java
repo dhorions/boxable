@@ -1,13 +1,11 @@
 package be.quodlibet.boxable;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
+import be.quodlibet.boxable.text.Token;
+import be.quodlibet.boxable.utils.FontUtils;
+import be.quodlibet.boxable.utils.PDStreamUtils;
 import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.jsoup.Jsoup;
@@ -17,9 +15,9 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import be.quodlibet.boxable.text.Token;
-import be.quodlibet.boxable.utils.FontUtils;
-import be.quodlibet.boxable.utils.PDStreamUtils;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class TableCell<T extends PDPage> extends Cell<T> {
 
@@ -87,7 +85,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		try {
 			// please consider the cell's paddings
 			float tableWidth = this.width - getLeftPadding() - getRightPadding();
-			tableCellContentStream = new PageContentStreamOptimized(new PDPageContentStream(doc, page, true, true));
+			tableCellContentStream = new PageContentStreamOptimized(doc, page);
 			// check if there is some additional text outside inner table
 			String[] outerTableText = tableData.split("<table");
 			// don't forget to attach splited tag
@@ -353,7 +351,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		try {
 			// please consider the cell's paddings
 			float tableWidth = this.width - getLeftPadding() - getRightPadding();
-			tableCellContentStream = new PageContentStreamOptimized(new PDPageContentStream(doc, page, true, true));
+			tableCellContentStream = new PageContentStreamOptimized(doc, page);
 			// check if there is some additional text outside inner table
 			String[] outerTableText = tableData.split("<table");
 			// don't forget to attach splited tag
