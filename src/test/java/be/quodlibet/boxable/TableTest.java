@@ -3,12 +3,10 @@
  */
 package be.quodlibet.boxable;
 
-import java.awt.Color;
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import be.quodlibet.boxable.datatable.DataTable;
+import be.quodlibet.boxable.utils.FontUtils;
+import be.quodlibet.boxable.utils.ImageUtils;
+import be.quodlibet.boxable.utils.PDStreamUtils;
 import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -17,11 +15,13 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDocumentOutline;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 import org.junit.Test;
-import be.quodlibet.boxable.datatable.DataTable;
-import be.quodlibet.boxable.utils.FontUtils;
-import be.quodlibet.boxable.utils.ImageUtils;
-import be.quodlibet.boxable.utils.PDStreamUtils;
-import java.nio.file.Files;
+
+import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TableTest {
 /**
@@ -1129,7 +1129,7 @@ public class TableTest {
 		float bottomMargin = 70;
 
 		// draw page title
-		PageContentStreamOptimized cos = new PageContentStreamOptimized(new PDPageContentStream(doc, page));
+		PageContentStreamOptimized cos = new PageContentStreamOptimized(doc, page);
 		PDStreamUtils.write(cos, "Welcome to your first borderless table", PDType1Font.HELVETICA_BOLD, 14, 15, yStart,
 				Color.BLACK);
 		cos.close();

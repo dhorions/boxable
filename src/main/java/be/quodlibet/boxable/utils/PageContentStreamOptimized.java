@@ -1,15 +1,19 @@
 package be.quodlibet.boxable.utils;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.util.Matrix;
 
 import java.awt.Color;
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class PageContentStreamOptimized {
+public class PageContentStreamOptimized implements Closeable {
     private static final Matrix ROTATION = Matrix.getRotateInstance(Math.PI * 0.5, 0, 0);
 
     private final PDPageContentStream pageContentStream;
@@ -17,6 +21,15 @@ public class PageContentStreamOptimized {
     private float textCursorAbsoluteX;
     private float textCursorAbsoluteY;
     private boolean rotated;
+
+    public PageContentStreamOptimized(PDDocument document, PDPage sourcePage) throws IOException {
+        this.pageContentStream = new PDPageContentStream(document, sourcePage);
+    }
+
+    public PageContentStreamOptimized(PDDocument document, PDPage sourcePage, AppendMode appendContent,
+                                      boolean compress) throws IOException {
+        this.pageContentStream = new PDPageContentStream(document, sourcePage, appendContent, compress);
+    }
 
     public PageContentStreamOptimized(PDPageContentStream pageContentStream) {
         this.pageContentStream = pageContentStream;
@@ -53,6 +66,10 @@ public class PageContentStreamOptimized {
             pageContentStream.endText();
             textMode = false;
         }
+    }
+
+    public PDPageContentStream toRawPageContentStream() {
+        return pageContentStream;
     }
 
     private PDFont currentFont;
@@ -165,6 +182,7 @@ public class PageContentStreamOptimized {
         }
     }
 
+    @Override
     public void close() throws IOException {
         endText();
         pageContentStream.close();

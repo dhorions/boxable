@@ -11,19 +11,21 @@ import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
 import be.quodlibet.boxable.utils.PDStreamUtils;
 import be.quodlibet.boxable.utils.PageContentStreamOptimized;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
+import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageXYZDestination;
+import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
+
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDType0Font;
-import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageXYZDestination;
-import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
+
+import static org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
 
 public abstract class Table<T extends PDPage> {
 
@@ -346,9 +348,7 @@ public abstract class Table<T extends PDPage> {
     }
 
     private PageContentStreamOptimized createPdPageContentStream() throws IOException {
-        return new PageContentStreamOptimized(
-                new PDPageContentStream(getDocument(), getCurrentPage(),
-                        PDPageContentStream.AppendMode.APPEND, true));
+        return new PageContentStreamOptimized(getDocument(), getCurrentPage(), AppendMode.APPEND, true);
     }
 
     private void drawCellContent(Row<T> row, float rowHeight) throws IOException {
