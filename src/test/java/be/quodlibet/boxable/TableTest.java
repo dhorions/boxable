@@ -6,16 +6,14 @@ package be.quodlibet.boxable;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.fontbox.util.BoundingBox;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDocumentOutline;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
@@ -111,6 +109,11 @@ public class TableTest {
 					} catch (final URISyntaxException e) {
 						e.printStackTrace();
 					}
+				} else if(fact[i].equalsIgnoreCase("Google")) {
+					cell = row.createCell((100 / 9f), fact[i]);
+					cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
+					cell.setFontSize(6);
+					cell.setUrl(new URL("https://www.google.de"));
 				} else {
 					cell = row.createCell((100 / 9f), fact[i]);
 					cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
@@ -137,6 +140,8 @@ public class TableTest {
 
 	private static List<String[]> getFacts() {
 		List<String[]> facts = new ArrayList<String[]>();
+		facts.add(new String[] { "URL TEST: Tag 1 is a URL", "Google", "nothing",
+				"Who Am I?" });
 		facts.add(new String[] { "Oil Painting was invented by the Belgian van Eyck brothers", "art", "inventions",
 				"science" });
 		facts.add(new String[] { "The Belgian Adolphe Sax invented the Saxophone", "inventions", "music", "" });

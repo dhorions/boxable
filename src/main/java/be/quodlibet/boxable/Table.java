@@ -583,6 +583,22 @@ public abstract class Table<T extends PDPage> {
 						break;
 					}
 
+					if (cell.getUrl() != null) {
+						List<PDAnnotation> annotations = ((PDPage)currentPage).getAnnotations();
+						PDAnnotationLink txtLink = new PDAnnotationLink();
+
+						// Set the rectangle containing the link
+						// PDRectangle sets a the x,y and the width and height extend upwards from that!
+						PDRectangle position = new PDRectangle(cursorX - 5, cursorY + 10, (float)(cell.getWidth()), -(float)(cell.getHeight()));
+						txtLink.setRectangle(position);
+
+						// add an action
+						PDActionURI action = new PDActionURI();
+						action.setURI(cell.getUrl().toString());
+						txtLink.setAction(action);
+						annotations.add(txtLink);
+					}
+
 				}
 
 				// remember this horizontal position, as it is the anchor for
