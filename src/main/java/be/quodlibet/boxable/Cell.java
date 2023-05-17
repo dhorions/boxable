@@ -6,8 +6,12 @@ package be.quodlibet.boxable;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
@@ -53,6 +57,8 @@ public class Cell<T extends PDPage> {
 
 	float horizontalFreeSpace = 0;
 	float verticalFreeSpace = 0;
+
+	private final List<CellContentDrawnListener<T>> contentDrawnListenerList = new ArrayList<CellContentDrawnListener<T>>();
 
 	/**
 	 * <p>
@@ -744,4 +750,17 @@ public class Cell<T extends PDPage> {
 		this.lineSpacing = lineSpacing;
 	}
 
+	public void addContentDrawnListener(CellContentDrawnListener<T> listener) {
+		contentDrawnListenerList.add(listener);
+	}
+
+	public List<CellContentDrawnListener<T>> getCellContentDrawnListeners() {
+		return contentDrawnListenerList;
+	}
+
+	public void notifyContentDrawnListeners(PDDocument document, PDPage page, PDRectangle rectangle) {
+		for(CellContentDrawnListener<T> listener : getCellContentDrawnListeners()) {
+			listener.onContentDrawn(this, document, page, rectangle);
+		}
+	}
 }
