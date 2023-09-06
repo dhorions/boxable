@@ -14,6 +14,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDocumentOutline;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 import org.junit.Test;
@@ -61,7 +62,7 @@ public class TableTest {
 		// Create Header row
 		Row<PDPage> headerRow = table.createRow(15f);
 		Cell<PDPage> cell = headerRow.createCell(100, "Awesome Facts About Belgium");
-		cell.setFont(PDType1Font.HELVETICA_BOLD);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD));
 		cell.setFillColor(Color.BLACK);
 		cell.setTextColor(Color.WHITE);
 
@@ -70,22 +71,22 @@ public class TableTest {
 		// Create 2 column row
 		Row<PDPage> row = table.createRow(15f);
 		cell = row.createCell(30, "Source:");
-		cell.setFont(PDType1Font.HELVETICA);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 
 		cell = row.createCell(70, "http://www.factsofbelgium.com/");
-		cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE));
 
 		// Create Fact header row
 		Row<PDPage> factHeaderrow = table.createRow(15f);
 
 		cell = factHeaderrow.createCell((100 / 3f) * 2, "Fact");
-		cell.setFont(PDType1Font.HELVETICA);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 		cell.setFontSize(6);
 		cell.setFillColor(Color.LIGHT_GRAY);
 
 		cell = factHeaderrow.createCell((100 / 3f), "Tags");
 		cell.setFillColor(Color.LIGHT_GRAY);
-		cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE));
 		cell.setFontSize(6);
 
 		// Add multiple rows with random facts about Belgium
@@ -93,7 +94,7 @@ public class TableTest {
 
 			row = table.createRow(10f);
 			cell = row.createCell((100 / 3f) * 2, fact[0]);
-			cell.setFont(PDType1Font.HELVETICA);
+			cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 			cell.setFontSize(6);
 
 			for (int i = 1; i < fact.length; i++) {
@@ -108,7 +109,7 @@ public class TableTest {
 					}
 				} else {
 					cell = row.createCell((100 / 9f), fact[i]);
-					cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
+					cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE));
 					cell.setFontSize(6);
 					// Set colors
 					if (fact[i].contains("beer"))
@@ -231,7 +232,7 @@ public class TableTest {
 		// Create Header row
 		Row<PDPage> headerRow = table.createRow(15f);
 		Cell<PDPage> cell = headerRow.createCell(100, "Awesome Facts About Belgium");
-		cell.setFont(PDType1Font.HELVETICA_BOLD);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD));
 		cell.setFillColor(Color.BLACK);
 		cell.setTextColor(Color.WHITE);
 
@@ -240,21 +241,21 @@ public class TableTest {
 		// Create 2 column row
 		Row<PDPage> row = table.createRow(15f);
 		cell = row.createCell(75, "Source:");
-		cell.setFont(PDType1Font.HELVETICA);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 
 		cell = row.createCell(25, "http://www.factsofbelgium.com/");
-		cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE));
 
 		// Create Fact header row
 		Row<PDPage> factHeaderrow = table.createRow(15f);
 		cell = factHeaderrow.createCell((100 / 3f) * 2, "Fact");
-		cell.setFont(PDType1Font.HELVETICA);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 		cell.setFontSize(6);
 		cell.setFillColor(Color.LIGHT_GRAY);
 
 		cell = factHeaderrow.createCell((100 / 3f), "Tags");
 		cell.setFillColor(Color.LIGHT_GRAY);
-		cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE));
 		cell.setFontSize(6);
 
 		// Add multiple rows with random facts about Belgium
@@ -263,7 +264,7 @@ public class TableTest {
 
 			row = table.createRow(10f);
 			cell = row.createCell((100 / 3.0f) * 2, fact[0] + " " + fact[0] + " " + fact[0]);
-			cell.setFont(PDType1Font.HELVETICA);
+			cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 			cell.setFontSize(6);
 
 			// Create a bookmark for each record
@@ -283,7 +284,7 @@ public class TableTest {
 					}
 				} else {
 					cell = row.createCell((100 / 9f), fact[i]);
-					cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
+					cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE));
 					cell.setFontSize(6);
 
 					// Set colors
@@ -352,37 +353,37 @@ public class TableTest {
 		Cell<PDPage> cell = row.createCell((100 / 3f), "Hello", HorizontalAlignment.get("center"),
 				VerticalAlignment.get("top"));
 		cell.setTextRotated(true);
-		cell.setFont(PDType1Font.HELVETICA);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 		cell.setFontSize(6);
 
 		Cell<PDPage> cell2 = row.createCell((100 / 3f), "It's me", HorizontalAlignment.get("center"),
 				VerticalAlignment.get("middle"));
 		cell2.setTextRotated(true);
-		cell2.setFont(PDType1Font.HELVETICA);
+		cell2.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 		cell2.setFontSize(6);
 
 		Cell<PDPage> cell3 = row.createCell((100 / 3f), "I was wondering", HorizontalAlignment.get("center"),
 				VerticalAlignment.get("bottom"));
 		cell3.setTextRotated(true);
-		cell3.setFont(PDType1Font.HELVETICA);
+		cell3.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 		cell3.setFontSize(6);
 
 		Row<PDPage> row2 = table.createRow(15f);
 		Cell<PDPage> cell4 = row2.createCell((100 / 3.0f), "Hello", HorizontalAlignment.get("center"),
 				VerticalAlignment.get("top"));
-		cell4.setFont(PDType1Font.HELVETICA);
+		cell4.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 		cell4.setFontSize(6);
 
 		Cell<PDPage> cell5 = row2.createCell((100 / 3f), "can you hear me?", HorizontalAlignment.get("center"),
 				VerticalAlignment.get("middle"));
 		cell5.setTextRotated(true);
-		cell5.setFont(PDType1Font.HELVETICA);
+		cell5.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 		cell5.setFontSize(6);
 
 		Cell<PDPage> cell6 = row2.createCell((100 / 3f),
 				"I'm in California dreaming about who we used to be. When we were younger and free. I've forgotten how it felt before the world fell at our feet",
 				HorizontalAlignment.get("center"), VerticalAlignment.get("bottom"));
-		cell6.setFont(PDType1Font.HELVETICA);
+		cell6.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 		cell6.setFontSize(6);
 		table.draw();
 
@@ -433,7 +434,7 @@ public class TableTest {
 		// Create header row
 		Row<PDPage> headerRow = table.createRow(15f);
 		Cell<PDPage> cell = headerRow.createCell(100, "Awesome Facts About Belgium");
-		cell.setFont(PDType1Font.HELVETICA_BOLD);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD));
 		cell.setFillColor(Color.BLACK);
 		cell.setTextColor(Color.WHITE);
 
@@ -442,23 +443,23 @@ public class TableTest {
 		// Create second header row
 		Row<PDPage> secondHeaderRow = table.createRow(15f);
 		cell = secondHeaderRow.createCell(75, "Source:");
-		cell.setFont(PDType1Font.HELVETICA);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 
 		cell = secondHeaderRow.createCell(25, "http://www.factsofbelgium.com/");
-		cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE));
 
 		table.addHeaderRow(secondHeaderRow);
 
 		// create fact header row
 		Row<PDPage> factHeaderrow = table.createRow(15f);
 		cell = factHeaderrow.createCell((100 / 3f) * 2, "Fact");
-		cell.setFont(PDType1Font.HELVETICA);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 		cell.setFontSize(6);
 		cell.setFillColor(Color.LIGHT_GRAY);
 
 		cell = factHeaderrow.createCell((100 / 3f), "Tags");
 		cell.setFillColor(Color.LIGHT_GRAY);
-		cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
+		cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE));
 		cell.setFontSize(6);
 
 		table.addHeaderRow(factHeaderrow);
@@ -469,7 +470,7 @@ public class TableTest {
 
 			Row<PDPage> row = table.createRow(10f);
 			cell = row.createCell((100 / 3.0f) * 2, fact[0] + " " + fact[0] + " " + fact[0]);
-			cell.setFont(PDType1Font.HELVETICA);
+			cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 			cell.setFontSize(6);
 
 			// Create a bookmark for each record
@@ -489,7 +490,7 @@ public class TableTest {
 					}
 				} else {
 					cell = row.createCell((100 / 9f), fact[i]);
-					cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
+					cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE));
 					cell.setFontSize(6);
 
 					// Set colors
@@ -1130,11 +1131,11 @@ public class TableTest {
 
 		// draw page title
 		PageContentStreamOptimized cos = new PageContentStreamOptimized(new PDPageContentStream(doc, page));
-		PDStreamUtils.write(cos, "Welcome to your first borderless table", PDType1Font.HELVETICA_BOLD, 14, 15, yStart,
+		PDStreamUtils.write(cos, "Welcome to your first borderless table", new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 14, 15, yStart,
 				Color.BLACK);
 		cos.close();
 
-		yStart -= FontUtils.getHeight(PDType1Font.HELVETICA_BOLD, 14) + 15;
+		yStart -= FontUtils.getHeight(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 14) + 15;
 		
 		BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, drawLines,
 				drawContent);

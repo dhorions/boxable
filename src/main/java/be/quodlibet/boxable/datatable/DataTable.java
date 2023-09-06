@@ -19,6 +19,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
 /**
  * Write CSV documents directly to PDF Tables
@@ -78,13 +79,13 @@ public class DataTable {
 		// Header style
 		headerCellTemplate.setFillColor(new Color(137, 218, 245));
 		headerCellTemplate.setTextColor(Color.BLACK);
-		headerCellTemplate.setFont(PDType1Font.HELVETICA_BOLD);
+		headerCellTemplate.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD));
 		headerCellTemplate.setBorderStyle(thinline);
 
 		// Normal cell style, all rows and columns are the same by default
 		defaultCellTemplate.setFillColor(new Color(242, 242, 242));
 		defaultCellTemplate.setTextColor(Color.BLACK);
-		defaultCellTemplate.setFont(PDType1Font.HELVETICA);
+		defaultCellTemplate.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA));
 		defaultCellTemplate.setBorderStyle(thinline);
 
 		dataCellTemplateEven.copyCellStyle(defaultCellTemplate);
