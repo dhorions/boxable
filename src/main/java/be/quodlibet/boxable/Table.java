@@ -713,6 +713,10 @@ public abstract class Table<T extends PDPage> {
                     }
                 }
             }
+
+            PDRectangle rectangle = new PDRectangle(cellStartX, yStart - cell.getHeight(), cell.getWidth(), cell.getHeight());
+            cell.notifyContentDrawnListeners(getDocument(), getCurrentPage(), rectangle);
+
             // set cursor to the start of this cell plus its width to advance to
             // the next cell
             cursorX = cellStartX + cell.getWidth();
