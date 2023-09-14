@@ -14,6 +14,7 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
 public class Cell<T extends PDPage> {
 
@@ -21,8 +22,8 @@ public class Cell<T extends PDPage> {
 	private Float height;
 	private String text;
 
-	private PDFont font = PDType1Font.HELVETICA;
-	private PDFont fontBold = PDType1Font.HELVETICA_BOLD;
+	private PDFont font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+	private PDFont fontBold = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
 
 	private float fontSize = 8;
 	private Color fillColor;
