@@ -1,7 +1,6 @@
 package be.quodlibet.boxable;
 
 import be.quodlibet.boxable.datatable.DataTable;
-import com.google.common.io.Files;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
@@ -86,7 +85,7 @@ public class DataTableTest
         dataTable.draw();
         File file = new File("target/ListExampleLandscape.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
-        Files.createParentDirs(file);
+        file.getParentFile().mkdirs();
         doc.save(file);
         doc.close();
     }
@@ -115,7 +114,7 @@ public class DataTableTest
         dataTable.draw();
         File file = new File("target/CSVexampleColWidths.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
-        Files.createParentDirs(file);
+        file.getParentFile().mkdirs();
         doc.save(file);
         doc.close();
     }
@@ -142,7 +141,7 @@ public class DataTableTest
         dataTable.draw();
         File file = new File("target/CSVexamplePortrait.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
-        Files.createParentDirs(file);
+        file.getParentFile().mkdirs();
         doc.save(file);
         doc.close();
     }
@@ -171,7 +170,7 @@ public class DataTableTest
         dataTable.draw();
         File file = new File("target/CSVexampleLandscape.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
-        Files.createParentDirs(file);
+        file.getParentFile().mkdirs();
         doc.save(file);
         doc.close();
     }
@@ -210,7 +209,7 @@ public class DataTableTest
         dataTable.draw();
         File file = new File("target/CSVexampleSimple.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
-        Files.createParentDirs(file);
+        file.getParentFile().mkdirs();
         doc.save(file);
         doc.close();
 
@@ -261,7 +260,7 @@ public class DataTableTest
         dataTable.draw();
         File file = new File("target/CSVexampleAdvanced.pdf");
         System.out.println("Sample file saved at : " + file.getAbsolutePath());
-        Files.createParentDirs(file);
+        file.getParentFile().mkdirs();
         doc.save(file);
         doc.close();
     }

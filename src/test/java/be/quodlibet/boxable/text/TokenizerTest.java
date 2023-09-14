@@ -1,6 +1,6 @@
 package be.quodlibet.boxable.text;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,32 +9,22 @@ import org.junit.Test;
 
 public class TokenizerTest {
 	
-	private WrappingFunction wrappingFunction = new WrappingFunction() {
-		@Override
-		public String[] getLines(String t) {
-			return t.split("(?<=\\s|-|@|,|\\.|:|;)");
-		}
-	};
+	private WrappingFunction wrappingFunction = null;
 
 	@Test
 	public void testWrapPoints() throws Exception {
 		final String text = "1 123 123456 12";
-		final String[] lines = wrappingFunction.getLines(text);
-		final List<Integer> expected = new ArrayList<>();
-		int pos = 0;
-		for (final String line : lines) {
-			pos += line.length();
-			expected.add(pos);
-		}
-		int index = 0;
 		final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
-		for (final Token token : tokens) {
-			if (TokenType.POSSIBLE_WRAP_POINT.equals(token.getType())) {
-				Assert.assertEquals("Wrap point " + index + " is wrong", "" + expected.get(index), token.getData());
-				index++;
-			}
-		}
-		Assert.assertEquals("Not all possible wrap points were defined", index, expected.size());
+		Assert.assertEquals(Arrays.asList(
+				Token.text(TokenType.TEXT, "1 "),
+				new Token(TokenType.POSSIBLE_WRAP_POINT, ""),
+				Token.text(TokenType.TEXT, "123 "),
+				new Token(TokenType.POSSIBLE_WRAP_POINT, ""),
+				Token.text(TokenType.TEXT, "123456 "),
+				new Token(TokenType.POSSIBLE_WRAP_POINT, ""),
+				Token.text(TokenType.TEXT, "12"),
+				new Token(TokenType.POSSIBLE_WRAP_POINT, "")
+			), tokens);
 	}
 	
 	@Test

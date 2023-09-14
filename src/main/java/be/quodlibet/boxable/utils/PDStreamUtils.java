@@ -43,16 +43,14 @@ public final class PDStreamUtils {
 	 * @param color
 	 *            Color of the text
 	 */
-	public static void write(final PDPageContentStream stream, final String text, final PDFont font,
+	public static void write(final PageContentStreamOptimized stream, final String text, final PDFont font,
 			final float fontSize, final float x, final float y, final Color color) {
 		try {
-			stream.beginText();
 			stream.setFont(font, fontSize);
 			// we want to position our text on his baseline
-			stream.newLineAtOffset(x, y - FontUtils.getDescent(font, fontSize) - FontUtils.getHeight(font, fontSize));
+			stream.newLineAt(x, y - FontUtils.getDescent(font, fontSize) - FontUtils.getHeight(font, fontSize));
 			stream.setNonStrokingColor(color);
 			stream.showText(text);
-			stream.endText();
 		} catch (final IOException e) {
 			throw new IllegalStateException("Unable to write text", e);
 		}
@@ -76,17 +74,13 @@ public final class PDStreamUtils {
 	 * @param color
 	 *            Color of the text
 	 */
-	public static void rect(final PDPageContentStream stream, final float x, final float y, final float width,
+	public static void rect(final PageContentStreamOptimized stream, final float x, final float y, final float width,
 			final float height, final Color color) {
 		try {
 			stream.setNonStrokingColor(color);
 			// negative height because we want to draw down (not up!)
 			stream.addRect(x, y, width, -height);
 			stream.fill();
-			stream.closePath();
-
-			// Reset NonStroking Color to default value
-			stream.setNonStrokingColor(Color.BLACK);
 		} catch (final IOException e) {
 			throw new IllegalStateException("Unable to draw rectangle", e);
 		}
@@ -109,7 +103,7 @@ public final class PDStreamUtils {
 	 * @param fontSize
 	 *            Font size
 	 */
-	public static void rectFontMetrics(final PDPageContentStream stream, final float x, final float y,
+	public static void rectFontMetrics(final PageContentStreamOptimized stream, final float x, final float y,
 			final PDFont font, final float fontSize) {
 		// height
 		PDStreamUtils.rect(stream, x, y, 3, FontUtils.getHeight(font, fontSize), Color.BLUE);
@@ -132,8 +126,7 @@ public final class PDStreamUtils {
 	 *            The {@link LineStyle} that would be applied
 	 * @throws IOException If the content stream could not be written or the line color cannot be retrieved.
 	 */
-	public static void setLineStyles(final PDPageContentStream stream, final LineStyle line) throws IOException {
-		stream.setNonStrokingColor(line.getColor());
+	public static void setLineStyles(final PageContentStreamOptimized stream, final LineStyle line) throws IOException {
 		stream.setStrokingColor(line.getColor());
 		stream.setLineWidth(line.getWidth());
 		stream.setLineCapStyle(0);
