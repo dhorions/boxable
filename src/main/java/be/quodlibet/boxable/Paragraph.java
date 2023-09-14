@@ -24,6 +24,7 @@ import be.quodlibet.boxable.text.Tokenizer;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
 import be.quodlibet.boxable.utils.PDStreamUtils;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
 public class Paragraph {
 
@@ -86,9 +87,9 @@ public class Paragraph {
 		this.font = font;
 		// check if we have different default font for italic and bold text
 		if (FontUtils.getDefaultfonts().isEmpty()) {
-			fontBold = PDType1Font.HELVETICA_BOLD;
-			fontItalic = PDType1Font.HELVETICA_OBLIQUE;
-			fontBoldItalic = PDType1Font.HELVETICA_BOLD_OBLIQUE;
+			fontBold = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+			fontItalic = new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE);
+			fontBoldItalic = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD_OBLIQUE);
 		} else {
 			fontBold = FontUtils.getDefaultfonts().get("fontBold");
 			fontBoldItalic = FontUtils.getDefaultfonts().get("fontBoldItalic");
