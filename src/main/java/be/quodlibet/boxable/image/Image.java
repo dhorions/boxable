@@ -6,8 +6,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+
 
 public class Image {
 
@@ -21,6 +23,8 @@ public class Image {
 
 	// standard DPI
 	private float[] dpi = { 72, 72 };
+
+	private float quality = 1f;
 
 	/**
 	 * <p>
@@ -64,10 +68,14 @@ public class Image {
 	 *            Y coordinate for image drawing
 	 * @throws IOException if loading image fails
 	 */
-    public void draw(final PDDocument doc, final PageContentStreamOptimized stream, float x, float y) throws IOException
-    {
+	public void draw(final PDDocument doc, final PageContentStreamOptimized stream, float x, float y) throws IOException
+	{
 		if (imageXObject == null) {
-			imageXObject = LosslessFactory.createFromImage(doc, image);
+			if(quality == 1f) {
+				imageXObject = LosslessFactory.createFromImage(doc, image);
+			} else {
+				imageXObject = JPEGFactory.createFromImage(doc, image, quality);
+			}
 		}
 		stream.drawImage(imageXObject, x, y - height, width, height);
 	}
@@ -150,5 +158,13 @@ public class Image {
 
 	public float getWidth() {
 		return width;
+	}
+
+	public void setQuality(float quality) throws IllegalArgumentException {
+		if(quality <= 0 || quality > 1) {
+			throw new IllegalArgumentException(
+					"The quality value must be configured greater than zero and less than or equal to 1");
+		}
+		this.quality = quality;
 	}
 }
