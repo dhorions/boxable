@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import be.quodlibet.boxable.utils.PageContentStreamOptimized;
@@ -107,6 +108,11 @@ public class TableTest {
 					} catch (final URISyntaxException e) {
 						e.printStackTrace();
 					}
+				} else if(fact[i].equalsIgnoreCase("Google")) {
+					cell = row.createCell((100 / 9f), fact[i]);
+					cell.setFont(PDType1Font.HELVETICA_OBLIQUE);
+					cell.setFontSize(6);
+					cell.setUrl(new URL("https://www.google.de"));
 				} else {
 					cell = row.createCell((100 / 9f), fact[i]);
 					cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE));
@@ -133,6 +139,8 @@ public class TableTest {
 
 	private static List<String[]> getFacts() {
 		List<String[]> facts = new ArrayList<String[]>();
+		facts.add(new String[] { "URL TEST: Tag 1 is a URL", "Google", "nothing",
+				"Who Am I?" });
 		facts.add(new String[] { "Oil Painting was invented by the Belgian van Eyck brothers", "art", "inventions",
 				"science" });
 		facts.add(new String[] { "The Belgian Adolphe Sax invented the Saxophone", "inventions", "music", "" });

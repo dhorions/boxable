@@ -5,6 +5,7 @@
 package be.quodlibet.boxable;
 
 import java.awt.Color;
+import java.net.URL;
 import java.io.IOException;
 
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -21,6 +22,8 @@ public class Cell<T extends PDPage> {
 	private float width;
 	private Float height;
 	private String text;
+
+	private URL url = null;
 
 	private PDFont font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
 	private PDFont fontBold = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
@@ -743,6 +746,14 @@ public class Cell<T extends PDPage> {
 
 	public void setLineSpacing(float lineSpacing) {
 		this.lineSpacing = lineSpacing;
+	}
+
+	public URL getUrl() {
+		return url;
+	}
+
+	public void setUrl(URL url) {
+		this.url = url;
 	}
 
 }
