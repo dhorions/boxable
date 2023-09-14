@@ -23,6 +23,10 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
+import org.apache.pdfbox.pdmodel.interactive.action.PDActionURI;
+import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
+import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationLink;
+import org.apache.pdfbox.pdmodel.interactive.annotation.PDBorderStyleDictionary;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageXYZDestination;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 
@@ -79,7 +83,7 @@ public abstract class Table<T extends PDPage> {
         this(yStart, yStartNewPage, 0, pageBottomMargin, width, margin, document, currentPage, drawLines, drawContent,
                 null);
     }
-
+  
     /**
      * @deprecated Use one of the constructors that pass a {@link PageProvider}
      * @param yStartNewPage Y position where possible new page of {@link Table}
@@ -115,7 +119,7 @@ public abstract class Table<T extends PDPage> {
         this.pageProvider = pageProvider;
         loadFonts();
     }
-
+  
     public Table(float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width, float margin,
             PDDocument document, boolean drawLines, boolean drawContent, PageProvider<T> pageProvider)
             throws IOException {
@@ -394,6 +398,28 @@ public abstract class Table<T extends PDPage> {
                         break;
                 }
                 imageCell.getImage().draw(document, tableContentStream, cursorX, cursorY);
+              
+                if (imageCell.getUrl() != null) {
+                    List<PDAnnotation> annotations = ((PDPage)currentPage).getAnnotations();
+
+                    PDBorderStyleDictionary borderULine = new PDBorderStyleDictionary();
+                    borderULine.setStyle(PDBorderStyleDictionary.STYLE_UNDERLINE);
+                    borderULine.setWidth(1); // 1 point
+
+                    PDAnnotationLink txtLink = new PDAnnotationLink();
+                    txtLink.setBorderStyle(borderULine);
+
+                    // Set the rectangle containing the link
+                    // PDRectangle sets a the x,y and the width and height extend upwards from that!
+                    PDRectangle position = new PDRectangle(cursorX, cursorY, (float)(imageCell.getImage().getWidth()), -(float)(imageCell.getImage().getHeight()));
+                    txtLink.setRectangle(position);
+
+                    // add an action
+                    PDActionURI action = new PDActionURI();
+                    action.setURI(imageCell.getUrl().toString());
+                    txtLink.setAction(action);
+                    annotations.add(txtLink);
+                }
 
             } else if (cell instanceof TableCell) {
                 final TableCell<T> tableCell = (TableCell<T>) cell;
@@ -537,6 +563,22 @@ public abstract class Table<T extends PDPage> {
                         case BOTTOM:
                             cursorY -= cell.getVerticalFreeSpace();
                             break;
+                    }
+                  
+                    if (cell.getUrl() != null) {
+                        List<PDAnnotation> annotations = ((PDPage)currentPage).getAnnotations();
+                        PDAnnotationLink txtLink = new PDAnnotationLink();
+
+                        // Set the rectangle containing the link
+                        // PDRectangle sets a the x,y and the width and height extend upwards from that!
+                        PDRectangle position = new PDRectangle(cursorX - 5, cursorY + 10, (float)(cell.getWidth()), -(float)(cell.getHeight()));
+                        txtLink.setRectangle(position);
+
+                        // add an action
+                        PDActionURI action = new PDActionURI();
+                        action.setURI(cell.getUrl().toString());
+                        txtLink.setAction(action);
+                        annotations.add(txtLink);
                     }
 
                 }

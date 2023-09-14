@@ -5,6 +5,7 @@
 package be.quodlibet.boxable;
 
 import java.awt.Color;
+import java.net.URL;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
 public class Cell<T extends PDPage> {
 
@@ -25,8 +27,10 @@ public class Cell<T extends PDPage> {
 	private Float height;
 	private String text;
 
-	private PDFont font = PDType1Font.HELVETICA;
-	private PDFont fontBold = PDType1Font.HELVETICA_BOLD;
+	private URL url = null;
+
+	private PDFont font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+	private PDFont fontBold = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
 
 	private float fontSize = 8;
 	private Color fillColor;
@@ -763,4 +767,14 @@ public class Cell<T extends PDPage> {
 			listener.onContentDrawn(this, document, page, rectangle);
 		}
 	}
+
+	public URL getUrl() {
+		return url;
+	}
+
+	public void setUrl(URL url) {
+		this.url = url;
+	}
+
+
 }
