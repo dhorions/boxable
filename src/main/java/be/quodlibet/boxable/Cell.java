@@ -106,8 +106,8 @@ public class Cell<T extends PDPage> {
 			VerticalAlignment valign) {
 		this.row = row;
 		if (isCalculated) {
-			double calclulatedWidth = ((row.getWidth() * width) / 100);
-			this.width = (float) calclulatedWidth;
+			double calculatedWidth = row.getWidth() * (width / 100);
+			this.width = (float) calculatedWidth;
 		} else {
 			this.width = width;
 		}
@@ -363,7 +363,7 @@ public class Cell<T extends PDPage> {
 	 * <li>Normal value - cell's height is equal to {@link Paragraph}'s height
 	 * with necessery paddings (top,bottom)</li>
 	 * </ol>
-	 * 
+	 *
 	 * @return Cell's height
 	 * @throws IllegalStateException
 	 *             if <code>font</code> is not set.
@@ -633,7 +633,7 @@ public class Cell<T extends PDPage> {
 	/**
 	 * <p>
 	 * Easy setting for cell border style.
-	 * 
+	 *
 	 * @param border
 	 *            It is {@link LineStyle} for all borders
 	 * @see LineStyle Rendering line attributes
