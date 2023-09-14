@@ -87,7 +87,8 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		try {
 			// please consider the cell's paddings
 			float tableWidth = this.width - getLeftPadding() - getRightPadding();
-			tableCellContentStream = new PageContentStreamOptimized(new PDPageContentStream(doc, page, true, true));
+			tableCellContentStream = new PageContentStreamOptimized(new PDPageContentStream(doc, page,
+					PDPageContentStream.AppendMode.APPEND, true));
 			// check if there is some additional text outside inner table
 			String[] outerTableText = tableData.split("<table");
 			// don't forget to attach splited tag
@@ -353,7 +354,8 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		try {
 			// please consider the cell's paddings
 			float tableWidth = this.width - getLeftPadding() - getRightPadding();
-			tableCellContentStream = new PageContentStreamOptimized(new PDPageContentStream(doc, page, true, true));
+			tableCellContentStream = new PageContentStreamOptimized(new PDPageContentStream(doc, page,
+					PDPageContentStream.AppendMode.APPEND, true));
 			// check if there is some additional text outside inner table
 			String[] outerTableText = tableData.split("<table");
 			// don't forget to attach splited tag

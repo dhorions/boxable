@@ -1,5 +1,5 @@
 wrapper {
-	gradleVersion = '2.13'
+	gradleVersion = '7.4.2'
 }
 
 apply plugin: 'java'
@@ -26,11 +26,10 @@ repositories {
 }
 
 dependencies {
-	compile 'org.apache.pdfbox:pdfbox:2.0.3'
-	compile 'org.slf4j:slf4j-api:1.7.21'
-	compile 'com.google.guava:guava:20.0'
-	compile 'org.apache.commons:commons-csv:1.4'
-	compile group: 'org.jsoup', name: 'jsoup', version: '1.9.2'
-	testCompile 'junit:junit:4.12'
-	testCompile 'commons-io:commons-io:2.4'
+	implementation 'org.apache.pdfbox:pdfbox:3.0.0'
+	implementation 'org.slf4j:slf4j-api:1.7.36'
+	implementation 'org.apache.commons:commons-csv:1.9.0'
+	implementation group: 'org.jsoup', name: 'jsoup', version: '1.15.1'
+	testImplementation 'junit:junit:4.13.2'
+	testImplementation 'commons-io:commons-io:2.11.0'
 }
