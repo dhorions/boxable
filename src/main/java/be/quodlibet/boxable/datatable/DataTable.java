@@ -355,32 +355,31 @@ public class DataTable {
 	 * @throws IOException parsing error
 	 */
 	public void addListToTable(List<List> data, Boolean hasHeader) throws IOException {
-		char separator = ';';
 		if (data == null || data.isEmpty()) {
 			return;
 		}
-		String output = "";
+		StringBuilder output = new StringBuilder();
+		char separator = ';';
+
 		// Convert Map of arbitrary objects to a csv String
 		for (List<? extends Object> inputList : data) {
+			StringBuilder row = new StringBuilder();
 			for (Object v : inputList) {
 				String value = v.toString();
 				if (value.contains("" + separator)) {
 					// surround value with quotes if it contains the escape
 					// character
 					value = "\"" + value + "\"";
-				}				
+				}
 				value = value.replaceAll("\n", "<br>");
-				output += value + separator;
+				row.append(value).append(separator);
 			}
 			// remove the last separator
-			output = removeLastChar(output);
-			output += "\n";
+			row = new StringBuilder(row.substring(0, row.length() - 1));
+			output.append(row).append("\n");
 		}
-		addCsvToTable(output, hasHeader, separator);
-	}
 
-	private static String removeLastChar(String str) {
-		return str.substring(0, str.length() - 1);
+		addCsvToTable(output.toString(), hasHeader, separator);
 	}
 
 	/**
