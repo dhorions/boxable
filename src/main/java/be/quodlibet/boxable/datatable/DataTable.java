@@ -20,6 +20,7 @@ import java.util.Map;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
@@ -365,7 +366,7 @@ public class DataTable {
 		for (List<? extends Object> inputList : data) {
 			StringBuilder row = new StringBuilder();
 			for (Object v : inputList) {
-				String value = v.toString();
+				String value = StringEscapeUtils.escapeCsv(v.toString());
 				if (value.contains("" + separator)) {
 					// surround value with quotes if it contains the escape
 					// character
