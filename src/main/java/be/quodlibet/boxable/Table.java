@@ -1,4 +1,3 @@
-
 /*
  Quodlibet.be
  */
@@ -56,6 +55,8 @@ public abstract class Table<T extends PDPage> {
 
     private PageProvider<T> pageProvider;
 
+    private RowWrappingFunction rowWrappingFunction = new DefaultRowWrappingFunction();
+
     // page margins
     private final float pageTopMargin;
     private final float pageBottomMargin;
@@ -83,7 +84,7 @@ public abstract class Table<T extends PDPage> {
         this(yStart, yStartNewPage, 0, pageBottomMargin, width, margin, document, currentPage, drawLines, drawContent,
                 null);
     }
-  
+
     /**
      * @deprecated Use one of the constructors that pass a {@link PageProvider}
      * @param yStartNewPage Y position where possible new page of {@link Table}
@@ -223,11 +224,16 @@ public abstract class Table<T extends PDPage> {
     public float draw() throws IOException {
         ensureStreamIsOpen();
 
+        calcWrapHeightsAndRowHeights();
+
+        // for the first row in the table, we have to draw the top border
+        removeTopBorders = false;
+
         for (Row<T> row : rows) {
             if (header.contains(row)) {
                 // check if header row height and first data row height can fit
                 // the page
-                // if not draw them on another side
+                // if not draw them on another page
                 if (isEndOfPage(getMinimumHeight())) {
                     pageBreak();
                     tableStartedAtNewPage = true;
@@ -241,17 +247,9 @@ public abstract class Table<T extends PDPage> {
     }
 
     private void drawRow(Row<T> row) throws IOException {
-        // row.getHeight is currently an extremely expensive function so get the value
-        // once during drawing and reuse it, since it will not change during drawing
-        float rowHeight = row.getHeight();
-
-        // if it is not header row or first row in the table then remove row's
-        // top border
-        if (row != header && row != rows.get(0)) {
-            if (!isEndOfPage(rowHeight)) {
-                row.removeTopBorders();
-            }
-        }
+        // row.getHeight is currently an extremely expensive function, so we get the value
+        // calculated in calcWrapHeightsAndRowHeights, since it will not change during drawing
+        float rowHeight = row.getLineHeight();
 
         // draw the bookmark
         if (row.getBookmark() != null) {
@@ -262,15 +260,12 @@ public abstract class Table<T extends PDPage> {
             this.addBookmark(row.getBookmark());
         }
 
-        // we want to remove the borders as often as possible
-        removeTopBorders = true;
-
         // check also if we want all borders removed
         if (allBordersRemoved()) {
             row.removeAllBorders();
         }
 
-        if (isEndOfPage(rowHeight) && !header.contains(row)) {
+        if (isEndOfPage(row.getSavedWrapHeight()) && !header.contains(row)) {
 
             // Draw line at bottom of table
             endTable();
@@ -278,33 +273,15 @@ public abstract class Table<T extends PDPage> {
             // insert page break
             pageBreak();
 
-            // redraw all headers on each currentPage
-            if (!header.isEmpty()) {
-                for (Row<T> headerRow : header) {
-                    drawRow(headerRow);
-                }
-                // after you draw all header rows on next page please keep
-                // removing top borders to avoid double border drawing
-                removeTopBorders = true;
-            } else {
-                // after a page break, we have to ensure that top borders get
-                // drawn
-                removeTopBorders = false;
+            // after a page break, we have to ensure that top borders get
+            // drawn
+            removeTopBorders = false;
+
+            // redraw all headers on each page
+            for (Row<T> headerRow : header) {
+                drawRow(headerRow);
             }
-        }
-        // if it is first row in the table, we have to draw the top border
-        if (row == rows.get(0)) {
-            removeTopBorders = false;
-        }
 
-        if (removeTopBorders) {
-            row.removeTopBorders();
-        }
-
-        // if it is header row or first row in the table, we have to draw the
-        // top border
-        if (row == rows.get(0)) {
-            removeTopBorders = false;
         }
 
         if (removeTopBorders) {
@@ -318,6 +295,9 @@ public abstract class Table<T extends PDPage> {
         if (drawContent) {
             drawCellContent(row, rowHeight);
         }
+        //would be better to check line presence between rows and
+        //draw exactly what's needed between two rows in one go.
+        removeTopBorders = row.hasBottomBorder();
     }
 
     /**
@@ -398,9 +378,9 @@ public abstract class Table<T extends PDPage> {
                         break;
                 }
                 imageCell.getImage().draw(document, tableContentStream, cursorX, cursorY);
-              
+
                 if (imageCell.getUrl() != null) {
-                    List<PDAnnotation> annotations = ((PDPage)currentPage).getAnnotations();
+                    List<PDAnnotation> annotations = ((PDPage) currentPage).getAnnotations();
 
                     PDBorderStyleDictionary borderULine = new PDBorderStyleDictionary();
                     borderULine.setStyle(PDBorderStyleDictionary.STYLE_UNDERLINE);
@@ -411,7 +391,7 @@ public abstract class Table<T extends PDPage> {
 
                     // Set the rectangle containing the link
                     // PDRectangle sets a the x,y and the width and height extend upwards from that!
-                    PDRectangle position = new PDRectangle(cursorX, cursorY, (float)(imageCell.getImage().getWidth()), -(float)(imageCell.getImage().getHeight()));
+                    PDRectangle position = new PDRectangle(cursorX, cursorY, (float) (imageCell.getImage().getWidth()), -(float) (imageCell.getImage().getHeight()));
                     txtLink.setRectangle(position);
 
                     // add an action
@@ -564,14 +544,14 @@ public abstract class Table<T extends PDPage> {
                             cursorY -= cell.getVerticalFreeSpace();
                             break;
                     }
-                  
+
                     if (cell.getUrl() != null) {
-                        List<PDAnnotation> annotations = ((PDPage)currentPage).getAnnotations();
+                        List<PDAnnotation> annotations = ((PDPage) currentPage).getAnnotations();
                         PDAnnotationLink txtLink = new PDAnnotationLink();
 
                         // Set the rectangle containing the link
                         // PDRectangle sets a the x,y and the width and height extend upwards from that!
-                        PDRectangle position = new PDRectangle(cursorX - 5, cursorY + 10, (float)(cell.getWidth()), -(float)(cell.getHeight()));
+                        PDRectangle position = new PDRectangle(cursorX - 5, cursorY + 10, (float) (cell.getWidth()), -(float) (cell.getHeight()));
                         txtLink.setRectangle(position);
 
                         // add an action
@@ -938,6 +918,10 @@ public abstract class Table<T extends PDPage> {
         this.yStart = yStart;
     }
 
+    public void setRowWrappingFunction(RowWrappingFunction rowWrappingFunction) {
+        this.rowWrappingFunction = rowWrappingFunction;
+    }
+
     public boolean isDrawDebug() {
         return drawDebug;
     }
@@ -978,4 +962,33 @@ public abstract class Table<T extends PDPage> {
         this.removeAllBorders = removeAllBorders;
     }
 
+    protected float calcWrapHeight(Row<T> tRow) {
+        int[] wrappableRows = rowWrappingFunction.getWrappableRows(rows);
+        int currentRow = rows.indexOf(tRow);
+        for (int wrappableRow : wrappableRows) {
+            if (wrappableRow > currentRow) {
+                float wrapHeight = 0;
+                for (int i = currentRow; i < wrappableRow; i++) {
+                    wrapHeight += rows.get(i).getHeight();
+                }
+                return wrapHeight;
+            }
+        }
+
+        return tRow.getHeight();
+    }
+
+    protected void calcWrapHeightsAndRowHeights() {
+        int[] wrappableRows = rowWrappingFunction.getWrappableRows(rows);
+        int prevRow = rows.size();
+        for (int i = wrappableRows.length - 1; i >= 0; i--) {
+            int wrappableRow = wrappableRows[i];
+            float height = 0;
+            for (int j = prevRow - 1; j >= wrappableRow; j--) {
+                height += rows.get(j).getHeight();
+                rows.get(j).setWrapHeight(height);
+            }
+            prevRow = wrappableRow;
+        }
+    }
 }

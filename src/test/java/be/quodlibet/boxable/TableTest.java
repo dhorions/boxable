@@ -1256,6 +1256,76 @@ public class TableTest {
 		assertTrue(callbackCalled[0]);
 	}
 
+	/**
+	 * <p>
+	 * Test for a  table using the following features :
+	 * <ul>
+	 * <li> default row wrapping</li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @throws IOException
+	 */
+	@Test
+	public void SampleTest13() throws IOException {
+		// Set margins
+		float margin = 10;
+
+		// Initialize Document
+		PDDocument doc = new PDDocument();
+		PDPage page = addNewPage(doc);
+
+		// Initialize table
+		float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
+		float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+		boolean drawContent = true;
+		boolean drawLines = true;
+		float yStart = yStartNewPage;
+		float pageBottomMargin = 70;
+		float pageTopMargin = 2*margin;
+		BaseTable table = new BaseTable(yStart, yStartNewPage, pageBottomMargin, tableWidth, margin, doc, page, drawLines,
+				drawContent);
+
+		// set default line spacing for entire table
+		table.setLineSpacing(1.5f);
+
+		//ten unwrappable blocks
+		for (int i = 0; i < 10; i++) {
+			// first row in unwrappabe block
+			Row<PDPage> row = table.createRow(10f);
+			row.createCell(40,"first test");
+			row.createCell(30,"first test");
+			Cell<PDPage> lastCell = row.createCell(30, "first test");
+			lastCell.setBottomBorderStyle(null);
+
+			// 13 more rows
+			for (int j = 0; j < 13; j++) {
+				row = table.createRow(10f);
+				row.createCell(40,"test");
+				row.createCell(30,"test");
+				lastCell = row.createCell(30, "test");
+				lastCell.setBottomBorderStyle(null);
+				lastCell.setTopBorderStyle(null);
+			}
+			// last row in unwrappabe block
+			row = table.createRow(10f);
+			row.createCell(40,"test");
+			row.createCell(30,"test");
+			lastCell = row.createCell(30, "test");
+			lastCell.setTopBorderStyle(null);
+		}
+		table.draw();
+
+		// Save the document
+		File file = new File("target/BoxableSample13.pdf");
+		System.out.println("Sample file saved at : " + file.getAbsolutePath());
+		file.getParentFile().mkdirs();
+		doc.save(file);
+		doc.close();
+
+
+	}
+
 	private static PDPage addNewPage(PDDocument doc) {
 		PDPage page = new PDPage();
 		doc.addPage(page);

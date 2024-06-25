@@ -22,6 +22,7 @@ public class Row<T extends PDPage> {
 	private boolean headerRow = false;
 	float height;
 	private float lineSpacing = 1;
+	private float wrapHeight = -1;
 
 	Row(Table<T> table, List<Cell<T>> cells, float height) {
 		this.table = table;
@@ -284,5 +285,33 @@ public class Row<T extends PDPage> {
 
 	public void setLineSpacing(float lineSpacing) {
 		this.lineSpacing = lineSpacing;
+	}
+
+
+	/**
+	 * Finds out, taking restricted row wrapping into account, how much vertical space this row,
+	 * together with all un-wrappable rows that follow, will take.
+	 *
+	 * @return wrapHeight
+	 */
+	public float getWrapHeight() {
+		return table.calcWrapHeight(this);
+	}
+
+	protected void setWrapHeight(float wrapHeight) {
+		this.wrapHeight = wrapHeight;
+	}
+
+	protected float getSavedWrapHeight() {
+		return this.wrapHeight;
+	}
+
+	public boolean hasBottomBorder() {
+		for (Cell<T> cell : cells) {
+			if (cell.getBottomBorder() == null) {
+				return false;
+			}
+		}
+		return !cells.isEmpty();
 	}
 }
