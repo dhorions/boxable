@@ -2,7 +2,6 @@ package be.quodlibet.boxable;
 
 import be.quodlibet.boxable.datatable.DataTable;
 import be.quodlibet.boxable.datatable.UpdateCellProperty;
-import com.google.common.io.Files;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
