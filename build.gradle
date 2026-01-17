@@ -1,35 +1,49 @@
-wrapper {
-	gradleVersion = '7.4.2'
+plugins {
+    id 'java'
 }
 
-apply plugin: 'java'
-
-sourceCompatibility = 1.7
+group = 'com.github.dhorions'
 
 /*
  * Gets the version name from the latest Git tag
  */
-def getVersionName = {
-	->
-	def stdout = new ByteArrayOutputStream()
-	exec {
-		commandLine 'git', 'describe', '--tags'
-		standardOutput = stdout
-	}
-	return stdout.toString().trim()
+def getVersionName = { ->
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'describe', '--tags'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    } catch (Exception e) {
+        return '1.7.3-SNAPSHOT'
+    }
 }
+
 version = getVersionName()
-group = 'com.github.dgautier'
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.apache.pdfbox:pdfbox:3.0.0'
-	implementation 'org.slf4j:slf4j-api:1.7.36'
-	implementation 'org.apache.commons:commons-csv:1.9.0'
-	implementation group: 'org.jsoup', name: 'jsoup', version: '1.15.1'
-	testImplementation 'junit:junit:4.13.2'
-	testImplementation 'commons-io:commons-io:2.11.0'
+    implementation 'org.apache.pdfbox:pdfbox:3.0.6'
+    implementation 'org.slf4j:slf4j-api:2.0.17'
+    implementation 'org.apache.commons:commons-csv:1.14.1'
+    implementation 'org.jsoup:jsoup:1.22.1'
+    testImplementation 'com.google.guava:guava:33.5.0-jre'
+    testImplementation 'org.junit.vintage:junit-vintage-engine:6.0.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'commons-io:commons-io:2.21.0'
 }
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
