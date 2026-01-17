@@ -8,10 +8,12 @@ import java.util.Stack;
 public final class Tokenizer {
 
 	private static final Token OPEN_TAG_I = new Token(TokenType.OPEN_TAG, "i");
+	private static final Token OPEN_TAG_S = new Token(TokenType.OPEN_TAG, "s");
 	private static final Token OPEN_TAG_B = new Token(TokenType.OPEN_TAG, "b");
 	private static final Token OPEN_TAG_OL = new Token(TokenType.OPEN_TAG, "ol");
 	private static final Token OPEN_TAG_UL = new Token(TokenType.OPEN_TAG, "ul");
 	private static final Token CLOSE_TAG_I = new Token(TokenType.CLOSE_TAG, "i");
+	private static final Token CLOSE_TAG_S = new Token(TokenType.CLOSE_TAG, "s");
 	private static final Token CLOSE_TAG_B = new Token(TokenType.CLOSE_TAG, "b");
 	private static final Token CLOSE_TAG_OL = new Token(TokenType.CLOSE_TAG, "ol");
 	private static final Token CLOSE_TAG_UL = new Token(TokenType.CLOSE_TAG, "ul");
@@ -99,6 +101,16 @@ public final class Tokenizer {
 								sb.delete(0, sb.length());
 							}
 							tokens.add(OPEN_TAG_I);
+							textIndex += 2;
+							consumed = true;
+						} else if ('s' == lookahead1 && '>' == lookahead2) {
+							// <s>
+							if (sb.length() > 0) {
+								tokens.add(Token.text(TokenType.TEXT, sb.toString()));
+								// clean string builder
+								sb.delete(0, sb.length());
+							}
+							tokens.add(OPEN_TAG_S);
 							textIndex += 2;
 							consumed = true;
 						} else if ('b' == lookahead1 && '>' == lookahead2) {
@@ -221,6 +233,15 @@ public final class Tokenizer {
 											sb.delete(0, sb.length());
 										}
 										tokens.add(CLOSE_TAG_I);
+										textIndex += 3;
+										consumed = true;
+									} else if ('s' == lookahead2) {
+										// </s>
+										if (sb.length() > 0) {
+											tokens.add(Token.text(TokenType.TEXT, sb.toString()));
+											sb.delete(0, sb.length());
+										}
+										tokens.add(CLOSE_TAG_S);
 										textIndex += 3;
 										consumed = true;
 									} else if ('b' == lookahead2) {
