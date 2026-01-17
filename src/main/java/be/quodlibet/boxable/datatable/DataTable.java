@@ -429,9 +429,7 @@ public class DataTable {
 						}
 						float textWidth = FontUtils.getStringWidth(headerCellTemplate.getFont(), " " + cellValue + " ",
 								headerCellTemplate.getFontSize());
-						float widthPct = textWidth * 100 / table.getWidth();
-						// apply width factor
-						widthPct = widthPct * sizefactor;
+						float widthPct = (float) ((double)textWidth * 100 / (double)totalWidth);
 						colWidths.put(i, widthPct);
 					}
 				} else {
