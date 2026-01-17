@@ -10,11 +10,13 @@ public final class Tokenizer {
 	private static final Token OPEN_TAG_I = new Token(TokenType.OPEN_TAG, "i");
 	private static final Token OPEN_TAG_S = new Token(TokenType.OPEN_TAG, "s");
 	private static final Token OPEN_TAG_B = new Token(TokenType.OPEN_TAG, "b");
+	private static final Token OPEN_TAG_U = new Token(TokenType.OPEN_TAG, "u");
 	private static final Token OPEN_TAG_OL = new Token(TokenType.OPEN_TAG, "ol");
 	private static final Token OPEN_TAG_UL = new Token(TokenType.OPEN_TAG, "ul");
 	private static final Token CLOSE_TAG_I = new Token(TokenType.CLOSE_TAG, "i");
 	private static final Token CLOSE_TAG_S = new Token(TokenType.CLOSE_TAG, "s");
 	private static final Token CLOSE_TAG_B = new Token(TokenType.CLOSE_TAG, "b");
+	private static final Token CLOSE_TAG_U = new Token(TokenType.CLOSE_TAG, "u");
 	private static final Token CLOSE_TAG_OL = new Token(TokenType.CLOSE_TAG, "ol");
 	private static final Token CLOSE_TAG_UL = new Token(TokenType.CLOSE_TAG, "ul");
 	private static final Token CLOSE_TAG_P = new Token(TokenType.CLOSE_TAG, "p");
@@ -176,6 +178,16 @@ public final class Tokenizer {
 							tokens.add(WRAP_POINT_P);
 							textIndex += 2;
 							consumed = true;
+						} else if ('u' == lookahead1 && '>' == lookahead2) {
+							// <u>
+							if (sb.length() > 0) {
+								tokens.add(Token.text(TokenType.TEXT, sb.toString()));
+								// clean string builder
+								sb.delete(0, sb.length());
+							}
+							tokens.add(OPEN_TAG_U);
+							textIndex += 2;
+							consumed = true;
 						} else if ('o' == lookahead1 && 'l' == lookahead2) {
 							// <ol>
 							if (textIndex < text.length() - 3) {
@@ -251,6 +263,15 @@ public final class Tokenizer {
 											sb.delete(0, sb.length());
 										}
 										tokens.add(CLOSE_TAG_B);
+										textIndex += 3;
+										consumed = true;
+									} else if ('u' == lookahead2) {
+										// </u>
+										if (sb.length() > 0) {
+											tokens.add(Token.text(TokenType.TEXT, sb.toString()));
+											sb.delete(0, sb.length());
+										}
+										tokens.add(CLOSE_TAG_U);
 										textIndex += 3;
 										consumed = true;
 									} else if ('p' == lookahead2) {

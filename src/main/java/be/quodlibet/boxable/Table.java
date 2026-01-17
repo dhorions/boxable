@@ -574,6 +574,7 @@ public abstract class Table<T extends PDPage> {
                 int italicCounter = 0;
                 int boldCounter = 0;
                 int strikeThroughCounter = 0;
+                int underlineCounter = 0;
 
                 this.tableContentStream.setRotated(cell.isTextRotated());
 
@@ -624,6 +625,8 @@ public abstract class Table<T extends PDPage> {
                                     italicCounter++;
                                 } else if ("s".equals(token.getData())) {
                                     strikeThroughCounter++;
+                                } else if ("u".equals(token.getData())) {
+                                    underlineCounter++;
                                 }
                                 break;
                             case CLOSE_TAG:
@@ -633,6 +636,8 @@ public abstract class Table<T extends PDPage> {
                                     italicCounter = Math.max(italicCounter - 1, 0);
                                 } else if ("s".equals(token.getData())) {
                                     strikeThroughCounter = Math.max(strikeThroughCounter - 1, 0);
+                                } else if ("u".equals(token.getData())) {
+                                    underlineCounter = Math.max(underlineCounter - 1, 0);
                                 }
                                 break;
                             case PADDING:
@@ -688,6 +693,12 @@ public abstract class Table<T extends PDPage> {
                                             float fontHeight = FontUtils.getHeight(currentFont, cell.getFontSize());
                                             float strikethroughY = cursorY + fontHeight / 3;
                                             PDStreamUtils.rect(tableContentStream, cursorX, strikethroughY, textWidth, fontHeight / 15, cell.getTextColor());
+                                        }
+                                        if (underlineCounter > 0) {
+                                            float textWidth = token.getWidth(currentFont) / 1000 * cell.getFontSize();
+                                            float fontHeight = FontUtils.getHeight(currentFont, cell.getFontSize());
+                                            float underlineY = cursorY - fontHeight / 10;
+                                            PDStreamUtils.rect(tableContentStream, cursorX, underlineY, textWidth, fontHeight / 15, cell.getTextColor());
                                         }
                                         cursorX += token.getWidth(currentFont) / 1000 * cell.getFontSize();
                                     } catch (IOException e) {
