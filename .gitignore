@@ -25,5 +25,4 @@ nb-configuration.xml
 .classpath
 .project
 .vscode
-.project
-.classpath
+private.key
