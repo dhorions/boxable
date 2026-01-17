@@ -792,6 +792,8 @@ public abstract class Table<T extends PDPage> {
             // set cursor to the start of this cell plus its width to advance to
             // the next cell
             cursorX = cellStartX + cell.getWidth();
+
+            cell.clearParagraph();
         }
 
     }
@@ -1077,8 +1079,14 @@ public abstract class Table<T extends PDPage> {
             int wrappableRow = wrappableRows[i];
             float height = 0;
             for (int j = prevRow - 1; j >= wrappableRow; j--) {
-                height += rows.get(j).getHeight();
-                rows.get(j).setWrapHeight(height);
+                Row<T> row = rows.get(j);
+                height += row.getHeight();
+                row.setWrapHeight(height);
+
+                // Clear paragraphs to release memory as they are recreated during drawing anyway
+                for(Cell<T> cell : row.getCells()) {
+                    cell.clearParagraph();
+                }
             }
             prevRow = wrappableRow;
         }

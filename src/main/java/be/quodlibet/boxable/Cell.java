@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.net.URL;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -29,8 +30,11 @@ public class Cell<T extends PDPage> {
 
 	private URL url = null;
 
-	private PDFont font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
-	private PDFont fontBold = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+	private static final PDFont DEFAULT_FONT = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+	private static final PDFont DEFAULT_FONT_BOLD = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+
+	private PDFont font = DEFAULT_FONT;
+	private PDFont fontBold = DEFAULT_FONT_BOLD;
 
 	private float fontSize = 8;
 	private Color fillColor;
@@ -45,12 +49,14 @@ public class Cell<T extends PDPage> {
 	private float rightPadding = 5f;
 	private float topPadding = 5f;
 	private float bottomPadding = 5f;
+	
+	private static final LineStyle DEFAULT_BORDER = new LineStyle(Color.BLACK, 1);
 
 	// default border
-	private LineStyle leftBorderStyle = new LineStyle(Color.BLACK, 1);
-	private LineStyle rightBorderStyle = new LineStyle(Color.BLACK, 1);
-	private LineStyle topBorderStyle = new LineStyle(Color.BLACK, 1);
-	private LineStyle bottomBorderStyle = new LineStyle(Color.BLACK, 1);
+	private LineStyle leftBorderStyle = DEFAULT_BORDER;
+	private LineStyle rightBorderStyle = DEFAULT_BORDER;
+	private LineStyle topBorderStyle = DEFAULT_BORDER;
+	private LineStyle bottomBorderStyle = DEFAULT_BORDER;
 
 	private Paragraph paragraph = null;
 	private float lineSpacing = 1;
@@ -64,7 +70,7 @@ public class Cell<T extends PDPage> {
 	float horizontalFreeSpace = 0;
 	float verticalFreeSpace = 0;
 
-	private final List<CellContentDrawnListener<T>> contentDrawnListenerList = new ArrayList<CellContentDrawnListener<T>>();
+	private List<CellContentDrawnListener<T>> contentDrawnListenerList = null;
 
 	/**
 	 * <p>
@@ -333,6 +339,10 @@ public class Cell<T extends PDPage> {
 			}
 		}
 		return paragraph;
+	}
+
+	public void clearParagraph() {
+		this.paragraph = null;
 	}
 
 	public float getExtraWidth() {
@@ -765,10 +775,16 @@ public class Cell<T extends PDPage> {
 	}
 
 	public void addContentDrawnListener(CellContentDrawnListener<T> listener) {
+		if (contentDrawnListenerList == null) {
+			contentDrawnListenerList = new ArrayList<CellContentDrawnListener<T>>();
+		}
 		contentDrawnListenerList.add(listener);
 	}
 
 	public List<CellContentDrawnListener<T>> getCellContentDrawnListeners() {
+		if (contentDrawnListenerList == null) {
+			return Collections.emptyList();
+		}
 		return contentDrawnListenerList;
 	}
 
