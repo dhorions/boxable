@@ -22,3 +22,7 @@ target
 settings.xml
 nbactions.xml
 nb-configuration.xml
+.classpath
+.project
+.vscode
+private.key
