@@ -2,7 +2,7 @@
 =======
 
 
-[![Java CI with Maven](https://github.com/dhorions/boxable/actions/workflows/maven.yml/badge.svg)](https://github.com/dhorions/boxable/actions/workflows/maven.yml)
+[![Java CI with Maven](https://github.com/dhorions/boxable/actions/workflows/maven.yml/badge.svg?branch=master)](https://github.com/dhorions/boxable/actions/workflows/maven.yml)
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5UL3NVLA852MN&source=url)
 
 Boxable is a library that can be used to easily create tables in pdf documents.  It uses the [PDFBox](https://pdfbox.apache.org/) PDF library under the hood.
