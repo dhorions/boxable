@@ -26,7 +26,7 @@ Boxable is a library that can be used to easily create tables in pdf documents. 
 <dependency>
     <groupId>com.github.dhorions</groupId>
     <artifactId>boxable</artifactId>
-    <version>1.7.3</version>
+    <version>1.8.0</version>
 </dependency>
 ```
 For other build systems, check the [Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22boxable%22).
@@ -90,6 +90,7 @@ table.draw();
 ```
 
 Special Thanks to these awesome contributers : 
+- [@joaemel](https://github.com/joaemel)
 - [@johnmanko](https://github.com/johnmanko)
 - [@Vobarian](https://github.com/vobarian)
 - [@Giboow](https://github.com/giboow)
@@ -103,7 +104,7 @@ Special Thanks to these awesome contributers :
 
 =======
 
-Copyright [2022](Quodlibet.be)
+Copyright [2026](Quodlibet.be)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
