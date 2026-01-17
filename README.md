@@ -90,6 +90,7 @@ table.draw();
 ```
 
 Special Thanks to these awesome contributers : 
+- [@joaemel](https://github.com/joaemel)
 - [@johnmanko](https://github.com/johnmanko)
 - [@Vobarian](https://github.com/vobarian)
 - [@Giboow](https://github.com/giboow)
@@ -103,7 +104,7 @@ Special Thanks to these awesome contributers :
 
 =======
 
-Copyright [2022](Quodlibet.be)
+Copyright [2026](Quodlibet.be)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
