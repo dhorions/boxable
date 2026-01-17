@@ -58,6 +58,8 @@ public class Cell<T extends PDPage> {
 
 	private HorizontalAlignment align;
 	private VerticalAlignment valign;
+    
+    private int lineStart = 0;
 
 	float horizontalFreeSpace = 0;
 	float verticalFreeSpace = 0;
@@ -409,8 +411,16 @@ public class Cell<T extends PDPage> {
 	 * @return {@link Paragraph}'s height
 	 */
 	public float getTextHeight() {
-		return getParagraph().getHeight();
+		return getParagraph().getHeight(lineStart);
 	}
+
+    public int getLineStart() {
+        return lineStart;
+    }
+
+    public void setLineStart(int lineStart) {
+        this.lineStart = lineStart;
+    }
 
 	/**
 	 * <p>
