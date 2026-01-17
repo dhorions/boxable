@@ -776,5 +776,7 @@ public class Cell<T extends PDPage> {
 		this.url = url;
 	}
 
-
+	public Row<T> getRow() {
+		return row;
+	}
 }

@@ -20,7 +20,7 @@ public class FontUtilsConcurrencyTest {
     @Test
     public void testConcurrency() throws InterruptedException, ExecutionException {
         // 5 Threads consistently triggers the concurrency issue in https://github.com/dhorions/boxable/issues/272 before fix
-        int threads = 5 
+        int threads = 5;
         int iterations = 10; // Each thread repeats the work multiple times
         ExecutorService executor = Executors.newFixedThreadPool(threads);
         List<Callable<Void>> tasks = new ArrayList<>();
