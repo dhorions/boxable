@@ -219,10 +219,7 @@ public class Row<T extends PDPage> {
 			}
 		}
 
-		if (maxheight > height) {
-			this.height = maxheight;
-		}
-		return height;
+		return Math.max(height, maxheight);
 	}
 
 	public float getLineHeight() throws IOException {

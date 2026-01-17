@@ -160,6 +160,14 @@ public class Image {
 		return width;
 	}
 
+	public void setWidth(float width) {
+		this.width = width;
+	}
+
+	public void setHeight(float height) {
+		this.height = height;
+	}
+
 	public void setQuality(float quality) throws IllegalArgumentException {
 		if(quality <= 0 || quality > 1) {
 			throw new IllegalArgumentException(

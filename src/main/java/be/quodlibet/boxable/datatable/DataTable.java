@@ -358,27 +358,14 @@ public class DataTable {
 		if (data == null || data.isEmpty()) {
 			return;
 		}
-		StringBuilder output = new StringBuilder();
 		char separator = ';';
-
-		// Convert Map of arbitrary objects to a csv String
+		StringBuilder output = new StringBuilder();
+		CSVFormat format = CSVFormat.EXCEL.withDelimiter(separator);
+		
 		for (List<? extends Object> inputList : data) {
-			StringBuilder row = new StringBuilder();
-			for (Object v : inputList) {
-				String value = v.toString();
-				if (value.contains("" + separator)) {
-					// surround value with quotes if it contains the escape
-					// character
-					value = "\"" + value + "\"";
-				}
-				value = value.replaceAll("\n", "<br>");
-				row.append(value).append(separator);
-			}
-			// remove the last separator
-			row = new StringBuilder(row.substring(0, row.length() - 1));
-			output.append(row).append("\n");
+			String line = format.format(inputList.toArray());
+			output.append(line).append("\n");
 		}
-
 		addCsvToTable(output.toString(), hasHeader, separator);
 	}
 
@@ -424,14 +411,12 @@ public class DataTable {
 					float sizefactor = table.getWidth() / totalWidth;
 					for (int i = 0; i <= numcols; i++) {
 						String cellValue = "";
-						if (line.size() >= i) {
+						if (line.size() > i) {
 							cellValue = line.get(i);
 						}
 						float textWidth = FontUtils.getStringWidth(headerCellTemplate.getFont(), " " + cellValue + " ",
 								headerCellTemplate.getFontSize());
-						float widthPct = textWidth * 100 / table.getWidth();
-						// apply width factor
-						widthPct = widthPct * sizefactor;
+						float widthPct = (float) ((double)textWidth * 100 / (double)totalWidth);
 						colWidths.put(i, widthPct);
 					}
 				} else {
@@ -472,7 +457,7 @@ public class DataTable {
 					}
 					
 					String cellValue = "";
-					if (line.size() >= i) {
+					if (line.size() > i) {
 						cellValue = line.get(i);
 					}
 					Cell c = r.createCell(colWidths.get(i), cellValue, template.getAlign(), template.getValign());

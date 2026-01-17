@@ -234,9 +234,21 @@ public abstract class Table<T extends PDPage> {
                 // check if header row height and first data row height can fit
                 // the page
                 // if not draw them on another page
-                if (isEndOfPage(getMinimumHeight())) {
-                    pageBreak();
-                    tableStartedAtNewPage = true;
+                if (row == header.get(0) && isEndOfPage(getMinimumHeight())) {
+                    float minHeight = getMinimumHeight();
+                    float totalPageHeight = yStartNewPage - pageTopMargin - pageBottomMargin;
+
+                    // If the content is too large for even a fresh page, only break if we gain significant space
+                    if (minHeight > totalPageHeight) {
+                        float currentAvailableSpace = yStart - pageBottomMargin;
+                        if (currentAvailableSpace < (totalPageHeight - 10)) {
+                            pageBreak();
+                            tableStartedAtNewPage = true;
+                        }
+                    } else {
+                        pageBreak();
+                        tableStartedAtNewPage = true;
+                    }
                 }
             }
             drawRow(row);
@@ -247,57 +259,97 @@ public abstract class Table<T extends PDPage> {
     }
 
     private void drawRow(Row<T> row) throws IOException {
-        // row.getHeight is currently an extremely expensive function, so we get the value
-        // calculated in calcWrapHeightsAndRowHeights, since it will not change during drawing
-        float rowHeight = row.getLineHeight();
-
-        // draw the bookmark
-        if (row.getBookmark() != null) {
-            PDPageXYZDestination bookmarkDestination = new PDPageXYZDestination();
-            bookmarkDestination.setPage(currentPage);
-            bookmarkDestination.setTop((int) yStart);
-            row.getBookmark().setDestination(bookmarkDestination);
-            this.addBookmark(row.getBookmark());
+        // If it's a header row, we ensure it's fresh
+        if (header.contains(row)) {
+             for(Cell<T> cell : row.getCells()) {
+                 cell.setLineStart(0);
+             }
         }
 
-        // check also if we want all borders removed
-        if (allBordersRemoved()) {
-            row.removeAllBorders();
-        }
+        boolean isFirstPart = true;
+        while (true) {
+            // Recalculate height because lineStart might have changed
+            float rowHeight = row.getHeight();
+            
+            // Calculate available space
+            float availableSpace = yStart - pageBottomMargin;
+            
+            boolean splitRow = false;
+            float heightToDraw = rowHeight;
 
-        if (isEndOfPage(row.getSavedWrapHeight()) && !header.contains(row)) {
+            // Check if we need to split
+            if (rowHeight > availableSpace && !header.contains(row)) {
+                
+                float fullPageHeight = yStartNewPage - pageTopMargin - pageBottomMargin;
+                float headerHeight = 0;
+                if (!header.isEmpty()) {
+                     for(Row<T> h : header) headerHeight += h.getHeight();
+                }
+                float maxContentHeightOnNewPage = fullPageHeight - headerHeight;
 
-            // Draw line at bottom of table
-            endTable();
-
-            // insert page break
-            pageBreak();
-
-            // after a page break, we have to ensure that top borders get
-            // drawn
-            removeTopBorders = false;
-
-            // redraw all headers on each page
-            for (Row<T> headerRow : header) {
-                drawRow(headerRow);
+                if (rowHeight > maxContentHeightOnNewPage) {
+                    // Must split
+                    splitRow = true;
+                    heightToDraw = availableSpace;
+                }
+            }
+            
+            // Standard Page Break Logic (if not splitting)
+            // If the row fits on a new page but not this one, we break.
+            if (!splitRow && rowHeight > availableSpace && !header.contains(row)) {
+                 endTable();
+                 pageBreak();
+                 tableStartedAtNewPage = true;
+                 removeTopBorders = false;
+                 // redraw headers
+                 if (!header.isEmpty()) {
+                     for (Row<T> headerRow : header) {
+                        if (headerRow != row) drawRow(headerRow);
+                     }
+                 }
+                 continue; // Retry on new page
             }
 
-        }
+            // draw the bookmark
+            if (isFirstPart && row.getBookmark() != null) {
+                PDPageXYZDestination bookmarkDestination = new PDPageXYZDestination();
+                bookmarkDestination.setPage(currentPage);
+                bookmarkDestination.setTop((int) yStart);
+                row.getBookmark().setDestination(bookmarkDestination);
+                this.addBookmark(row.getBookmark());
+            }
 
-        if (removeTopBorders) {
-            row.removeTopBorders();
-        }
+            if (removeTopBorders) {
+                row.removeTopBorders();
+            }
 
-        if (drawLines) {
-            drawVerticalLines(row, rowHeight);
-        }
+            if (drawLines) {
+                drawVerticalLines(row, heightToDraw);
+            }
 
-        if (drawContent) {
-            drawCellContent(row, rowHeight);
+            if (drawContent) {
+                drawCellContent(row, heightToDraw);
+            }
+            
+            yStart -= heightToDraw;
+            
+            if (splitRow) {
+                 endTable();
+                 pageBreak();
+                 tableStartedAtNewPage = true;
+                 removeTopBorders = true;
+                 if (!header.isEmpty()) {
+                     for (Row<T> headerRow : header) {
+                         drawRow(headerRow); 
+                     }
+                 }
+                 isFirstPart = false;
+                 // Loop continues to draw remainder of row
+            } else {
+                 removeTopBorders = row.hasBottomBorder();
+                 break;
+            }
         }
-        //would be better to check line presence between rows and
-        //draw exactly what's needed between two rows in one go.
-        removeTopBorders = row.hasBottomBorder();
     }
 
     /**
@@ -573,11 +625,27 @@ public abstract class Table<T extends PDPage> {
 
                 int italicCounter = 0;
                 int boldCounter = 0;
+                int strikeThroughCounter = 0;
+                int underlineCounter = 0;
 
                 this.tableContentStream.setRotated(cell.isTextRotated());
 
                 // print all lines of the cell
+                boolean cellFinished = true;
                 for (Map.Entry<Integer, List<Token>> entry : cell.getParagraph().getMapLineTokens().entrySet()) {
+                     int lineIndex = entry.getKey();
+                     if (lineIndex < cell.getLineStart()) {
+                         continue;
+                     }
+                     // check if we have space for this line
+                     if (!cell.isTextRotated()) {
+                        float fontHeight = cell.getParagraph().getFontHeight();
+                        if (cursorY <= (yStart - rowHeight)) {
+                            cell.setLineStart(lineIndex);
+                            cellFinished = false;
+                            break;
+                        }
+                     }
 
                     // calculate the width of this line
                     float freeSpaceWithinLine = cell.getParagraph().getMaxLineWidth()
@@ -621,6 +689,10 @@ public abstract class Table<T extends PDPage> {
                                     boldCounter++;
                                 } else if ("i".equals(token.getData())) {
                                     italicCounter++;
+                                } else if ("s".equals(token.getData())) {
+                                    strikeThroughCounter++;
+                                } else if ("u".equals(token.getData())) {
+                                    underlineCounter++;
                                 }
                                 break;
                             case CLOSE_TAG:
@@ -628,6 +700,10 @@ public abstract class Table<T extends PDPage> {
                                     boldCounter = Math.max(boldCounter - 1, 0);
                                 } else if ("i".equals(token.getData())) {
                                     italicCounter = Math.max(italicCounter - 1, 0);
+                                } else if ("s".equals(token.getData())) {
+                                    strikeThroughCounter = Math.max(strikeThroughCounter - 1, 0);
+                                } else if ("u".equals(token.getData())) {
+                                    underlineCounter = Math.max(underlineCounter - 1, 0);
                                 }
                                 break;
                             case PADDING:
@@ -678,6 +754,18 @@ public abstract class Table<T extends PDPage> {
                                     try {
                                         this.tableContentStream.newLineAt(cursorX, cursorY);
                                         this.tableContentStream.showText(token.getData());
+                                        if (strikeThroughCounter > 0) {
+                                            float textWidth = token.getWidth(currentFont) / 1000 * cell.getFontSize();
+                                            float fontHeight = FontUtils.getHeight(currentFont, cell.getFontSize());
+                                            float strikethroughY = cursorY + fontHeight / 3;
+                                            PDStreamUtils.rect(tableContentStream, cursorX, strikethroughY, textWidth, fontHeight / 15, cell.getTextColor());
+                                        }
+                                        if (underlineCounter > 0) {
+                                            float textWidth = token.getWidth(currentFont) / 1000 * cell.getFontSize();
+                                            float fontHeight = FontUtils.getHeight(currentFont, cell.getFontSize());
+                                            float underlineY = cursorY - fontHeight / 10;
+                                            PDStreamUtils.rect(tableContentStream, cursorX, underlineY, textWidth, fontHeight / 15, cell.getTextColor());
+                                        }
                                         cursorX += token.getWidth(currentFont) / 1000 * cell.getFontSize();
                                     } catch (IOException e) {
                                         e.printStackTrace();
@@ -692,17 +780,21 @@ public abstract class Table<T extends PDPage> {
                         cursorY = cursorY - cell.getParagraph().getFontHeight() * cell.getLineSpacing();
                     }
                 }
+                
+                if (cellFinished) {
+                     cell.setLineStart(Integer.MAX_VALUE);
+                }
             }
 
-            PDRectangle rectangle = new PDRectangle(cellStartX, yStart - cell.getHeight(), cell.getWidth(), cell.getHeight());
+            PDRectangle rectangle = new PDRectangle(cellStartX, yStart - rowHeight, cell.getWidth(), rowHeight);
             cell.notifyContentDrawnListeners(getDocument(), getCurrentPage(), rectangle);
 
             // set cursor to the start of this cell plus its width to advance to
             // the next cell
             cursorX = cellStartX + cell.getWidth();
+
+            cell.clearParagraph();
         }
-        // Set Y position for next row
-        yStart = yStart - rowHeight;
 
     }
 
@@ -761,10 +853,12 @@ public abstract class Table<T extends PDPage> {
     }
 
     private void drawLine(float xStart, float yStart, float xEnd, float yEnd, LineStyle border) throws IOException {
-        PDStreamUtils.setLineStyles(tableContentStream, border);
-        tableContentStream.moveTo(xStart, yStart);
-        tableContentStream.lineTo(xEnd, yEnd);
-        tableContentStream.stroke();
+        if (border.getWidth() > 0) {
+            PDStreamUtils.setLineStyles(tableContentStream, border);
+            tableContentStream.moveTo(xStart, yStart);
+            tableContentStream.lineTo(xEnd, yEnd);
+            tableContentStream.stroke();
+        }
     }
 
     private void fillCellColor(Cell<T> cell, float yStart, float xStart, float rowHeight, float cellWidth)
@@ -985,8 +1079,14 @@ public abstract class Table<T extends PDPage> {
             int wrappableRow = wrappableRows[i];
             float height = 0;
             for (int j = prevRow - 1; j >= wrappableRow; j--) {
-                height += rows.get(j).getHeight();
-                rows.get(j).setWrapHeight(height);
+                Row<T> row = rows.get(j);
+                height += row.getHeight();
+                row.setWrapHeight(height);
+
+                // Clear paragraphs to release memory as they are recreated during drawing anyway
+                for(Cell<T> cell : row.getCells()) {
+                    cell.clearParagraph();
+                }
             }
             prevRow = wrappableRow;
         }

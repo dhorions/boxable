@@ -619,6 +619,14 @@ public class Paragraph {
 		}
 	}
 
+    public float getHeight(int lineStart) {
+        if (getLines().size() <= lineStart) {
+            return 0;
+        } else {
+            return (getLines().size() - lineStart - 1) * getLineSpacing() * getFontHeight() + getFontHeight();
+        }
+    }
+
 	public float getFontHeight() {
 		return FontUtils.getHeight(font, fontSize);
 	}

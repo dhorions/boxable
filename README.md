@@ -14,7 +14,7 @@ Boxable is a library that can be used to easily create tables in pdf documents. 
 - Convert Lists into tables in pdf documents
 
 #### Boxable supports next tables features
-- HTML tags in cell content (not all! `<p>,<i>,<b>,<br>,<ul>,<ol>,<li>`)
+- HTML tags in cell content (not all! `<p>,<i>,<b>,<br>,<ul>,<ol>,<li>,<u>,<s>`)
 - Horizontal & Vertical Alignment of the text
 - Images inside cells and outside table (image scale is also supported)
 - basic set of rendering attributes for lines (borders)
@@ -26,7 +26,7 @@ Boxable is a library that can be used to easily create tables in pdf documents. 
 <dependency>
     <groupId>com.github.dhorions</groupId>
     <artifactId>boxable</artifactId>
-    <version>1.8.0</version>
+    <version>1.8.1</version>
 </dependency>
 ```
 For other build systems, check the [Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22boxable%22).
