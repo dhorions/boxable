@@ -783,10 +783,12 @@ public abstract class Table<T extends PDPage> {
     }
 
     private void drawLine(float xStart, float yStart, float xEnd, float yEnd, LineStyle border) throws IOException {
-        PDStreamUtils.setLineStyles(tableContentStream, border);
-        tableContentStream.moveTo(xStart, yStart);
-        tableContentStream.lineTo(xEnd, yEnd);
-        tableContentStream.stroke();
+        if (border.getWidth() > 0) {
+            PDStreamUtils.setLineStyles(tableContentStream, border);
+            tableContentStream.moveTo(xStart, yStart);
+            tableContentStream.lineTo(xEnd, yEnd);
+            tableContentStream.stroke();
+        }
     }
 
     private void fillCellColor(Cell<T> cell, float yStart, float xStart, float rowHeight, float cellWidth)
