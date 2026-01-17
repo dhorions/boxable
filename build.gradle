@@ -16,7 +16,7 @@ def getVersionName = { ->
         }
         return stdout.toString().trim()
     } catch (Exception e) {
-        return '1.7.3'
+        return '1.8.1'
     }
 }
 
