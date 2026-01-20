@@ -61,13 +61,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>33.5.0-jre</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- Test Dependencies -->
-        <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
             <version>6.0.2</version>

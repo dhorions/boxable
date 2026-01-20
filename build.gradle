@@ -31,7 +31,6 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:2.0.17'
     implementation 'org.apache.commons:commons-csv:1.14.1'
     implementation 'org.jsoup:jsoup:1.22.1'
-    testImplementation 'com.google.guava:guava:33.5.0-jre'
     testImplementation 'org.junit.vintage:junit-vintage-engine:6.0.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'junit:junit:4.13.2'
