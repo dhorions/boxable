@@ -14,6 +14,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.jsoup.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,13 +169,14 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 				}
 			}
 			for (Element col : tableHasHeaderColumns ? tableHeaderCols : tableCols) {
+				String cellHtml = Parser.unescapeEntities(col.html(), true);
 				if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
 					Cell<T> cell = (Cell<T>) row.createCell(
 							tableWidth / columnsSize * Integer.parseInt(col.attr("colspan")) / row.getWidth() * 100,
-							col.html().replace("&amp;", "&"));
+							cellHtml);
 				} else {
 					Cell<T> cell = (Cell<T>) row.createCell(tableWidth / columnsSize / row.getWidth() * 100,
-							col.html().replace("&amp;", "&"));
+							cellHtml);
 				}
 			}
 			yStart -= row.getHeight();

@@ -360,7 +360,7 @@ public class DataTable {
 		}
 		char separator = ';';
 		StringBuilder output = new StringBuilder();
-		CSVFormat format = CSVFormat.EXCEL.withDelimiter(separator);
+		CSVFormat format = CSVFormat.Builder.create(CSVFormat.EXCEL).setDelimiter(separator).get();
 		
 		for (List<? extends Object> inputList : data) {
 			String line = format.format(inputList.toArray());
@@ -380,7 +380,7 @@ public class DataTable {
 	 * @throws IOException parsing error
 	 */
 	public void addCsvToTable(String data, Boolean hasHeader, char separator) throws IOException {
-		Iterable<CSVRecord> records = CSVParser.parse(data, CSVFormat.EXCEL.withDelimiter(separator));
+		Iterable<CSVRecord> records = CSVParser.parse(data, CSVFormat.Builder.create(CSVFormat.EXCEL).setDelimiter(separator).get());
 		Boolean isHeader = hasHeader;
 		Boolean isFirst = true;
 		Boolean odd = true;

@@ -90,6 +90,7 @@ public class Image {
 	 *            Maximal height where {@link Image} needs to be scaled
 	 * @return Scaled {@link Image}
 	 */
+	@Deprecated
 	public Image scale(float width) {
 		return scaleByWidth(width);
 	}
