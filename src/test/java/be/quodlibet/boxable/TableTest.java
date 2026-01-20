@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -1254,6 +1255,60 @@ public class TableTest {
 		doc.save(file);
 		doc.close();
 		assertTrue(callbackCalled[0]);
+	}
+
+	/**
+	 * <p>
+	 * Test for a table using the following features :
+	 * <ul>
+	 * <li> outer border only </li>
+	 * <li> multi-page table </li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @throws IOException
+	 */
+	@Test
+	public void SampleTest14() throws IOException {
+		// Set margins
+		float margin = 10;
+
+		// Initialize Document
+		PDDocument doc = new PDDocument();
+		PDPage page = new PDPage();
+		doc.addPage(page);
+
+		// Initialize table
+		float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
+		float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+		boolean drawContent = true;
+		boolean drawLines = true;
+		float yStart = yStartNewPage;
+		float bottomMargin = 70;
+
+		BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, drawLines,
+				drawContent);
+		table.setOuterBorderStyle(new LineStyle(Color.BLACK, 1));
+
+		for (int i = 0; i < 120; i++) {
+			Row<PDPage> row = table.createRow(12f);
+			Cell<PDPage> cell1 = row.createCell(30f, "Row " + i + " A");
+			Cell<PDPage> cell2 = row.createCell(40f, "Row " + i + " B");
+			Cell<PDPage> cell3 = row.createCell(30f, "Row " + i + " C");
+			cell1.setBorderStyle(null);
+			cell2.setBorderStyle(null);
+			cell3.setBorderStyle(null);
+		}
+
+		table.draw();
+
+		// Save the document
+		File file = new File("target/BoxableSample14.pdf");
+		System.out.println("Sample file saved at : " + file.getAbsolutePath());
+		file.getParentFile().mkdirs();
+		doc.save(file);
+		assertTrue(doc.getNumberOfPages() > 1);
+		doc.close();
 	}
 
 	/**

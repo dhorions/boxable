@@ -52,6 +52,9 @@ public abstract class Table<T extends PDPage> {
     private boolean tableStartedAtNewPage = false;
     private boolean removeTopBorders = false;
     private boolean removeAllBorders = false;
+    private LineStyle outerBorderStyle = null;
+    private Float outerBorderStartY = null;
+    private boolean outerBorderHasContent = false;
 
     private PageProvider<T> pageProvider;
 
@@ -226,6 +229,8 @@ public abstract class Table<T extends PDPage> {
 
         calcWrapHeightsAndRowHeights();
 
+        startOuterBorderSegment();
+
         // for the first row in the table, we have to draw the top border
         removeTopBorders = false;
 
@@ -254,6 +259,7 @@ public abstract class Table<T extends PDPage> {
             drawRow(row);
         }
 
+        finishOuterBorderSegment();
         endTable();
         return yStart;
     }
@@ -296,8 +302,9 @@ public abstract class Table<T extends PDPage> {
             
             // Standard Page Break Logic (if not splitting)
             // If the row fits on a new page but not this one, we break.
-            if (!splitRow && rowHeight > availableSpace && !header.contains(row)) {
-                 endTable();
+              if (!splitRow && rowHeight > availableSpace && !header.contains(row)) {
+                  finishOuterBorderSegment();
+                  endTable();
                  pageBreak();
                  tableStartedAtNewPage = true;
                  removeTopBorders = false;
@@ -330,11 +337,13 @@ public abstract class Table<T extends PDPage> {
             if (drawContent) {
                 drawCellContent(row, heightToDraw);
             }
-            
+
+              outerBorderHasContent = true;
             yStart -= heightToDraw;
             
             if (splitRow) {
-                 endTable();
+                  finishOuterBorderSegment();
+                  endTable();
                  pageBreak();
                  tableStartedAtNewPage = true;
                  removeTopBorders = true;
@@ -852,6 +861,35 @@ public abstract class Table<T extends PDPage> {
 
     }
 
+    private void startOuterBorderSegment() {
+        if (outerBorderStyle != null) {
+            outerBorderStartY = yStart;
+            outerBorderHasContent = false;
+        }
+    }
+
+    private void finishOuterBorderSegment() throws IOException {
+        if (outerBorderStyle == null || outerBorderStartY == null || !outerBorderHasContent) {
+            return;
+        }
+
+        float xStart = margin;
+        float xEnd = margin + width;
+        float half = outerBorderStyle.getWidth() / 2;
+        float topY = outerBorderStartY - half;
+        float bottomY = yStart + half;
+        float leftX = xStart + half;
+        float rightX = xEnd - half;
+
+        drawLine(xStart, topY, xEnd, topY, outerBorderStyle);
+        drawLine(xStart, bottomY, xEnd, bottomY, outerBorderStyle);
+        drawLine(leftX, topY, leftX, bottomY, outerBorderStyle);
+        drawLine(rightX, topY, rightX, bottomY, outerBorderStyle);
+
+        outerBorderStartY = null;
+        outerBorderHasContent = false;
+    }
+
     private void drawLine(float xStart, float yStart, float xEnd, float yEnd, LineStyle border) throws IOException {
         if (border.getWidth() > 0) {
             PDStreamUtils.setLineStyles(tableContentStream, border);
@@ -907,6 +945,7 @@ public abstract class Table<T extends PDPage> {
         this.yStart = yStartNewPage - pageTopMargin;
         this.currentPage = createNewPage();
         this.tableContentStream = createPdPageContentStream();
+        startOuterBorderSegment();
     }
 
     private void addBookmark(PDOutlineItem bookmark) {
@@ -1014,6 +1053,14 @@ public abstract class Table<T extends PDPage> {
 
     public void setRowWrappingFunction(RowWrappingFunction rowWrappingFunction) {
         this.rowWrappingFunction = rowWrappingFunction;
+    }
+
+    public void setOuterBorderStyle(LineStyle outerBorderStyle) {
+        this.outerBorderStyle = outerBorderStyle;
+    }
+
+    public LineStyle getOuterBorderStyle() {
+        return outerBorderStyle;
     }
 
     public boolean isDrawDebug() {
