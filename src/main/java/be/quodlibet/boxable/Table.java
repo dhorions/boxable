@@ -153,14 +153,22 @@ public abstract class Table<T extends PDPage> {
         return document;
     }
 
-    public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
+        public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
             float freeSpaceForPageBreak, boolean drawHeaderMargin) throws IOException {
-        drawTitle(title, font, fontSize, tableWidth, height, alignment, freeSpaceForPageBreak, null, drawHeaderMargin);
-    }
+        drawTitle(title, font, fontSize, tableWidth, height, alignment, freeSpaceForPageBreak, null, drawHeaderMargin,
+            Color.BLACK, null);
+        }
 
-    public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
+        public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
             float freeSpaceForPageBreak, WrappingFunction wrappingFunction, boolean drawHeaderMargin)
             throws IOException {
+        drawTitle(title, font, fontSize, tableWidth, height, alignment, freeSpaceForPageBreak, wrappingFunction,
+            drawHeaderMargin, Color.BLACK, null);
+        }
+
+        public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
+            float freeSpaceForPageBreak, WrappingFunction wrappingFunction, boolean drawHeaderMargin, Color color,
+            TextType textType) throws IOException {
 
         ensureStreamIsOpen();
 
@@ -176,8 +184,8 @@ public abstract class Table<T extends PDPage> {
             yStart -= height;
         } else {
             PageContentStreamOptimized articleTitle = createPdPageContentStream();
-            Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment),
-                    wrappingFunction);
+                Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment),
+                    color, textType, wrappingFunction);
             paragraph.setDrawDebug(drawDebug);
             yStart = paragraph.write(articleTitle, margin, yStart);
             if (paragraph.getHeight() < height) {

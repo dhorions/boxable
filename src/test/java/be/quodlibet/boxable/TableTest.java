@@ -1381,6 +1381,50 @@ public class TableTest {
 
 	}
 
+	/**
+	 * <p>
+	 * Test for a table using the following features :
+	 * <ul>
+	 * <li> colored title </li>
+	 * <li> underlined title </li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @throws IOException
+	 */
+	@Test
+	public void TitleColorUnderlineTest() throws IOException {
+		float margin = 10;
+
+		PDDocument doc = new PDDocument();
+		PDPage page = addNewPage(doc);
+
+		float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
+		float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+		boolean drawContent = true;
+		boolean drawLines = true;
+		float yStart = yStartNewPage;
+		float bottomMargin = 70;
+
+		BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, drawLines,
+				drawContent);
+
+		table.drawTitle("Colored and underlined title", new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 14,
+				tableWidth, 20, "center", 20, null, true, new Color(0, 102, 204), TextType.UNDERLINE);
+
+		Row<PDPage> row = table.createRow(15f);
+		row.createCell(100, "Content below the title");
+		table.draw();
+
+		File file = new File("target/BoxableTitleColorUnderlineTest.pdf");
+		System.out.println("Sample file saved at : " + file.getAbsolutePath());
+		file.getParentFile().mkdirs();
+		doc.save(file);
+		doc.close();
+		assertTrue(file.exists());
+		assertTrue(Files.size(file.toPath()) > 0);
+	}
+
 	private static PDPage addNewPage(PDDocument doc) {
 		PDPage page = new PDPage();
 		doc.addPage(page);

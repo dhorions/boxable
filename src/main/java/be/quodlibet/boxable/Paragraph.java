@@ -592,6 +592,7 @@ public class Paragraph {
 							- FontUtils.getDescent(font, fontSize) - 1.5);
 					try {
 						float titleWidth = font.getStringWidth(line) / 1000 * fontSize;
+						stream.setStrokingColor(color);
 						stream.moveTo(textX, y);
 						stream.lineTo(textX + titleWidth, y);
 						stream.stroke();
