@@ -20,6 +20,7 @@ public class Row<T extends PDPage> {
 	PDOutlineItem bookmark;
 	List<Cell<T>> cells;
 	private boolean headerRow = false;
+	private boolean fixedHeight = false;
 	float height;
 	private float lineSpacing = 1;
 	private float wrapHeight = -1;
@@ -78,6 +79,21 @@ public class Row<T extends PDPage> {
 		return cell;
 	}
 
+	/**
+	 * <p>
+	 * Creates an image cell with provided width, image, and alignments.
+	 * </p>
+	 *
+	 * @param width
+	 *            Cell's width
+	 * @param img
+	 *            {@link Image} in the cell
+	 * @param align
+	 *            Cell's {@link HorizontalAlignment}
+	 * @param valign
+	 *            Cell's {@link VerticalAlignment}
+	 * @return {@link ImageCell}
+	 */
 	public Cell<T> createImageCell(float width, Image img, HorizontalAlignment align, VerticalAlignment valign) {
 		Cell<T> cell = new ImageCell<T>(this, width, img, true, align, valign);
 		setBorders(cell, cells.isEmpty());
@@ -210,6 +226,9 @@ public class Row<T extends PDPage> {
 	 * @return Row's height
 	 */
 	public float getHeight() {
+		if (fixedHeight) {
+			return height;
+		}
 		float maxheight = 0.0f;
 		for (Cell<T> cell : this.cells) {
 			float cellHeight = cell.getCellHeight();
@@ -222,34 +241,119 @@ public class Row<T extends PDPage> {
 		return Math.max(height, maxheight);
 	}
 
+	/**
+	 * <p>
+	 * Returns the base row height configured by {@link #setHeight(float)}.
+	 * </p>
+	 *
+	 * @return Base row height
+	 */
 	public float getLineHeight() throws IOException {
 		return height;
 	}
 
+	/**
+	 * <p>
+	 * Sets the base row height in points. When {@link #isFixedHeight()} is
+	 * {@code true}, this is the fixed row height. Otherwise it is the minimum
+	 * row height and the row can grow to fit content.
+	 * </p>
+	 *
+	 * @param height
+	 *            Base row height in points
+	 */
 	public void setHeight(float height) {
 		this.height = height;
 	}
 
+	/**
+	 * <p>
+	 * Returns whether the row height is fixed. Default is {@code false}.
+	 * </p>
+	 *
+	 * @return {@code true} when height is fixed
+	 */
+	public boolean isFixedHeight() {
+		return fixedHeight;
+	}
+
+	/**
+	 * <p>
+	 * Sets whether the row height is fixed. When enabled, the row height equals
+	 * the configured height and text is shrunk to fit.
+	 * </p>
+	 *
+	 * @param fixedHeight
+	 *            {@code true} to fix the row height
+	 */
+	public void setFixedHeight(boolean fixedHeight) {
+		this.fixedHeight = fixedHeight;
+	}
+
+	/**
+	 * <p>
+	 * Returns the list of cells in this row.
+	 * </p>
+	 *
+	 * @return Cells in the row
+	 */
 	public List<Cell<T>> getCells() {
 		return cells;
 	}
 
+	/**
+	 * <p>
+	 * Returns the number of columns (cells) in the row.
+	 * </p>
+	 *
+	 * @return Column count
+	 */
 	public int getColCount() {
 		return cells.size();
 	}
 
+	/**
+	 * <p>
+	 * Replaces the row's cell list.
+	 * </p>
+	 *
+	 * @param cells
+	 *            New cell list
+	 */
 	public void setCells(List<Cell<T>> cells) {
 		this.cells = cells;
 	}
 
+	/**
+	 * <p>
+	 * Returns the available table width for this row.
+	 * </p>
+	 *
+	 * @return Row width in points
+	 */
 	public float getWidth() {
 		return table.getWidth();
 	}
 
+	/**
+	 * <p>
+	 * Returns the bookmark associated with this row, if any.
+	 * </p>
+	 *
+	 * @return Row bookmark or {@code null}
+	 */
 	public PDOutlineItem getBookmark() {
 		return bookmark;
 	}
 
+	/**
+	 * <p>
+	 * Sets the bookmark for this row.
+	 * </p>
+	 *
+	 * @param bookmark
+	 *            Bookmark to use
+	 */
 	public void setBookmark(PDOutlineItem bookmark) {
 		this.bookmark = bookmark;
 	}
@@ -264,22 +368,72 @@ public class Row<T extends PDPage> {
 		return lastCellExtraWidth;
 	}
 
+	/**
+	 * <p>
+	 * Returns the absolute X end position of the row (margin + width).
+	 * </p>
+	 *
+	 * @return Row end X position
+	 */
 	public float xEnd() {
 		return table.getMargin() + getWidth();
 	}
 
+	/**
+	 * <p>
+	 * Returns whether this row is a header row.
+	 * </p>
+	 *
+	 * @return {@code true} when header row
+	 */
 	public boolean isHeaderRow() {
 		return headerRow;
 	}
 
+	/**
+	 * <p>
+	 * Marks this row as header or non-header. This does not change fixed-height
+	 * behavior.
+	 * </p>
+	 *
+	 * @param headerRow
+	 *            {@code true} to mark as header row
+	 */
 	public void setHeaderRow(boolean headerRow) {
 		this.headerRow = headerRow;
 	}
 
+	void fitTextToHeight(float rowHeight) {
+		if (!fixedHeight) {
+			return;
+		}
+		for (Cell<T> cell : cells) {
+			if (cell instanceof ImageCell || cell instanceof TableCell) {
+				continue;
+			}
+			cell.fitFontSizeToHeight(rowHeight);
+		}
+	}
+
+	/**
+	 * <p>
+	 * Returns the row line spacing multiplier. Default is {@code 1}.
+	 * </p>
+	 *
+	 * @return Line spacing multiplier
+	 */
 	public float getLineSpacing() {
 		return lineSpacing;
 	}
 
+	/**
+	 * <p>
+	 * Sets the row line spacing multiplier. Applies to newly created cells.
+	 * </p>
+	 *
+	 * @param lineSpacing
+	 *            Line spacing multiplier
+	 */
 	public void setLineSpacing(float lineSpacing) {
 		this.lineSpacing = lineSpacing;
 	}
@@ -303,6 +457,13 @@ public class Row<T extends PDPage> {
 		return this.wrapHeight;
 	}
 
+	/**
+	 * <p>
+	 * Returns whether all cells in the row have a bottom border.
+	 * </p>
+	 *
+	 * @return {@code true} when all cells define a bottom border
+	 */
 	public boolean hasBottomBorder() {
 		for (Cell<T> cell : cells) {
 			if (cell.getBottomBorder() == null) {

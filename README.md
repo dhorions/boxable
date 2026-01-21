@@ -89,6 +89,32 @@ for (String[] fact : facts) {
 table.draw();
 ```
 
+## Fixed height rows (auto-fit text)
+
+```java
+BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, true);
+
+// Fixed-height header row (text shrinks to fit)
+Row<PDPage> headerRow = table.createRow(12f);
+headerRow.setFixedHeight(true);
+Cell<PDPage> headerCell = headerRow.createCell(100, "Fixed header with longer text");
+headerCell.setFontSize(14f);
+table.addHeaderRow(headerRow);
+
+// Fixed-height data row (text shrinks to fit)
+Row<PDPage> fixedRow = table.createRow(12f);
+fixedRow.setFixedHeight(true);
+fixedRow.createCell(30, "Fixed row");
+fixedRow.createCell(70, "Some value that should be reduced to fit in 12pt height");
+
+// Flexible row (height grows to fit)
+Row<PDPage> flexibleRow = table.createRow(12f);
+flexibleRow.createCell(30, "Flexible row");
+flexibleRow.createCell(70, "Some value that should keep its font size and expand the row height");
+
+table.draw();
+```
+
 Special Thanks to these awesome contributers : 
 - [@joaemel](https://github.com/joaemel)
 - [@johnmanko](https://github.com/johnmanko)
