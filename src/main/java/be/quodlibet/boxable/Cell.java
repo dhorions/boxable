@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
@@ -23,6 +26,8 @@ import be.quodlibet.boxable.utils.FontUtils;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
 public class Cell<T extends PDPage> {
+
+	private static final Logger logger = LoggerFactory.getLogger(Cell.class);
 
 	private float width;
 	private Float height;
@@ -211,9 +216,19 @@ public class Cell<T extends PDPage> {
 	 * @return Inner cell's height
 	 */
 	public float getInnerHeight() {
-		return getHeight() - getBottomPadding() - getTopPadding()
+		float innerHeight = getHeight() - getBottomPadding() - getTopPadding()
 				- (topBorderStyle == null ? 0 : topBorderStyle.getWidth())
 				- (bottomBorderStyle == null ? 0 : bottomBorderStyle.getWidth());
+		if (innerHeight < 0) {
+			logger.warn("Cell inner height is negative ({}). rowHeight={}, topPadding={}, bottomPadding={}, topBorder={}, bottomBorder={}",
+					innerHeight,
+					getHeight(),
+					getTopPadding(),
+					getBottomPadding(),
+					(topBorderStyle == null ? 0 : topBorderStyle.getWidth()),
+					(bottomBorderStyle == null ? 0 : bottomBorderStyle.getWidth()));
+		}
+		return innerHeight;
 	}
 
 	/**

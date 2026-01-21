@@ -794,6 +794,9 @@ public abstract class Table<T extends PDPage> {
 
                 this.tableContentStream.setRotated(cell.isTextRotated());
 
+                // Ensure line tokens are prepared (e.g., when cell height is set directly)
+                cell.getParagraph().getLines();
+
                 // print all lines of the cell
                 boolean cellFinished = true;
                 for (Map.Entry<Integer, List<Token>> entry : cell.getParagraph().getMapLineTokens().entrySet()) {
