@@ -379,6 +379,43 @@ public abstract class Table<T extends PDPage> {
         return yStart;
     }
 
+    /**
+     * <p>
+     * Draws table and returns the final page and Y position where the next table
+     * can continue. This is useful when the table spans multiple pages.
+     * </p>
+     *
+     * @return DrawResult containing the last page and Y position
+     * @throws IOException if underlying stream has problem being written to.
+     */
+    public DrawResult<T> drawAndGetPosition() throws IOException {
+        float finalY = draw();
+        return new DrawResult<>(getCurrentPage(), finalY);
+    }
+
+    /**
+     * <p>
+     * Result of a table draw containing the current page and Y position.
+     * </p>
+     */
+    public static class DrawResult<T> {
+        private final T page;
+        private final float yStart;
+
+        public DrawResult(T page, float yStart) {
+            this.page = page;
+            this.yStart = yStart;
+        }
+
+        public T getPage() {
+            return page;
+        }
+
+        public float getYStart() {
+            return yStart;
+        }
+    }
+
     private void drawRow(Row<T> row) throws IOException {
         // If it's a header row, we ensure it's fresh
         if (header.contains(row)) {
