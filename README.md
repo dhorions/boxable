@@ -20,6 +20,7 @@ Boxable is a library that can be used to easily create tables in pdf documents. 
 - basic set of rendering attributes for lines (borders)
 - rotated text (by 90 degrees)
 - writing text outside tables
+- Inner tables using html `<table>`
 
 # Maven
 ```xml
