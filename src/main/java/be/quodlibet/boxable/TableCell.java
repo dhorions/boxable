@@ -15,6 +15,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.jsoup.parser.Parser;
+import org.jsoup.safety.Safelist;
+
+import be.quodlibet.boxable.line.LineStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +50,29 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	private final float pageBottomMargin;
 	// default title fonts
 	private int tableTitleFontSize = 8;
+	private boolean innerTableDrawLines = true;
+	private boolean innerTableLeftBorder = true;
+	private boolean innerTableRightBorder = true;
+	private boolean innerTableTopBorder = true;
+	private boolean innerTableBottomBorder = true;
+	private boolean innerTableInnerVerticalBorders = true;
+	private boolean innerTableInnerHorizontalBorders = true;
+	private LineStyle innerTableBorderStyle = null;
+	private boolean innerTableStartAtTop = false;
+	private Float innerTableCellLeftPadding = null;
+	private Float innerTableCellRightPadding = null;
+	private Float innerTableCellTopPadding = null;
+	private Float innerTableCellBottomPadding = null;
+
+	private static final Safelist INNER_TABLE_SAFELIST = Safelist.none()
+			.addTags("table", "thead", "tbody", "tfoot", "tr", "td", "th", "caption",
+					"colgroup", "col", "p", "br", "b", "strong", "i", "em", "u", "ul", "ol", "li",
+					"span", "sub", "sup")
+			.addAttributes("td", "colspan", "rowspan")
+			.addAttributes("th", "colspan", "rowspan")
+			.addAttributes("col", "span")
+			.addAttributes("colgroup", "span")
+			.addAttributes("table", "border");
 
 	TableCell(Row<T> row, float width, String tableData, boolean isCalculated, PDDocument document, PDPage page,
 			float yStart, float pageTopMargin, float pageBottomMargin) {
@@ -58,7 +84,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			float yStart, float pageTopMargin, float pageBottomMargin, final HorizontalAlignment align,
 			final VerticalAlignment valign) {
 		super(row, width, tableData, isCalculated);
-		this.tableData = tableData;
+		this.tableData = sanitizeTableData(tableData);
 		this.width = width * row.getWidth() / 100;
 		this.doc = document;
 		this.page = page;
@@ -85,6 +111,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	 */
 	@SuppressWarnings({ "unused", "unchecked" })
 	public void fillTable() {
+		float originalYStart = yStart;
 		try {
 			// please consider the cell's paddings
 			float tableWidth = this.width - getLeftPadding() - getRightPadding();
@@ -99,7 +126,6 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			Paragraph outerTextParagraph = null;
 			String caption = "";
 			height = 0;
-			height = (getTopBorder() == null ? 0 : getTopBorder().getWidth()) + getTopPadding();
 			for (String element : outerTableText) {
 				if (element.contains("</table")) {
 					String[] chunks = element.split("</table>");
@@ -116,7 +142,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 								yStart -= tableTitle.getHeight() + marginBetweenElementsY;
 							}
 							height += (captionTag != null ? tableTitle.getHeight() + marginBetweenElementsY : 0);
-							createInnerTable(tableWidth, document, page, false);
+							createInnerTable(tableWidth, document, page, false, true);
 						} else {
 							// make paragraph and get tokens
 							outerTextParagraph = new Paragraph(chunkie, getFont(), 8, (int) tableWidth);
@@ -138,17 +164,32 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			tableCellContentStream.close();
 		} catch (IOException e) {
 			logger.warn("Cannot create table in TableCell. Table data: '{}' " + tableData + e);
+		} finally {
+			yStart = originalYStart;
 		}
 	}
 
-	private void createInnerTable(float tableWidth, Document document, PDPage currentPage, boolean drawTable) throws IOException {
+	private void createInnerTable(float tableWidth, Document document, PDPage currentPage, boolean drawTable,
+			boolean useStartAtTop) throws IOException {
 
-		BaseTable table = new BaseTable(yStart, PDRectangle.A4.getHeight() - pageTopMargin, pageTopMargin,
-				pageBottomMargin, tableWidth, xStart, doc, currentPage, true, true);
+		float topBorderWidth = getTopBorder() == null ? 0 : getTopBorder().getWidth();
+		float fontLineOffset = FontUtils.getHeight(getFont(), getFontSize())
+				+ FontUtils.getDescent(getFont(), getFontSize());
+		float startAtTopOffset = useStartAtTop && innerTableStartAtTop
+				? fontLineOffset
+				: getTopPadding() + topBorderWidth;
+		float tableStartY = yStart + startAtTopOffset;
+		BaseTable table = new BaseTable(tableStartY, PDRectangle.A4.getHeight() - pageTopMargin, pageTopMargin,
+				pageBottomMargin, tableWidth, xStart, doc, currentPage, innerTableDrawLines, true);
+				
 		document.outputSettings().prettyPrint(false);
 		Element htmlTable = document.select("table").first();
+		if (htmlTable == null) {
+			return;
+		}
 
 		Elements rows = htmlTable.select("tr");
+		int rowIndex = 0;
 		for (Element htmlTableRow : rows) {
 			Row<PDPage> row = table.createRow(0);
 			Elements tableCols = htmlTableRow.select("td");
@@ -168,24 +209,43 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 					columnsSize += Integer.parseInt(col.attr("colspan")) - 1;
 				}
 			}
+			int colIndex = 0;
+			int colPosition = 0;
 			for (Element col : tableHasHeaderColumns ? tableHeaderCols : tableCols) {
 				String cellHtml = Parser.unescapeEntities(col.html(), true);
+				int colSpan = 1;
+				if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
+					try {
+						colSpan = Integer.parseInt(col.attr("colspan"));
+					} catch (NumberFormatException e) {
+						colSpan = 1;
+					}
+				}
+				int startCol = colPosition;
+				int endCol = Math.min(columnsSize - 1, colPosition + colSpan - 1);
 				if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
 					Cell<T> cell = (Cell<T>) row.createCell(
 							tableWidth / columnsSize * Integer.parseInt(col.attr("colspan")) / row.getWidth() * 100,
 							cellHtml);
+					applyInnerTableBorderOptions(cell, rowIndex, startCol, endCol, rows.size(), columnsSize);
 				} else {
 					Cell<T> cell = (Cell<T>) row.createCell(tableWidth / columnsSize / row.getWidth() * 100,
 							cellHtml);
+					applyInnerTableBorderOptions(cell, rowIndex, startCol, endCol, rows.size(), columnsSize);
 				}
+				colIndex++;
+				colPosition += colSpan;
 			}
-			yStart -= row.getHeight();
+			tableStartY -= row.getHeight();
+			rowIndex++;
 		}
 		if (drawTable) {
 			table.draw();
 		}
 
 		height += table.getHeaderAndDataHeight() + marginBetweenElementsY;
+		float offset = startAtTopOffset;
+		yStart = tableStartY - offset;
 	}
 
 	/**
@@ -367,7 +427,6 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			Paragraph outerTextParagraph = null;
 			String caption = "";
 			height = 0;
-			height = (getTopBorder() == null ? 0 : getTopBorder().getWidth()) + getTopPadding();
 			for (String element : outerTableText) {
 				if (element.contains("</table")) {
 					String[] chunks = element.split("</table>");
@@ -385,7 +444,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 										- marginBetweenElementsY;
 							}
 							height += (captionTag != null ? tableTitle.getHeight() + marginBetweenElementsY : 0);
-							createInnerTable(tableWidth, document, page, true);
+							createInnerTable(tableWidth, document, page, true, true);
 						} else {
 							// make paragraph and get tokens
 							outerTextParagraph = new Paragraph(chunkie, getFont(), 8, (int) tableWidth);
@@ -414,6 +473,116 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		return xStart;
 	}
 
+	/**
+	 * <p>
+	 * Controls whether borders are drawn for inner tables.
+	 * </p>
+	 *
+	 * @param drawLines
+	 *            {@code true} to draw borders
+	 */
+	public void setInnerTableDrawLines(boolean drawLines) {
+		this.innerTableDrawLines = drawLines;
+	}
+
+	/**
+	 * <p>
+	 * Sets which sides should have borders for all inner table cells.
+	 * </p>
+	 *
+	 * @param left
+	 *            Draw left borders
+	 * @param right
+	 *            Draw right borders
+	 * @param top
+	 *            Draw top borders
+	 * @param bottom
+	 *            Draw bottom borders
+	 */
+	public void setInnerTableBorders(boolean left, boolean right, boolean top, boolean bottom) {
+		this.innerTableLeftBorder = left;
+		this.innerTableRightBorder = right;
+		this.innerTableTopBorder = top;
+		this.innerTableBottomBorder = bottom;
+	}
+
+	/**
+	 * <p>
+	 * Sets whether borders between inner table cells are drawn.
+	 * </p>
+	 *
+	 * @param vertical
+	 *            {@code true} to draw borders between columns
+	 * @param horizontal
+	 *            {@code true} to draw borders between rows
+	 */
+	public void setInnerTableInnerBorders(boolean vertical, boolean horizontal) {
+		this.innerTableInnerVerticalBorders = vertical;
+		this.innerTableInnerHorizontalBorders = horizontal;
+	}
+
+	/**
+	 * <p>
+	 * Sets the border style for all inner table cells.
+	 * </p>
+	 *
+	 * @param borderStyle
+	 *            Border style to apply, or {@code null} to keep defaults
+	 */
+	public void setInnerTableBorderStyle(LineStyle borderStyle) {
+		this.innerTableBorderStyle = borderStyle;
+	}
+
+	/**
+	 * <p>
+	 * Sets padding for all inner table cells. Use {@code null} to keep defaults.
+	 * </p>
+	 *
+	 * @param left
+	 *            Left padding
+	 * @param right
+	 *            Right padding
+	 * @param top
+	 *            Top padding
+	 * @param bottom
+	 *            Bottom padding
+	 */
+	public void setInnerTableCellPadding(Float left, Float right, Float top, Float bottom) {
+		this.innerTableCellLeftPadding = left;
+		this.innerTableCellRightPadding = right;
+		this.innerTableCellTopPadding = top;
+		this.innerTableCellBottomPadding = bottom;
+		fillTable();
+	}
+
+	/**
+	 * <p>
+	 * When enabled, inner tables start at the top border of the cell without extra
+	 * whitespace above them.
+	 * </p>
+	 *
+	 * @param startAtTop
+	 *            {@code true} to align inner table to the top border
+	 */
+	public void setInnerTableStartAtTop(boolean startAtTop) {
+		this.innerTableStartAtTop = startAtTop;
+		fillTable();
+	}
+
+	/**
+	 * <p>
+	 * Sets the vertical margin between elements inside this table cell.
+	 * Use {@code 0} to remove extra spacing above/below the inner table.
+	 * </p>
+	 *
+	 * @param marginBetweenElementsY
+	 *            Margin between elements in points
+	 */
+	public void setMarginBetweenElementsY(float marginBetweenElementsY) {
+		this.marginBetweenElementsY = marginBetweenElementsY;
+		fillTable();
+	}
+
 	public void setXPosition(float xStart) {
 		this.xStart = xStart;
 	}
@@ -424,6 +593,85 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 
 	public void setYPosition(float yStart) {
 		this.yStart = yStart;
+	}
+
+	private void applyInnerTableBorderOptions(Cell<T> cell, int rowIndex, int startCol, int endCol,
+			int rowCount, int columnCount) {
+		if (innerTableBorderStyle != null) {
+			cell.setBorderStyle(innerTableBorderStyle);
+		}
+
+		boolean isFirstRow = rowIndex == 0;
+		boolean isLastRow = rowIndex == rowCount - 1;
+		boolean isFirstCol = startCol == 0;
+		boolean isLastCol = endCol == columnCount - 1;
+
+		// Left border: only outer frame on first column
+		if (isFirstCol) {
+			if (!innerTableLeftBorder) {
+				cell.setLeftBorderStyle(null);
+			}
+		} else {
+			cell.setLeftBorderStyle(null);
+		}
+
+		// Right border: outer frame on last column, inner separators on internal columns
+		if (isLastCol) {
+			if (!innerTableRightBorder) {
+				cell.setRightBorderStyle(null);
+			}
+		} else {
+			if (!innerTableInnerVerticalBorders) {
+				cell.setRightBorderStyle(null);
+			}
+		}
+
+		// Top border: outer frame on first row, inner separators on other rows
+		if (isFirstRow) {
+			if (!innerTableTopBorder) {
+				cell.setTopBorderStyle(null);
+			}
+		} else {
+			if (!innerTableInnerHorizontalBorders) {
+				cell.setTopBorderStyle(null);
+			}
+		}
+
+		// Bottom border: only outer frame on last row
+		if (isLastRow) {
+			if (!innerTableBottomBorder) {
+				cell.setBottomBorderStyle(null);
+			}
+		} else {
+			cell.setBottomBorderStyle(null);
+		}
+
+		if (innerTableCellLeftPadding != null) {
+			cell.setLeftPadding(innerTableCellLeftPadding);
+		}
+		if (innerTableCellRightPadding != null) {
+			cell.setRightPadding(innerTableCellRightPadding);
+		}
+		if (innerTableCellTopPadding != null) {
+			cell.setTopPadding(innerTableCellTopPadding);
+		}
+		if (innerTableCellBottomPadding != null) {
+			cell.setBottomPadding(innerTableCellBottomPadding);
+		}
+	}
+
+	private String sanitizeTableData(String input) {
+		if (input == null || input.trim().isEmpty()) {
+			return "<table></table>";
+		}
+		Document.OutputSettings outputSettings = new Document.OutputSettings().prettyPrint(false);
+		String cleaned = Jsoup.clean(input, "", INNER_TABLE_SAFELIST, outputSettings);
+		Document document = Jsoup.parse(cleaned);
+		if (document.select("table").isEmpty()) {
+			String textOnly = Jsoup.clean(input, Safelist.none());
+			return "<table><tr><td>" + textOnly + "</td></tr></table>";
+		}
+		return cleaned;
 	}
 
 	@Override

@@ -35,6 +35,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'commons-io:commons-io:2.21.0'
+    testRuntimeOnly 'org.slf4j:slf4j-simple:2.0.17'
 }
 
 java {
