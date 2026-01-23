@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -791,6 +792,9 @@ public abstract class Table<T extends PDPage> {
                 int boldCounter = 0;
                 int strikeThroughCounter = 0;
                 int underlineCounter = 0;
+                float baseFontSize = cell.getFontSize();
+                float currentFontSize = baseFontSize;
+                Stack<Float> headingFontSizeStack = new Stack<>();
 
                 this.tableContentStream.setRotated(cell.isTextRotated());
 
@@ -805,14 +809,14 @@ public abstract class Table<T extends PDPage> {
                          continue;
                      }
                      // check if we have space for this line
-                     if (!cell.isTextRotated()) {
-                        float fontHeight = cell.getParagraph().getFontHeight();
+                    if (!cell.isTextRotated()) {
+                        float fontHeight = cell.getParagraph().getLineHeight(lineIndex);
                         if (cursorY <= (yStart - rowHeight)) {
                             cell.setLineStart(lineIndex);
                             cellFinished = false;
                             break;
                         }
-                     }
+                    }
 
                     // calculate the width of this line
                     float freeSpaceWithinLine = cell.getParagraph().getMaxLineWidth()
@@ -852,7 +856,10 @@ public abstract class Table<T extends PDPage> {
                     for (Token token : entry.getValue()) {
                         switch (token.getType()) {
                             case OPEN_TAG:
-                                if ("b".equals(token.getData())) {
+                                if (Paragraph.isHeadingTag(token.getData())) {
+                                    headingFontSizeStack.push(currentFontSize);
+                                    currentFontSize = baseFontSize * Paragraph.getHeadingScale(token.getData());
+                                } else if ("b".equals(token.getData())) {
                                     boldCounter++;
                                 } else if ("i".equals(token.getData())) {
                                     italicCounter++;
@@ -863,7 +870,9 @@ public abstract class Table<T extends PDPage> {
                                 }
                                 break;
                             case CLOSE_TAG:
-                                if ("b".equals(token.getData())) {
+                                if (Paragraph.isHeadingTag(token.getData())) {
+                                    currentFontSize = headingFontSizeStack.isEmpty() ? baseFontSize : headingFontSizeStack.pop();
+                                } else if ("b".equals(token.getData())) {
                                     boldCounter = Math.max(boldCounter - 1, 0);
                                 } else if ("i".equals(token.getData())) {
                                     italicCounter = Math.max(italicCounter - 1, 0);
@@ -878,62 +887,62 @@ public abstract class Table<T extends PDPage> {
                                 break;
                             case ORDERING:
                                 currentFont = cell.getParagraph().getFont(boldCounter > 0, italicCounter > 0);
-                                this.tableContentStream.setFont(currentFont, cell.getFontSize());
+                                this.tableContentStream.setFont(currentFont, currentFontSize);
                                 if (cell.isTextRotated()) {
                                     tableContentStream.newLineAt(cursorX, cursorY);
                                     this.tableContentStream.showText(token.getData());
-                                    cursorY += token.getWidth(currentFont) / 1000 * cell.getFontSize();
+                                    cursorY += token.getWidth(currentFont) / 1000 * currentFontSize;
                                 } else {
                                     this.tableContentStream.newLineAt(cursorX, cursorY);
                                     this.tableContentStream.showText(token.getData());
-                                    cursorX += token.getWidth(currentFont) / 1000 * cell.getFontSize();
+                                    cursorX += token.getWidth(currentFont) / 1000 * currentFontSize;
                                 }
                                 break;
                             case BULLET:
                                 float widthOfSpace = currentFont.getSpaceWidth();
-                                float halfHeight = FontUtils.getHeight(currentFont, cell.getFontSize()) / 2;
+                                float halfHeight = FontUtils.getHeight(currentFont, currentFontSize) / 2;
                                 if (cell.isTextRotated()) {
                                     PDStreamUtils.rect(tableContentStream, cursorX + halfHeight, cursorY,
-                                            token.getWidth(currentFont) / 1000 * cell.getFontSize(),
-                                            widthOfSpace / 1000 * cell.getFontSize(),
+                                            token.getWidth(currentFont) / 1000 * currentFontSize,
+                                            widthOfSpace / 1000 * currentFontSize,
                                             cell.getTextColor());
                                     // move cursorY for two characters (one for
                                     // bullet, one for space after bullet)
-                                    cursorY += 2 * widthOfSpace / 1000 * cell.getFontSize();
+                                    cursorY += 2 * widthOfSpace / 1000 * currentFontSize;
                                 } else {
                                     PDStreamUtils.rect(tableContentStream, cursorX, cursorY + halfHeight,
-                                            token.getWidth(currentFont) / 1000 * cell.getFontSize(),
-                                            widthOfSpace / 1000 * cell.getFontSize(),
+                                            token.getWidth(currentFont) / 1000 * currentFontSize,
+                                            widthOfSpace / 1000 * currentFontSize,
                                             cell.getTextColor());
                                     // move cursorX for two characters (one for
                                     // bullet, one for space after bullet)
-                                    cursorX += 2 * widthOfSpace / 1000 * cell.getFontSize();
+                                    cursorX += 2 * widthOfSpace / 1000 * currentFontSize;
                                 }
                                 break;
                             case TEXT:
                                 currentFont = cell.getParagraph().getFont(boldCounter > 0, italicCounter > 0);
-                                this.tableContentStream.setFont(currentFont, cell.getFontSize());
+                                this.tableContentStream.setFont(currentFont, currentFontSize);
                                 if (cell.isTextRotated()) {
                                     tableContentStream.newLineAt(cursorX, cursorY);
                                     this.tableContentStream.showText(token.getData());
-                                    cursorY += token.getWidth(currentFont) / 1000 * cell.getFontSize();
+                                    cursorY += token.getWidth(currentFont) / 1000 * currentFontSize;
                                 } else {
                                     try {
                                         this.tableContentStream.newLineAt(cursorX, cursorY);
                                         this.tableContentStream.showText(token.getData());
                                         if (strikeThroughCounter > 0) {
-                                            float textWidth = token.getWidth(currentFont) / 1000 * cell.getFontSize();
-                                            float fontHeight = FontUtils.getHeight(currentFont, cell.getFontSize());
+                                            float textWidth = token.getWidth(currentFont) / 1000 * currentFontSize;
+                                            float fontHeight = FontUtils.getHeight(currentFont, currentFontSize);
                                             float strikethroughY = cursorY + fontHeight / 3;
                                             PDStreamUtils.rect(tableContentStream, cursorX, strikethroughY, textWidth, fontHeight / 15, cell.getTextColor());
                                         }
                                         if (underlineCounter > 0) {
-                                            float textWidth = token.getWidth(currentFont) / 1000 * cell.getFontSize();
-                                            float fontHeight = FontUtils.getHeight(currentFont, cell.getFontSize());
+                                            float textWidth = token.getWidth(currentFont) / 1000 * currentFontSize;
+                                            float fontHeight = FontUtils.getHeight(currentFont, currentFontSize);
                                             float underlineY = cursorY - fontHeight / 10;
                                             PDStreamUtils.rect(tableContentStream, cursorX, underlineY, textWidth, fontHeight / 15, cell.getTextColor());
                                         }
-                                        cursorX += token.getWidth(currentFont) / 1000 * cell.getFontSize();
+                                        cursorX += token.getWidth(currentFont) / 1000 * currentFontSize;
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
@@ -942,9 +951,9 @@ public abstract class Table<T extends PDPage> {
                         }
                     }
                     if (cell.isTextRotated()) {
-                        cursorX = cursorX + cell.getParagraph().getFontHeight() * cell.getLineSpacing();
+                        cursorX = cursorX + cell.getParagraph().getLineHeight(lineIndex) * cell.getLineSpacing();
                     } else {
-                        cursorY = cursorY - cell.getParagraph().getFontHeight() * cell.getLineSpacing();
+                        cursorY = cursorY - cell.getParagraph().getLineHeight(lineIndex) * cell.getLineSpacing();
                     }
                 }
                 
