@@ -979,15 +979,18 @@ public abstract class Table<T extends PDPage> {
         float xStart = margin;
 
         Iterator<Cell<T>> cellIterator = row.getCells().iterator();
+        Cell<T> previousCell = null;
         while (cellIterator.hasNext()) {
             Cell<T> cell = cellIterator.next();
 
             float cellWidth = cellIterator.hasNext()
                     ? cell.getWidth()
                     : this.width - (xStart - margin);
-            drawCellBorders(rowHeight, cell, xStart);
+            boolean drawLeftBorder = previousCell == null || previousCell.getRightBorder() == null;
+            drawCellBorders(rowHeight, cell, xStart, drawLeftBorder);
 
             xStart += cellWidth;
+            previousCell = cell;
         }
 
     }
@@ -1009,7 +1012,7 @@ public abstract class Table<T extends PDPage> {
         }
     }
 
-    private void drawCellBorders(float rowHeight, Cell<T> cell, float xStart) throws IOException {
+    private void drawCellBorders(float rowHeight, Cell<T> cell, float xStart, boolean drawLeftBorder) throws IOException {
 
         float yEnd = yStart - rowHeight;
 
@@ -1036,10 +1039,12 @@ public abstract class Table<T extends PDPage> {
         }
 
         // left
-        LineStyle leftBorder = cell.getLeftBorder();
-        if (leftBorder != null) {
-            float x = xStart + leftBorder.getWidth() / 2;
-            drawLine(x, yStart, x, yEnd + (bottomBorder == null ? 0 : bottomBorder.getWidth()), leftBorder);
+        if (drawLeftBorder) {
+            LineStyle leftBorder = cell.getLeftBorder();
+            if (leftBorder != null) {
+                float x = xStart + leftBorder.getWidth() / 2;
+                drawLine(x, yStart, x, yEnd + (bottomBorder == null ? 0 : bottomBorder.getWidth()), leftBorder);
+            }
         }
 
     }
