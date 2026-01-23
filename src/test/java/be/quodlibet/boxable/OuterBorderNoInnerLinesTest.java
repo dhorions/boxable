@@ -37,7 +37,7 @@ public class OuterBorderNoInnerLinesTest {
 
         Row<PDPage> expectedRow = table.createRow(28f);
         expectedRow.createCell(100f,
-                "Expected behavior: only the outer table border is visible; no internal grid lines appear.");
+                "Expected behavior: only the outer table border is visible; no internal grid lines appear. #194");
 
         table.draw();
 
