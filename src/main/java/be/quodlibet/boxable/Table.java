@@ -999,12 +999,13 @@ public abstract class Table<T extends PDPage> {
         while (cellIterator.hasNext()) {
             Cell<T> cell = cellIterator.next();
 
-            float cellWidth = cellIterator.hasNext()
-                    ? cell.getWidth()
-                    : this.width - (xStart - margin);
-            fillCellColor(cell, yStart, xStart, rowHeight, cellWidth);
+            float layoutWidth = cellIterator.hasNext()
+                ? cell.getWidth()
+                : this.width - (xStart - margin);
+            float fillWidth = Math.min(cell.getWidth(), layoutWidth);
+            fillCellColor(cell, yStart, xStart, rowHeight, fillWidth);
 
-            xStart += cellWidth;
+            xStart += layoutWidth;
         }
     }
 
