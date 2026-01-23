@@ -205,27 +205,25 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			// calculate how much really columns do you have (including
 			// colspans!)
 			for (Element col : tableHasHeaderColumns ? tableHeaderCols : tableCols) {
-				if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
-					columnsSize += Integer.parseInt(col.attr("colspan")) - 1;
-				}
+				int colSpan = parseColspan(col);
+				columnsSize += colSpan - 1;
 			}
-			int colIndex = 0;
+			if (columnsSize <= 0) {
+				columnsSize = 1;
+			}
+			
 			int colPosition = 0;
 			for (Element col : tableHasHeaderColumns ? tableHeaderCols : tableCols) {
 				String cellHtml = Parser.unescapeEntities(col.html(), true);
-				int colSpan = 1;
-				if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
-					try {
-						colSpan = Integer.parseInt(col.attr("colspan"));
-					} catch (NumberFormatException e) {
-						colSpan = 1;
-					}
+				int colSpan = parseColspan(col);
+				if (colSpan > columnsSize) {
+					colSpan = columnsSize;
 				}
 				int startCol = colPosition;
 				int endCol = Math.min(columnsSize - 1, colPosition + colSpan - 1);
-				if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
+				if (colSpan > 1) {
 					Cell<T> cell = (Cell<T>) row.createCell(
-							tableWidth / columnsSize * Integer.parseInt(col.attr("colspan")) / row.getWidth() * 100,
+							tableWidth / columnsSize * colSpan / row.getWidth() * 100,
 							cellHtml);
 					applyInnerTableBorderOptions(cell, rowIndex, startCol, endCol, rows.size(), columnsSize);
 				} else {
@@ -233,7 +231,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 							cellHtml);
 					applyInnerTableBorderOptions(cell, rowIndex, startCol, endCol, rows.size(), columnsSize);
 				}
-				colIndex++;
+				
 				colPosition += colSpan;
 			}
 			tableStartY -= row.getHeight();
@@ -657,6 +655,19 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		}
 		if (innerTableCellBottomPadding != null) {
 			cell.setBottomPadding(innerTableCellBottomPadding);
+		}
+	}
+
+	private int parseColspan(Element col) {
+		String value = col.attr("colspan");
+		if (value == null || value.isEmpty()) {
+			return 1;
+		}
+		try {
+			int parsed = Integer.parseInt(value.trim());
+			return parsed > 0 ? parsed : 1;
+		} catch (NumberFormatException e) {
+			return 1;
 		}
 	}
 
