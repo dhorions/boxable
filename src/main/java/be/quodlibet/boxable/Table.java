@@ -417,7 +417,7 @@ public abstract class Table<T extends PDPage> {
         }
     }
 
-    private void drawRow(Row<T> row) throws IOException {
+    protected void drawRow(Row<T> row) throws IOException {
         // If it's a header row, we ensure it's fresh
         if (header.contains(row)) {
              for(Cell<T> cell : row.getCells()) {
@@ -555,7 +555,7 @@ public abstract class Table<T extends PDPage> {
                         PDPageContentStream.AppendMode.APPEND, true));
     }
 
-    private void drawCellContent(Row<T> row, float rowHeight) throws IOException {
+    protected void drawCellContent(Row<T> row, float rowHeight) throws IOException {
 
         // position into first cell (horizontal)
         float cursorX = margin;
@@ -975,7 +975,7 @@ public abstract class Table<T extends PDPage> {
 
     }
 
-    private void drawVerticalLines(Row<T> row, float rowHeight) throws IOException {
+    protected void drawVerticalLines(Row<T> row, float rowHeight) throws IOException {
         float xStart = margin;
 
         Iterator<Cell<T>> cellIterator = row.getCells().iterator();
@@ -995,7 +995,7 @@ public abstract class Table<T extends PDPage> {
 
     }
 
-    private void fillRowCellColors(Row<T> row, float rowHeight) throws IOException {
+    protected void fillRowCellColors(Row<T> row, float rowHeight) throws IOException {
         float xStart = margin;
 
         Iterator<Cell<T>> cellIterator = row.getCells().iterator();
@@ -1012,7 +1012,7 @@ public abstract class Table<T extends PDPage> {
         }
     }
 
-    private void drawCellBorders(float rowHeight, Cell<T> cell, float xStart, boolean drawLeftBorder) throws IOException {
+    protected void drawCellBorders(float rowHeight, Cell<T> cell, float xStart, boolean drawLeftBorder) throws IOException {
 
         float yEnd = yStart - rowHeight;
 
@@ -1049,14 +1049,14 @@ public abstract class Table<T extends PDPage> {
 
     }
 
-    private void startOuterBorderSegment() {
+    protected void startOuterBorderSegment() {
         if (outerBorderStyle != null) {
             outerBorderStartY = yStart;
             outerBorderHasContent = false;
         }
     }
 
-    private void finishOuterBorderSegment() throws IOException {
+    protected void finishOuterBorderSegment() throws IOException {
         if (outerBorderStyle == null || outerBorderStartY == null || !outerBorderHasContent) {
             return;
         }
@@ -1078,7 +1078,7 @@ public abstract class Table<T extends PDPage> {
         outerBorderHasContent = false;
     }
 
-    private void drawLine(float xStart, float yStart, float xEnd, float yEnd, LineStyle border) throws IOException {
+    protected void drawLine(float xStart, float yStart, float xEnd, float yEnd, LineStyle border) throws IOException {
         if (border.getWidth() > 0) {
             PDStreamUtils.setLineStyles(tableContentStream, border);
             tableContentStream.moveTo(xStart, yStart);
@@ -1087,7 +1087,7 @@ public abstract class Table<T extends PDPage> {
         }
     }
 
-    private void fillCellColor(Cell<T> cell, float yStart, float xStart, float rowHeight, float cellWidth)
+    protected void fillCellColor(Cell<T> cell, float yStart, float xStart, float rowHeight, float cellWidth)
             throws IOException {
 
         if (cell.getFillColor() != null) {
@@ -1102,13 +1102,13 @@ public abstract class Table<T extends PDPage> {
         }
     }
 
-    private void ensureStreamIsOpen() throws IOException {
+    protected void ensureStreamIsOpen() throws IOException {
         if (tableContentStream == null) {
             tableContentStream = createPdPageContentStream();
         }
     }
 
-    private void endTable() throws IOException {
+    protected void endTable() throws IOException {
         this.tableContentStream.close();
     }
 
@@ -1126,7 +1126,7 @@ public abstract class Table<T extends PDPage> {
         return this.currentPage;
     }
 
-    private boolean isEndOfPage(float freeSpaceForPageBreak) {
+    protected boolean isEndOfPage(float freeSpaceForPageBreak) {
         float currentY = yStart - freeSpaceForPageBreak;
         boolean isEndOfPage = currentY <= pageBottomMargin;
         if (isEndOfPage) {
@@ -1135,7 +1135,7 @@ public abstract class Table<T extends PDPage> {
         return isEndOfPage;
     }
 
-    private void pageBreak() throws IOException {
+    protected void pageBreak() throws IOException {
         tableContentStream.close();
         this.yStart = yStartNewPage - pageTopMargin;
         this.currentPage = createNewPage();
@@ -1143,7 +1143,7 @@ public abstract class Table<T extends PDPage> {
         startOuterBorderSegment();
     }
 
-    private void addBookmark(PDOutlineItem bookmark) {
+    protected void addBookmark(PDOutlineItem bookmark) {
         if (bookmarks == null) {
             bookmarks = new ArrayList<>();
         }
