@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -16,13 +15,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.jsoup.parser.Parser;
 import org.jsoup.safety.Safelist;
-
-import be.quodlibet.boxable.line.LineStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.text.Token;
 import be.quodlibet.boxable.utils.FontUtils;
+import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import be.quodlibet.boxable.utils.PDStreamUtils;
 
 public class TableCell<T extends PDPage> extends Cell<T> {
@@ -670,6 +669,16 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		}
 	}
 
+	/**
+	 * <p>
+	 * Sanitizes the provided HTML for safe inner table rendering. If no
+	 * {@code <table>} element is found, the input is converted into a single-cell
+	 * table containing the plain text content.
+	 * </p>
+	 *
+	 * @param input raw HTML table content
+	 * @return sanitized HTML containing a table
+	 */
 	private String sanitizeTableData(String input) {
 		if (input == null || input.trim().isEmpty()) {
 			return "<table></table>";
