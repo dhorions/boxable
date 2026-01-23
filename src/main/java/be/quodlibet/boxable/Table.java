@@ -486,6 +486,8 @@ public abstract class Table<T extends PDPage> {
                 row.removeTopBorders();
             }
 
+            fillRowCellColors(row, heightToDraw);
+
             if (drawLines) {
                 drawVerticalLines(row, heightToDraw);
             }
@@ -821,7 +823,6 @@ public abstract class Table<T extends PDPage> {
                     // calculate the width of this line
                     float freeSpaceWithinLine = cell.getParagraph().getMaxLineWidth()
                             - cell.getParagraph().getLineWidth(entry.getKey());
-                    // TODO: need to implemented rotated text yo!
                     if (cell.isTextRotated()) {
                         cursorY = lineStartY;
                         switch (cell.getAlign()) {
@@ -984,13 +985,27 @@ public abstract class Table<T extends PDPage> {
             float cellWidth = cellIterator.hasNext()
                     ? cell.getWidth()
                     : this.width - (xStart - margin);
-            fillCellColor(cell, yStart, xStart, rowHeight, cellWidth);
-
             drawCellBorders(rowHeight, cell, xStart);
 
             xStart += cellWidth;
         }
 
+    }
+
+    private void fillRowCellColors(Row<T> row, float rowHeight) throws IOException {
+        float xStart = margin;
+
+        Iterator<Cell<T>> cellIterator = row.getCells().iterator();
+        while (cellIterator.hasNext()) {
+            Cell<T> cell = cellIterator.next();
+
+            float cellWidth = cellIterator.hasNext()
+                    ? cell.getWidth()
+                    : this.width - (xStart - margin);
+            fillCellColor(cell, yStart, xStart, rowHeight, cellWidth);
+
+            xStart += cellWidth;
+        }
     }
 
     private void drawCellBorders(float rowHeight, Cell<T> cell, float xStart) throws IOException {
