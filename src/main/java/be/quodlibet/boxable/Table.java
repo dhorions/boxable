@@ -33,16 +33,16 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
 public abstract class Table<T extends PDPage> {
 
     public final PDDocument document;
-    private float margin;
+    protected float margin;
 
-    private T currentPage;
-    private PageContentStreamOptimized tableContentStream;
+    protected T currentPage;
+    protected PageContentStreamOptimized tableContentStream;
     private List<PDOutlineItem> bookmarks;
     private List<Row<T>> header = new ArrayList<>();
     private List<Row<T>> rows = new ArrayList<>();
 
     private final float yStartNewPage;
-    private float yStart;
+    protected float yStart;
     private final float width;
     private final boolean drawLines;
     private final boolean drawContent;
@@ -62,8 +62,8 @@ public abstract class Table<T extends PDPage> {
     private RowWrappingFunction rowWrappingFunction = new DefaultRowWrappingFunction();
 
     // page margins
-    private final float pageTopMargin;
-    private final float pageBottomMargin;
+    protected final float pageTopMargin;
+    protected final float pageBottomMargin;
 
     private boolean drawDebug;
 
@@ -530,7 +530,7 @@ public abstract class Table<T extends PDPage> {
      *
      * @return
      */
-    private T createNewPage() {
+    protected T createNewPage() {
         if (pageProvider != null) {
             return pageProvider.nextPage();
         }
@@ -549,7 +549,7 @@ public abstract class Table<T extends PDPage> {
                 "You either have to provide a " + PageProvider.class.getCanonicalName() + " or override this method");
     }
 
-    private PageContentStreamOptimized createPdPageContentStream() throws IOException {
+    protected PageContentStreamOptimized createPdPageContentStream() throws IOException {
         return new PageContentStreamOptimized(
                 new PDPageContentStream(getDocument(), getCurrentPage(),
                         PDPageContentStream.AppendMode.APPEND, true));
