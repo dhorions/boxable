@@ -106,25 +106,25 @@ public abstract class Table<T extends PDPage> {
         this(yStartNewPage, 0, pageBottomMargin, width, margin, document, drawLines, drawContent, null);
     }
 
-        /**
-         * <p>
-         * Creates a table with explicit starting positions and a {@link PageProvider}.
-         * </p>
-         *
-         * @param yStart Y position where {@link Table} starts on the current page
-         * @param yStartNewPage Y position where new pages will start
-         * @param pageTopMargin top margin for new pages
-         * @param pageBottomMargin bottom margin for new pages
-         * @param width {@link Table} width in points
-         * @param margin left/right margin in points
-         * @param document {@link PDDocument} for drawing
-         * @param currentPage current page to draw on
-         * @param drawLines {@code true} to draw borders
-         * @param drawContent {@code true} to draw text and images
-         * @param pageProvider page provider for new pages
-         * @throws IOException if fonts cannot be loaded
-         */
-        public Table(float yStart, float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width,
+    /**
+     * <p>
+     * Creates a table with explicit starting positions and a {@link PageProvider}.
+     * </p>
+     *
+     * @param yStart Y position where {@link Table} starts on the current page
+     * @param yStartNewPage Y position where new pages will start
+     * @param pageTopMargin top margin for new pages
+     * @param pageBottomMargin bottom margin for new pages
+     * @param width {@link Table} width in points
+     * @param margin left/right margin in points
+     * @param document {@link PDDocument} for drawing
+     * @param currentPage current page to draw on
+     * @param drawLines {@code true} to draw borders
+     * @param drawContent {@code true} to draw text and images
+     * @param pageProvider page provider for new pages
+     * @throws IOException if fonts cannot be loaded
+     */
+    public Table(float yStart, float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width,
             float margin, PDDocument document, T currentPage, boolean drawLines, boolean drawContent,
             PageProvider<T> pageProvider) throws IOException {
         this.pageTopMargin = pageTopMargin;
@@ -142,23 +142,23 @@ public abstract class Table<T extends PDPage> {
         loadFonts();
     }
   
-        /**
-         * <p>
-         * Creates a table that starts on a new page provided by the {@link PageProvider}.
-         * </p>
-         *
-         * @param yStartNewPage Y position where new pages will start
-         * @param pageTopMargin top margin for new pages
-         * @param pageBottomMargin bottom margin for new pages
-         * @param width {@link Table} width in points
-         * @param margin left/right margin in points
-         * @param document {@link PDDocument} for drawing
-         * @param drawLines {@code true} to draw borders
-         * @param drawContent {@code true} to draw text and images
-         * @param pageProvider page provider for new pages
-         * @throws IOException if fonts cannot be loaded
-         */
-        public Table(float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width, float margin,
+    /**
+     * <p>
+     * Creates a table that starts on a new page provided by the {@link PageProvider}.
+     * </p>
+     *
+     * @param yStartNewPage Y position where new pages will start
+     * @param pageTopMargin top margin for new pages
+     * @param pageBottomMargin bottom margin for new pages
+     * @param width {@link Table} width in points
+     * @param margin left/right margin in points
+     * @param document {@link PDDocument} for drawing
+     * @param drawLines {@code true} to draw borders
+     * @param drawContent {@code true} to draw text and images
+     * @param pageProvider page provider for new pages
+     * @throws IOException if fonts cannot be loaded
+     */
+    public Table(float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width, float margin,
             PDDocument document, boolean drawLines, boolean drawContent, PageProvider<T> pageProvider)
             throws IOException {
         this.pageTopMargin = pageTopMargin;
@@ -187,69 +187,69 @@ public abstract class Table<T extends PDPage> {
         return document;
     }
 
-        /**
-         * <p>
-         * Draws a title above the table using default color (black) and no wrapping.
-         * </p>
-         *
-         * @param title title text, or {@code null} to reserve height only
-         * @param font font used for the title
-         * @param fontSize font size in points
-         * @param tableWidth available width for the title
-         * @param height reserved title height
-         * @param alignment horizontal alignment string
-         * @param freeSpaceForPageBreak minimum free space required before drawing
-         * @param drawHeaderMargin whether to draw header margin below title
-         * @throws IOException if drawing fails
-         */
-        public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
+    /**
+     * <p>
+     * Draws a title above the table using default color (black) and no wrapping.
+     * </p>
+     *
+     * @param title title text, or {@code null} to reserve height only
+     * @param font font used for the title
+     * @param fontSize font size in points
+     * @param tableWidth available width for the title
+     * @param height reserved title height
+     * @param alignment horizontal alignment string
+     * @param freeSpaceForPageBreak minimum free space required before drawing
+     * @param drawHeaderMargin whether to draw header margin below title
+     * @throws IOException if drawing fails
+     */
+    public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
             float freeSpaceForPageBreak, boolean drawHeaderMargin) throws IOException {
         drawTitle(title, font, fontSize, tableWidth, height, alignment, freeSpaceForPageBreak, null, drawHeaderMargin,
             Color.BLACK, null);
-        }
+    }
 
-        /**
-         * <p>
-         * Draws a title above the table using a wrapping function and default color (black).
-         * </p>
-         *
-         * @param title title text, or {@code null} to reserve height only
-         * @param font font used for the title
-         * @param fontSize font size in points
-         * @param tableWidth available width for the title
-         * @param height reserved title height
-         * @param alignment horizontal alignment string
-         * @param freeSpaceForPageBreak minimum free space required before drawing
-         * @param wrappingFunction wrapping function for line breaks
-         * @param drawHeaderMargin whether to draw header margin below title
-         * @throws IOException if drawing fails
-         */
-        public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
+    /**
+     * <p>
+     * Draws a title above the table using a wrapping function and default color (black).
+     * </p>
+     *
+     * @param title title text, or {@code null} to reserve height only
+     * @param font font used for the title
+     * @param fontSize font size in points
+     * @param tableWidth available width for the title
+     * @param height reserved title height
+     * @param alignment horizontal alignment string
+     * @param freeSpaceForPageBreak minimum free space required before drawing
+     * @param wrappingFunction wrapping function for line breaks
+     * @param drawHeaderMargin whether to draw header margin below title
+     * @throws IOException if drawing fails
+     */
+    public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
             float freeSpaceForPageBreak, WrappingFunction wrappingFunction, boolean drawHeaderMargin)
             throws IOException {
         drawTitle(title, font, fontSize, tableWidth, height, alignment, freeSpaceForPageBreak, wrappingFunction,
-            drawHeaderMargin, Color.BLACK, null);
-        }
+                drawHeaderMargin, Color.BLACK, null);
+    }
 
-        /**
-         * <p>
-         * Draws a title above the table with explicit color and text type styling.
-         * </p>
-         *
-         * @param title title text, or {@code null} to reserve height only
-         * @param font font used for the title
-         * @param fontSize font size in points
-         * @param tableWidth available width for the title
-         * @param height reserved title height
-         * @param alignment horizontal alignment string
-         * @param freeSpaceForPageBreak minimum free space required before drawing
-         * @param wrappingFunction wrapping function for line breaks
-         * @param drawHeaderMargin whether to draw header margin below title
-         * @param color title text color
-         * @param textType optional text decoration
-         * @throws IOException if drawing fails
-         */
-        public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
+    /**
+     * <p>
+     * Draws a title above the table with explicit color and text type styling.
+     * </p>
+     *
+     * @param title title text, or {@code null} to reserve height only
+     * @param font font used for the title
+     * @param fontSize font size in points
+     * @param tableWidth available width for the title
+     * @param height reserved title height
+     * @param alignment horizontal alignment string
+     * @param freeSpaceForPageBreak minimum free space required before drawing
+     * @param wrappingFunction wrapping function for line breaks
+     * @param drawHeaderMargin whether to draw header margin below title
+     * @param color title text color
+     * @param textType optional text decoration
+     * @throws IOException if drawing fails
+     */
+    public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
             float freeSpaceForPageBreak, WrappingFunction wrappingFunction, boolean drawHeaderMargin, Color color,
             TextType textType) throws IOException {
 
@@ -267,7 +267,7 @@ public abstract class Table<T extends PDPage> {
             yStart -= height;
         } else {
             PageContentStreamOptimized articleTitle = createPdPageContentStream();
-                Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment),
+            Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment),
                     color, textType, wrappingFunction);
             paragraph.setDrawDebug(drawDebug);
             yStart = paragraph.write(articleTitle, margin, yStart);
