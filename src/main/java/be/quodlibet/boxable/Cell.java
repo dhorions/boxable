@@ -644,10 +644,6 @@ public class Cell<T extends PDPage> {
 	 */
 	public float getVerticalFreeSpace() {
 		if (isTextRotated()) {
-			// need to calculate max line width so we just iterating through
-			// lines
-			for (String line : getParagraph().getLines()) {
-			}
 			return getInnerHeight() - getParagraph().getMaxLineWidth();
 		} else {
 			return getInnerHeight() - getTextHeight();
@@ -957,7 +953,7 @@ public class Cell<T extends PDPage> {
 	 *
 	 * @param sourceCell Source {@link Cell} from which cell style will be copied.
 	 */
-	public void copyCellStyle(Cell sourceCell) {
+	public void copyCellStyle(Cell<?> sourceCell) {
 		Boolean leftBorder = this.leftBorderStyle == null;
 		setBorderStyle(sourceCell.getTopBorder());
 		if (leftBorder) {
@@ -981,7 +977,7 @@ public class Cell<T extends PDPage> {
 	 * @param sourceCell Source {@link Cell} which will be used for style comparation
 	 * @return boolean if source cell has the same style
 	 */
-	public Boolean hasSameStyle(Cell sourceCell) {
+	public Boolean hasSameStyle(Cell<?> sourceCell) {
 		if (!sourceCell.getTopBorder().equals(getTopBorder())) {
 			return false;
 		}

@@ -88,8 +88,8 @@ public class RowspanInnerTableTest {
         assertTrue(text.contains("Expected behavior: the inner key/value table aligns to the top border without a gap"));
     }
 
-        @Test
-        public void innerTableWithoutTopAlignmentUsesDefaultSpacing() throws IOException {
+    @Test
+    public void innerTableWithoutTopAlignmentUsesDefaultSpacing() throws IOException {
         float margin = 40f;
         float bottomMargin = 70f;
 
@@ -101,7 +101,7 @@ public class RowspanInnerTableTest {
         float yStart = yStartNewPage;
 
         BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
-            true);
+                true);
 
         Row<PDPage> headerRow = table.createRow(15f);
         headerRow.createCell(30, "Section");
@@ -114,17 +114,17 @@ public class RowspanInnerTableTest {
         dataRow.createCell(30, "Attributes");
 
         String innerTableHtml = "<table>"
-            + "<tr><th>Key</th><th>Value</th></tr>"
-            + "<tr><td>Project</td><td>Boxable PDF</td></tr>"
-            + "<tr><td>Owner</td><td>Quodlibet</td></tr>"
-            + "<tr><td>Version</td><td>1.8.2</td></tr>"
-            + "<tr><td>Status</td><td>Active</td></tr>"
-            + "</table>";
+                + "<tr><th>Key</th><th>Value</th></tr>"
+                + "<tr><td>Project</td><td>Boxable PDF</td></tr>"
+                + "<tr><td>Owner</td><td>Quodlibet</td></tr>"
+                + "<tr><td>Version</td><td>1.8.2</td></tr>"
+                + "<tr><td>Status</td><td>Active</td></tr>"
+                + "</table>";
         dataRow.createTableCell(70, innerTableHtml, doc, page, yStart, margin, bottomMargin);
 
         Row<PDPage> expectedRow = table.createRow(18f);
         expectedRow.createCell(100,
-            "Expected behavior: the inner table uses default spacing and does not align to the top border when not configured.");
+                "Expected behavior: the inner table uses default spacing and does not align to the top border when not configured.");
 
         table.draw();
 
@@ -138,7 +138,7 @@ public class RowspanInnerTableTest {
         assertTrue(file.exists());
         assertTrue(file.length() > 0);
         assertTrue(text.contains("Expected behavior: the inner table uses default spacing"));
-        }
+    }
 
     private static PDPage addNewPage(PDDocument doc) {
         PDPage page = new PDPage(PDRectangle.A4);

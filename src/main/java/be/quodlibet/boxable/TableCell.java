@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -16,13 +15,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.jsoup.parser.Parser;
 import org.jsoup.safety.Safelist;
-
-import be.quodlibet.boxable.line.LineStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.text.Token;
 import be.quodlibet.boxable.utils.FontUtils;
+import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import be.quodlibet.boxable.utils.PDStreamUtils;
 
 public class TableCell<T extends PDPage> extends Cell<T> {
@@ -40,9 +39,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	private final HorizontalAlignment align;
 	private final VerticalAlignment valign;
 
-	// default FreeSans font
-//	private PDFont font = FontUtils.getDefaultfonts().get("font");
-//	private PDFont fontBold = FontUtils.getDefaultfonts().get("fontBold");
+
 	private PageContentStreamOptimized tableCellContentStream;
 
 	// page margins
@@ -67,6 +64,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	private static final Safelist INNER_TABLE_SAFELIST = Safelist.none()
 			.addTags("table", "thead", "tbody", "tfoot", "tr", "td", "th", "caption",
 					"colgroup", "col", "p", "br", "b", "strong", "i", "em", "u", "ul", "ol", "li",
+					"h1", "h2", "h3", "h4", "h5", "h6",
 					"span", "sub", "sup")
 			.addAttributes("td", "colspan", "rowspan")
 			.addAttributes("th", "colspan", "rowspan")
@@ -205,35 +203,32 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			// calculate how much really columns do you have (including
 			// colspans!)
 			for (Element col : tableHasHeaderColumns ? tableHeaderCols : tableCols) {
-				if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
-					columnsSize += Integer.parseInt(col.attr("colspan")) - 1;
-				}
+				int colSpan = parseColspan(col);
+				columnsSize += colSpan - 1;
 			}
-			int colIndex = 0;
+			if (columnsSize <= 0) {
+				columnsSize = 1;
+			}
+			
 			int colPosition = 0;
 			for (Element col : tableHasHeaderColumns ? tableHeaderCols : tableCols) {
 				String cellHtml = Parser.unescapeEntities(col.html(), true);
-				int colSpan = 1;
-				if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
-					try {
-						colSpan = Integer.parseInt(col.attr("colspan"));
-					} catch (NumberFormatException e) {
-						colSpan = 1;
-					}
+				int colSpan = parseColspan(col);
+				if (colSpan > columnsSize) {
+					colSpan = columnsSize;
 				}
 				int startCol = colPosition;
 				int endCol = Math.min(columnsSize - 1, colPosition + colSpan - 1);
-				if (col.attr("colspan") != null && !col.attr("colspan").isEmpty()) {
-					Cell<T> cell = (Cell<T>) row.createCell(
-							tableWidth / columnsSize * Integer.parseInt(col.attr("colspan")) / row.getWidth() * 100,
+				if (colSpan > 1) {
+					Cell<PDPage> cell = row.createCell(
+							tableWidth / columnsSize * colSpan / row.getWidth() * 100,
 							cellHtml);
 					applyInnerTableBorderOptions(cell, rowIndex, startCol, endCol, rows.size(), columnsSize);
 				} else {
-					Cell<T> cell = (Cell<T>) row.createCell(tableWidth / columnsSize / row.getWidth() * 100,
-							cellHtml);
+					Cell<PDPage> cell = row.createCell(tableWidth / columnsSize / row.getWidth() * 100, cellHtml);
 					applyInnerTableBorderOptions(cell, rowIndex, startCol, endCol, rows.size(), columnsSize);
 				}
-				colIndex++;
+				
 				colPosition += colSpan;
 			}
 			tableStartY -= row.getHeight();
@@ -264,6 +259,9 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	private float writeOrCalculateParagraph(Paragraph paragraph, boolean onlyCalculateHeight) throws IOException {
 		int boldCounter = 0;
 		int italicCounter = 0;
+		float baseFontSize = getFontSize();
+		float currentFontSize = baseFontSize;
+		java.util.Stack<Float> headingFontSizeStack = new java.util.Stack<>();
 
 		if (!onlyCalculateHeight) {
 			tableCellContentStream.setRotated(isTextRotated());
@@ -271,8 +269,9 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 
 		// position at top of current cell descending by font height - font
 		// descent, because we are positioning the base line here
-		float cursorY = yStart - getTopPadding() - FontUtils.getHeight(getFont(), getFontSize())
-				- FontUtils.getDescent(getFont(), getFontSize()) - (getTopBorder() == null ? 0 : getTopBorder().getWidth());
+		float firstLineFontSize = paragraph.getLineFontSize(0);
+		float cursorY = yStart - getTopPadding() - FontUtils.getHeight(getFont(), firstLineFontSize)
+				- FontUtils.getDescent(getFont(), firstLineFontSize) - (getTopBorder() == null ? 0 : getTopBorder().getWidth());
 		float cursorX = xStart;
 
 		// loop through tokens
@@ -311,14 +310,19 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			for (Token token : entry.getValue()) {
 				switch (token.getType()) {
 				case OPEN_TAG:
-					if ("b".equals(token.getData())) {
+					if (Paragraph.isHeadingTag(token.getData())) {
+						headingFontSizeStack.push(currentFontSize);
+						currentFontSize = baseFontSize * Paragraph.getHeadingScale(token.getData());
+					} else if ("b".equals(token.getData())) {
 						boldCounter++;
 					} else if ("i".equals(token.getData())) {
 						italicCounter++;
 					}
 					break;
 				case CLOSE_TAG:
-					if ("b".equals(token.getData())) {
+					if (Paragraph.isHeadingTag(token.getData())) {
+						currentFontSize = headingFontSizeStack.isEmpty() ? baseFontSize : headingFontSizeStack.pop();
+					} else if ("b".equals(token.getData())) {
 						boldCounter = Math.max(boldCounter - 1, 0);
 					} else if ("i".equals(token.getData())) {
 						italicCounter = Math.max(italicCounter - 1, 0);
@@ -329,68 +333,68 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 					break;
 				case ORDERING:
 					currentFont = paragraph.getFont(boldCounter > 0, italicCounter > 0);
-					tableCellContentStream.setFont(currentFont, getFontSize());
+					tableCellContentStream.setFont(currentFont, currentFontSize);
 					if (isTextRotated()) {
 						// if it is not calculation then draw it
 						if (!onlyCalculateHeight) {
 							tableCellContentStream.newLineAt(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
 						}
-						cursorY += token.getWidth(currentFont) / 1000 * getFontSize();
+						cursorY += token.getWidth(currentFont) / 1000 * currentFontSize;
 					} else {
 						// if it is not calculation then draw it
 						if (!onlyCalculateHeight) {
 							tableCellContentStream.newLineAt(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
 						}
-						cursorX += token.getWidth(currentFont) / 1000 * getFontSize();
+						cursorX += token.getWidth(currentFont) / 1000 * currentFontSize;
 					}
 					break;
 				case BULLET:
 					float widthOfSpace = currentFont.getSpaceWidth();
-					float halfHeight = FontUtils.getHeight(currentFont, getFontSize()) / 2;
+					float halfHeight = FontUtils.getHeight(currentFont, currentFontSize) / 2;
 					if (isTextRotated()) {
 						if (!onlyCalculateHeight) {
 							PDStreamUtils.rect(tableCellContentStream, cursorX + halfHeight, cursorY,
-									token.getWidth(currentFont) / 1000 * getFontSize(),
-									widthOfSpace / 1000 * getFontSize(), getTextColor());
+									token.getWidth(currentFont) / 1000 * currentFontSize,
+									widthOfSpace / 1000 * currentFontSize, getTextColor());
 						}
 						// move cursorY for two characters (one for bullet, one
 						// for space after bullet)
-						cursorY += 2 * widthOfSpace / 1000 * getFontSize();
+						cursorY += 2 * widthOfSpace / 1000 * currentFontSize;
 					} else {
 						if (!onlyCalculateHeight) {
 							PDStreamUtils.rect(tableCellContentStream, cursorX, cursorY + halfHeight,
-									token.getWidth(currentFont) / 1000 * getFontSize(),
-									widthOfSpace / 1000 * getFontSize(), getTextColor());
+									token.getWidth(currentFont) / 1000 * currentFontSize,
+									widthOfSpace / 1000 * currentFontSize, getTextColor());
 						}
 						// move cursorX for two characters (one for bullet, one
 						// for space after bullet)
-						cursorX += 2 * widthOfSpace / 1000 * getFontSize();
+						cursorX += 2 * widthOfSpace / 1000 * currentFontSize;
 					}
 					break;
 				case TEXT:
 					currentFont = paragraph.getFont(boldCounter > 0, italicCounter > 0);
-					tableCellContentStream.setFont(currentFont, getFontSize());
+					tableCellContentStream.setFont(currentFont, currentFontSize);
 					if (isTextRotated()) {
 						if (!onlyCalculateHeight) {
 							tableCellContentStream.newLineAt(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
 						}
-						cursorY += token.getWidth(currentFont) / 1000 * getFontSize();
+						cursorY += token.getWidth(currentFont) / 1000 * currentFontSize;
 					} else {
 						if (!onlyCalculateHeight) {
 							tableCellContentStream.newLineAt(cursorX, cursorY);
 							tableCellContentStream.showText(token.getData());
 						}
-						cursorX += token.getWidth(currentFont) / 1000 * getFontSize();
+						cursorX += token.getWidth(currentFont) / 1000 * currentFontSize;
 					}
 					break;
 				}
 			}
 			// reset
 			cursorX = xStart;
-			cursorY -= FontUtils.getHeight(getFont(), getFontSize());
+			cursorY -= paragraph.getLineHeight(entry.getKey()) * paragraph.getLineSpacing();
 		}
 		return cursorY;
 	}
@@ -595,7 +599,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		this.yStart = yStart;
 	}
 
-	private void applyInnerTableBorderOptions(Cell<T> cell, int rowIndex, int startCol, int endCol,
+	private void applyInnerTableBorderOptions(Cell<?> cell, int rowIndex, int startCol, int endCol,
 			int rowCount, int columnCount) {
 		if (innerTableBorderStyle != null) {
 			cell.setBorderStyle(innerTableBorderStyle);
@@ -660,6 +664,29 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		}
 	}
 
+	private int parseColspan(Element col) {
+		String value = col.attr("colspan");
+		if (value == null || value.isEmpty()) {
+			return 1;
+		}
+		try {
+			int parsed = Integer.parseInt(value.trim());
+			return parsed > 0 ? parsed : 1;
+		} catch (NumberFormatException e) {
+			return 1;
+		}
+	}
+
+	/**
+	 * <p>
+	 * Sanitizes the provided HTML for safe inner table rendering. If no
+	 * {@code <table>} element is found, the input is converted into a single-cell
+	 * table containing the plain text content.
+	 * </p>
+	 *
+	 * @param input raw HTML table content
+	 * @return sanitized HTML containing a table
+	 */
 	private String sanitizeTableData(String input) {
 		if (input == null || input.trim().isEmpty()) {
 			return "<table></table>";

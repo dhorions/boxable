@@ -33,7 +33,7 @@ public class CellSetTextSetHeightTest {
 
         Row<PDPage> row = table.createRow(20f);
         Cell<PDPage> cell = row.createCell(100, "Text");
-        cell.setText("If the test is successfull, you should see this text here");
+        cell.setText("If the test is successful, you should see this text here");
         cell.setHeight(10f);
 
         Row<PDPage> expectedRow = table.createRow(22f);
@@ -52,7 +52,7 @@ public class CellSetTextSetHeightTest {
         assertTrue(file.exists());
         assertTrue(file.length() > 0);
 
-        assertTrue(text.contains("If the test is successfull, you should see this text here"));
+        assertTrue(text.contains("If the test is successful, you should see this text here"));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class CellSetTextSetHeightTest {
         cell.setFontSize(12f);
         cell.setTopPadding(1f);
         cell.setBottomPadding(1f);
-        cell.setText("If the test is successfull, you should see this text here");
+        cell.setText("If the test is successful, you should see this text here");
         cell.setHeight(10f);
 
         Row<PDPage> expectedRow = table.createRow(22f);
@@ -96,7 +96,7 @@ public class CellSetTextSetHeightTest {
         assertTrue(file.exists());
         assertTrue(file.length() > 0);
 
-        assertTrue(text.contains("If the test is successfull, you should see this text here"));
+        assertTrue(text.contains("If the test is successful, you should see this text here"));
     }
 
         @Test

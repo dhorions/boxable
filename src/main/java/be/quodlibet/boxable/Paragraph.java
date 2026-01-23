@@ -48,6 +48,8 @@ public class Paragraph {
 	private boolean drawDebug;
 	private final Map<Integer, Float> lineWidths = new HashMap<>();
 	private Map<Integer, List<Token>> mapLineTokens = new LinkedHashMap<>();
+	private final Map<Integer, Float> lineHeights = new LinkedHashMap<>();
+	private final Map<Integer, Float> lineFontSizes = new LinkedHashMap<>();
 	private float maxLineWidth = Integer.MIN_VALUE;
 	private List<Token> tokens;
 	private List<String> lines;
@@ -109,6 +111,12 @@ public class Paragraph {
 			return lines;
 		}
 
+		lineWidths.clear();
+		mapLineTokens.clear();
+		lineHeights.clear();
+		lineFontSizes.clear();
+		maxLineWidth = Integer.MIN_VALUE;
+
 		final List<String> result = new ArrayList<>();
 
 		// text and wrappingFunction are immutable, so we only ever need to compute tokens once
@@ -121,18 +129,27 @@ public class Paragraph {
 		boolean bold = false;
 		boolean listElement = false;
 		PDFont currentFont = font;
+		float currentFontSize = fontSize;
 		int orderListElement = 1;
 		int numberOfOrderedLists = 0;
 		int listLevel = 0;
 		Stack<HTMLListNode> stack= new Stack<>();
+		Stack<Float> headingFontSizeStack = new Stack<>();
 
 		final PipelineLayer textInLine = new PipelineLayer();
 		final PipelineLayer sinceLastWrapPoint = new PipelineLayer();
+		float textInLineMaxFontHeight = 0f;
+		float sinceLastWrapPointMaxFontHeight = 0f;
+		float textInLineMaxFontSize = 0f;
+		float sinceLastWrapPointMaxFontSize = 0f;
 
 		for (final Token token : tokens) {
 			switch (token.getType()) {
 			case OPEN_TAG:
-				if (isBold(token)) {
+				if (isHeading(token)) {
+					headingFontSizeStack.push(currentFontSize);
+					currentFontSize = fontSize * getHeadingScale(token.getData());
+				} else if (isBold(token)) {
 					bold = true;
 					currentFont = getFont(bold, italic);
 				} else if (isItalic(token)) {
@@ -147,32 +164,52 @@ public class Paragraph {
 						}
 						orderListElement = 1;
 
-						textInLine.push(sinceLastWrapPoint);
+							textInLine.push(sinceLastWrapPoint);
+							textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight, sinceLastWrapPointMaxFontHeight);
+							textInLineMaxFontSize = Math.max(textInLineMaxFontSize, sinceLastWrapPointMaxFontSize);
+							sinceLastWrapPointMaxFontHeight = 0f;
+							sinceLastWrapPointMaxFontSize = 0f;
 						// check if you have some text before this list, if you don't then you really don't need extra line break for that
 						if (textInLine.trimmedWidth() > 0) {
 							// this is our line
 							result.add(textInLine.trimmedText());
 							lineWidths.put(lineCounter, textInLine.trimmedWidth());
 							mapLineTokens.put(lineCounter, textInLine.tokens());
+								lineHeights.put(lineCounter, textInLineMaxFontHeight == 0f
+										? FontUtils.getHeight(font, fontSize)
+										: textInLineMaxFontHeight);
+								lineFontSizes.put(lineCounter, textInLineMaxFontSize == 0f ? fontSize : textInLineMaxFontSize);
 							maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 							textInLine.reset();
+								textInLineMaxFontHeight = 0f;
+								textInLineMaxFontSize = 0f;
 							lineCounter++;
 						}
 					} else if (token.getData().equals("ul")) {
-						textInLine.push(sinceLastWrapPoint);
+							textInLine.push(sinceLastWrapPoint);
+							textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight, sinceLastWrapPointMaxFontHeight);
+							textInLineMaxFontSize = Math.max(textInLineMaxFontSize, sinceLastWrapPointMaxFontSize);
+							sinceLastWrapPointMaxFontHeight = 0f;
+							sinceLastWrapPointMaxFontSize = 0f;
 						// check if you have some text before this list, if you don't then you really don't need extra line break for that
 						if (textInLine.trimmedWidth() > 0) {
 							// this is our line
 							result.add(textInLine.trimmedText());
 							lineWidths.put(lineCounter, textInLine.trimmedWidth());
 							mapLineTokens.put(lineCounter, textInLine.tokens());
+								lineHeights.put(lineCounter, textInLineMaxFontHeight == 0f
+										? FontUtils.getHeight(font, fontSize)
+										: textInLineMaxFontHeight);
+								lineFontSizes.put(lineCounter, textInLineMaxFontSize == 0f ? fontSize : textInLineMaxFontSize);
 							maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 							textInLine.reset();
+								textInLineMaxFontHeight = 0f;
+								textInLineMaxFontSize = 0f;
 							lineCounter++;
 						}
 					}
 				}
-				sinceLastWrapPoint.push(token);
+					sinceLastWrapPoint.push(token);
 				break;
 			case CLOSE_TAG:
 				if (isBold(token)) {
@@ -182,6 +219,9 @@ public class Paragraph {
 				} else if (isItalic(token)) {
 					italic = false;
 					currentFont = getFont(bold, italic);
+					sinceLastWrapPoint.push(token);
+				} else if (isHeading(token)) {
+					currentFontSize = headingFontSizeStack.isEmpty() ? fontSize : headingFontSizeStack.pop();
 					sinceLastWrapPoint.push(token);
 				} else if (isList(token)) {
 					listLevel--;
@@ -199,6 +239,8 @@ public class Paragraph {
 						result.add(" ");
 						lineWidths.put(lineCounter, 0.0f);
 						mapLineTokens.put(lineCounter, new ArrayList<Token>());
+						lineHeights.put(lineCounter, FontUtils.getHeight(font, fontSize));
+						lineFontSizes.put(lineCounter, fontSize);
 						lineCounter++;
 					}
 				} else if (isListElement(token)) {
@@ -208,8 +250,14 @@ public class Paragraph {
 						result.add(textInLine.trimmedText());
 						lineWidths.put(lineCounter, textInLine.trimmedWidth());
 						mapLineTokens.put(lineCounter, textInLine.tokens());
+						lineHeights.put(lineCounter, textInLineMaxFontHeight == 0f
+								? FontUtils.getHeight(font, fontSize)
+								: textInLineMaxFontHeight);
+						lineFontSizes.put(lineCounter, textInLineMaxFontSize == 0f ? fontSize : textInLineMaxFontSize);
 						maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 						textInLine.reset();
+						textInLineMaxFontHeight = 0f;
+						textInLineMaxFontSize = 0f;
 						lineCounter++;
 						// wrapping at last wrap point
 						if (numberOfOrderedLists>0) {
@@ -218,7 +266,7 @@ public class Paragraph {
 							try {
 								float tab = indentLevel(DEFAULT_TAB);
 								float orderingNumberAndTab = font.getStringWidth(orderingNumber) + tab;
-								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING, String
+								textInLine.push(currentFont, currentFontSize, new Token(TokenType.PADDING, String
 										.valueOf(orderingNumberAndTab / 1000 * getFontSize())));
 							} catch (IOException e) {
 								e.printStackTrace();
@@ -228,22 +276,36 @@ public class Paragraph {
 							try {
 								// if it's not left aligned then ignore list and list element and deal with it as normal text where <li> mimic <br> behaviour
 								float tabBullet = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0) + DEFAULT_TAB_AND_BULLET) : indentLevel(DEFAULT_TAB);
-								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
+								textInLine.push(currentFont, currentFontSize, new Token(TokenType.PADDING,
 										String.valueOf(tabBullet / 1000 * getFontSize())));
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
 						}
 						textInLine.push(sinceLastWrapPoint);
+						textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight, sinceLastWrapPointMaxFontHeight);
+						textInLineMaxFontSize = Math.max(textInLineMaxFontSize, sinceLastWrapPointMaxFontSize);
+						sinceLastWrapPointMaxFontHeight = 0f;
+						sinceLastWrapPointMaxFontSize = 0f;
 					}
 					// wrapping at this must-have wrap point
 					textInLine.push(sinceLastWrapPoint);
+					textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight, sinceLastWrapPointMaxFontHeight);
+					textInLineMaxFontSize = Math.max(textInLineMaxFontSize, sinceLastWrapPointMaxFontSize);
+					sinceLastWrapPointMaxFontHeight = 0f;
+					sinceLastWrapPointMaxFontSize = 0f;
 					// this is our line
 					result.add(textInLine.trimmedText());
 					lineWidths.put(lineCounter, textInLine.trimmedWidth());
 					mapLineTokens.put(lineCounter, textInLine.tokens());
+					lineHeights.put(lineCounter, textInLineMaxFontHeight == 0f
+							? FontUtils.getHeight(font, fontSize)
+							: textInLineMaxFontHeight);
+					lineFontSizes.put(lineCounter, textInLineMaxFontSize == 0f ? fontSize : textInLineMaxFontSize);
 					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 					textInLine.reset();
+					textInLineMaxFontHeight = 0f;
+					textInLineMaxFontSize = 0f;
 					lineCounter++;
 					listElement = false;
 				}
@@ -254,23 +316,41 @@ public class Paragraph {
 						lineWidths.put(lineCounter, textInLine.trimmedWidth());
 						maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 						mapLineTokens.put(lineCounter, textInLine.tokens());
+						lineHeights.put(lineCounter, textInLineMaxFontHeight == 0f
+								? FontUtils.getHeight(font, fontSize)
+								: textInLineMaxFontHeight);
+						lineFontSizes.put(lineCounter, textInLineMaxFontSize == 0f ? fontSize : textInLineMaxFontSize);
 						lineCounter++;
 						textInLine.reset();
+						textInLineMaxFontHeight = 0f;
+						textInLineMaxFontSize = 0f;
 					}
 					// wrapping at this must-have wrap point
 					textInLine.push(sinceLastWrapPoint);
+					textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight, sinceLastWrapPointMaxFontHeight);
+					textInLineMaxFontSize = Math.max(textInLineMaxFontSize, sinceLastWrapPointMaxFontSize);
+					sinceLastWrapPointMaxFontHeight = 0f;
+					sinceLastWrapPointMaxFontSize = 0f;
 					// this is our line
 					result.add(textInLine.trimmedText());
 					lineWidths.put(lineCounter, textInLine.trimmedWidth());
 					mapLineTokens.put(lineCounter, textInLine.tokens());
+					lineHeights.put(lineCounter, textInLineMaxFontHeight == 0f
+							? FontUtils.getHeight(font, fontSize)
+							: textInLineMaxFontHeight);
+					lineFontSizes.put(lineCounter, textInLineMaxFontSize == 0f ? fontSize : textInLineMaxFontSize);
 					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 					textInLine.reset();
+					textInLineMaxFontHeight = 0f;
+					textInLineMaxFontSize = 0f;
 					lineCounter++;
 
 					// extra spacing because it's a paragraph
 					result.add(" ");
 					lineWidths.put(lineCounter, 0.0f);
 					mapLineTokens.put(lineCounter, new ArrayList<Token>());
+					lineHeights.put(lineCounter, FontUtils.getHeight(font, fontSize));
+					lineFontSizes.put(lineCounter, fontSize);
 					lineCounter++;
 				}
 				break;
@@ -282,8 +362,14 @@ public class Paragraph {
 						lineWidths.put(lineCounter, textInLine.trimmedWidth());
 						maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 						mapLineTokens.put(lineCounter, textInLine.tokens());
+						lineHeights.put(lineCounter, textInLineMaxFontHeight == 0f
+								? FontUtils.getHeight(font, fontSize)
+								: textInLineMaxFontHeight);
+						lineFontSizes.put(lineCounter, textInLineMaxFontSize == 0f ? fontSize : textInLineMaxFontSize);
 						lineCounter++;
 						textInLine.reset();
+						textInLineMaxFontHeight = 0f;
+						textInLineMaxFontSize = 0f;
 					}
 					// wrapping at last wrap point
 					if (listElement) {
@@ -291,7 +377,7 @@ public class Paragraph {
 							try {
 								float tab = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0) + DEFAULT_TAB) : indentLevel(DEFAULT_TAB);
 								String orderingNumber = stack.isEmpty() ? String.valueOf(orderListElement) + "." : stack.peek().getValue() + "." + String.valueOf(orderListElement-1) + ".";
-								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
+								textInLine.push(currentFont, currentFontSize, new Token(TokenType.PADDING,
 										String.valueOf((tab + font.getStringWidth(orderingNumber)) / 1000 * getFontSize())));
 							} catch (IOException e) {
 								e.printStackTrace();
@@ -300,7 +386,7 @@ public class Paragraph {
 							try {
 								// if it's not left aligned then ignore list and list element and deal with it as normal text where <li> mimic <br> behavior
 								float tabBullet = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0) + DEFAULT_TAB_AND_BULLET)  : indentLevel(DEFAULT_TAB);
-								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
+								textInLine.push(currentFont, currentFontSize, new Token(TokenType.PADDING,
 										String.valueOf(tabBullet / 1000 * getFontSize())));
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
@@ -309,8 +395,16 @@ public class Paragraph {
 						}
 					}
 					textInLine.push(sinceLastWrapPoint);
+					textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight, sinceLastWrapPointMaxFontHeight);
+					textInLineMaxFontSize = Math.max(textInLineMaxFontSize, sinceLastWrapPointMaxFontSize);
+					sinceLastWrapPointMaxFontHeight = 0f;
+					sinceLastWrapPointMaxFontSize = 0f;
 				} else {
 					textInLine.push(sinceLastWrapPoint);
+					textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight, sinceLastWrapPointMaxFontHeight);
+					textInLineMaxFontSize = Math.max(textInLineMaxFontSize, sinceLastWrapPointMaxFontSize);
+					sinceLastWrapPointMaxFontHeight = 0f;
+					sinceLastWrapPointMaxFontSize = 0f;
 				}
 				break;
 			case WRAP_POINT:
@@ -320,8 +414,14 @@ public class Paragraph {
 					result.add(textInLine.trimmedText());
 					lineWidths.put(lineCounter, textInLine.trimmedWidth());
 					mapLineTokens.put(lineCounter, textInLine.tokens());
+					lineHeights.put(lineCounter, textInLineMaxFontHeight == 0f
+							? FontUtils.getHeight(font, fontSize)
+							: textInLineMaxFontHeight);
+					lineFontSizes.put(lineCounter, textInLineMaxFontSize == 0f ? fontSize : textInLineMaxFontSize);
 					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 					textInLine.reset();
+					textInLineMaxFontHeight = 0f;
+					textInLineMaxFontSize = 0f;
 					lineCounter++;
 					// wrapping at last wrap point
 					if (listElement) {
@@ -334,7 +434,7 @@ public class Paragraph {
 							try {
 								float tab = indentLevel(DEFAULT_TAB);
 								float orderingNumberAndTab = font.getStringWidth(orderingNumber) + tab;
-								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING, String
+								textInLine.push(currentFont, currentFontSize, new Token(TokenType.PADDING, String
 										.valueOf(orderingNumberAndTab / 1000 * getFontSize())));
 							} catch (IOException e) {
 								e.printStackTrace();
@@ -343,7 +443,7 @@ public class Paragraph {
 							try {
 								// if it's not left aligned then ignore list and list element and deal with it as normal text where <li> mimic <br> behaviour
 								float tabBullet = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0) + DEFAULT_TAB_AND_BULLET) : indentLevel(DEFAULT_TAB);
-								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
+								textInLine.push(currentFont, currentFontSize, new Token(TokenType.PADDING,
 										String.valueOf(tabBullet / 1000 * getFontSize())));
 							} catch (IOException e) {
 								e.printStackTrace();
@@ -351,6 +451,10 @@ public class Paragraph {
 						}
 					}
 					textInLine.push(sinceLastWrapPoint);
+					textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight, sinceLastWrapPointMaxFontHeight);
+					textInLineMaxFontSize = Math.max(textInLineMaxFontSize, sinceLastWrapPointMaxFontSize);
+					sinceLastWrapPointMaxFontHeight = 0f;
+					sinceLastWrapPointMaxFontSize = 0f;
 				}
 				if (isParagraph(token)) {
 					// check if you have some text before this paragraph, if you don't then you really don't need extra line break for that
@@ -359,6 +463,8 @@ public class Paragraph {
 						result.add(" ");
 						lineWidths.put(lineCounter, 0.0f);
 						mapLineTokens.put(lineCounter, new ArrayList<Token>());
+						lineHeights.put(lineCounter, FontUtils.getHeight(font, fontSize));
+						lineFontSizes.put(lineCounter, fontSize);
 						lineCounter++;
 					}
 				} else if (isListElement(token)) {
@@ -367,7 +473,7 @@ public class Paragraph {
 					try {
 						// if it's not left aligned then ignore list and list element and deal with it as normal text where <li> mimic <br> behaviour
 						float tab = getAlign().equals(HorizontalAlignment.LEFT) ? indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0) + DEFAULT_TAB) : indentLevel(DEFAULT_TAB);
-						textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
+						textInLine.push(currentFont, currentFontSize, new Token(TokenType.PADDING,
 								String.valueOf(tab / 1000 * getFontSize())));
 						if (numberOfOrderedLists>0) {
 							// if it's ordering list then move depending on your: ordering number + ". "
@@ -377,11 +483,17 @@ public class Paragraph {
 							} else {
 								orderingNumber = String.valueOf(orderListElement) + ". ";
 							}
-							textInLine.push(currentFont, fontSize, Token.text(TokenType.ORDERING, orderingNumber));
+							textInLine.push(currentFont, currentFontSize, Token.text(TokenType.ORDERING, orderingNumber));
+							textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight,
+									FontUtils.getHeight(currentFont, currentFontSize));
+							textInLineMaxFontSize = Math.max(textInLineMaxFontSize, currentFontSize);
 							orderListElement++;
 						} else {
 							// if it's unordered list then just move by bullet character (take care of alignment!)
-							textInLine.push(currentFont, fontSize, Token.text(TokenType.BULLET, " "));
+							textInLine.push(currentFont, currentFontSize, Token.text(TokenType.BULLET, " "));
+							textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight,
+									FontUtils.getHeight(currentFont, currentFontSize));
+							textInLineMaxFontSize = Math.max(textInLineMaxFontSize, currentFontSize);
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -389,11 +501,21 @@ public class Paragraph {
 				} else {
 					// wrapping at this must-have wrap point
 					textInLine.push(sinceLastWrapPoint);
+					textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight, sinceLastWrapPointMaxFontHeight);
+					textInLineMaxFontSize = Math.max(textInLineMaxFontSize, sinceLastWrapPointMaxFontSize);
+					sinceLastWrapPointMaxFontHeight = 0f;
+					sinceLastWrapPointMaxFontSize = 0f;
 					result.add(textInLine.trimmedText());
 					lineWidths.put(lineCounter, textInLine.trimmedWidth());
 					mapLineTokens.put(lineCounter, textInLine.tokens());
+					lineHeights.put(lineCounter, textInLineMaxFontHeight == 0f
+							? FontUtils.getHeight(font, fontSize)
+							: textInLineMaxFontHeight);
+					lineFontSizes.put(lineCounter, textInLineMaxFontSize == 0f ? fontSize : textInLineMaxFontSize);
 					maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 					textInLine.reset();
+					textInLineMaxFontHeight = 0f;
+					textInLineMaxFontSize = 0f;
 					lineCounter++;
 					if(listLevel>0){
 						// preserve current indent
@@ -408,12 +530,12 @@ public class Paragraph {
 									orderingNumber = String.valueOf(orderListElement) + ". ";
 								}
 								float tabAndOrderingNumber = tab + font.getStringWidth(orderingNumber);
-								textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING, String.valueOf(tabAndOrderingNumber / 1000 * getFontSize())));
+								textInLine.push(currentFont, currentFontSize, new Token(TokenType.PADDING, String.valueOf(tabAndOrderingNumber / 1000 * getFontSize())));
 								orderListElement++;
 							} else {
 								if(getAlign().equals(HorizontalAlignment.LEFT)){
 									float tab = indentLevel(DEFAULT_TAB*Math.max(listLevel - 1, 0) + DEFAULT_TAB + BULLET_SPACE);
-									textInLine.push(currentFont, fontSize, new Token(TokenType.PADDING,
+									textInLine.push(currentFont, currentFontSize, new Token(TokenType.PADDING,
 											String.valueOf(tab / 1000 * getFontSize())));
 								}
 							}
@@ -427,13 +549,13 @@ public class Paragraph {
 				try {
 					String word = token.getData();
 					float wordWidth = token.getWidth(currentFont);
-					if(wordWidth / 1000f * fontSize > width && width > font.getAverageFontWidth() / 1000f * fontSize) {
+					if(wordWidth / 1000f * currentFontSize > width && width > font.getAverageFontWidth() / 1000f * currentFontSize) {
 						// you need to check if you have already something in your line
 						boolean alreadyTextInLine = false;
 						if(textInLine.trimmedWidth()>0){
 							alreadyTextInLine = true;
 						}
-						while (wordWidth / 1000f * fontSize > width) {
+						while (wordWidth / 1000f * currentFontSize > width) {
 						float width = 0;
 						float firstPartWordWidth = 0;
 						float restOfTheWordWidth = 0;
@@ -443,7 +565,7 @@ public class Paragraph {
 						for (int i = 0; i < lastTextToken.length(); i++) {
 							char c = lastTextToken.charAt(i);
 							try {
-								width += (currentFont.getStringWidth(String.valueOf(c)) / 1000f * fontSize);
+								width += (currentFont.getStringWidth(String.valueOf(c)) / 1000f * currentFontSize);
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
@@ -476,22 +598,41 @@ public class Paragraph {
 						}
 						// reset
 						alreadyTextInLine = false;
-						sinceLastWrapPoint.push(currentFont, fontSize,
+						sinceLastWrapPoint.push(currentFont, currentFontSize,
 								Token.text(TokenType.TEXT, firstPartOfWord.toString()));
+						sinceLastWrapPointMaxFontHeight = Math.max(sinceLastWrapPointMaxFontHeight,
+								FontUtils.getHeight(currentFont, currentFontSize));
+						sinceLastWrapPointMaxFontSize = Math.max(sinceLastWrapPointMaxFontSize, currentFontSize);
 						textInLine.push(sinceLastWrapPoint);
+						textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight, sinceLastWrapPointMaxFontHeight);
+						textInLineMaxFontSize = Math.max(textInLineMaxFontSize, sinceLastWrapPointMaxFontSize);
+						sinceLastWrapPointMaxFontHeight = 0f;
+						sinceLastWrapPointMaxFontSize = 0f;
 						// this is our line
 						result.add(textInLine.trimmedText());
 						lineWidths.put(lineCounter, textInLine.trimmedWidth());
 						mapLineTokens.put(lineCounter, textInLine.tokens());
+						lineHeights.put(lineCounter, textInLineMaxFontHeight == 0f
+								? FontUtils.getHeight(font, fontSize)
+								: textInLineMaxFontHeight);
+						lineFontSizes.put(lineCounter, textInLineMaxFontSize == 0f ? fontSize : textInLineMaxFontSize);
 						maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 						textInLine.reset();
+						textInLineMaxFontHeight = 0f;
+						textInLineMaxFontSize = 0f;
 						lineCounter++;
 						word = restOfTheWord.toString();
 						wordWidth = currentFont.getStringWidth(word);
 						}
-						sinceLastWrapPoint.push(currentFont, fontSize, Token.text(TokenType.TEXT, word));
+						sinceLastWrapPoint.push(currentFont, currentFontSize, Token.text(TokenType.TEXT, word));
+						sinceLastWrapPointMaxFontHeight = Math.max(sinceLastWrapPointMaxFontHeight,
+								FontUtils.getHeight(currentFont, currentFontSize));
+						sinceLastWrapPointMaxFontSize = Math.max(sinceLastWrapPointMaxFontSize, currentFontSize);
 					} else {
-						sinceLastWrapPoint.push(currentFont, fontSize, token);
+						sinceLastWrapPoint.push(currentFont, currentFontSize, token);
+						sinceLastWrapPointMaxFontHeight = Math.max(sinceLastWrapPointMaxFontHeight,
+								FontUtils.getHeight(currentFont, currentFontSize));
+						sinceLastWrapPointMaxFontSize = Math.max(sinceLastWrapPointMaxFontSize, currentFontSize);
 					}
 
 				} catch (IOException e) {
@@ -504,9 +645,15 @@ public class Paragraph {
 
 		{
 			textInLine.push(sinceLastWrapPoint);
+			textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight, sinceLastWrapPointMaxFontHeight);
+			textInLineMaxFontSize = Math.max(textInLineMaxFontSize, sinceLastWrapPointMaxFontSize);
 			result.add(textInLine.trimmedText());
 			lineWidths.put(lineCounter, textInLine.trimmedWidth());
 			mapLineTokens.put(lineCounter, textInLine.tokens());
+			lineHeights.put(lineCounter, textInLineMaxFontHeight == 0f
+					? FontUtils.getHeight(font, fontSize)
+					: textInLineMaxFontHeight);
+			lineFontSizes.put(lineCounter, textInLineMaxFontSize == 0f ? fontSize : textInLineMaxFontSize);
 			maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
 		}
 
@@ -523,8 +670,36 @@ public class Paragraph {
 		return "b".equals(token.getData());
 	}
 
+	static boolean isHeadingTag(final String tag) {
+		return tag != null && tag.length() == 2 && tag.charAt(0) == 'h'
+				&& tag.charAt(1) >= '1' && tag.charAt(1) <= '6';
+	}
+
+	static float getHeadingScale(final String tag) {
+		switch (tag) {
+		case "h1":
+			return 1.8f;
+		case "h2":
+			return 1.6f;
+		case "h3":
+			return 1.4f;
+		case "h4":
+			return 1.2f;
+		case "h5":
+			return 1.1f;
+		case "h6":
+			return 1.05f;
+		default:
+			return 1f;
+		}
+	}
+
+	private static boolean isHeading(final Token token) {
+		return isHeadingTag(token.getData());
+	}
+
 	private static boolean isParagraph(final Token token) {
-		return "p".equals(token.getData());
+		return "p".equals(token.getData()) || isHeading(token);
 	}
 
 	private static boolean isListElement(final Token token) {
@@ -616,7 +791,12 @@ public class Paragraph {
 		if (getLines().size() == 0) {
 			return 0;
 		} else {
-			return (getLines().size() - 1) * getLineSpacing() * getFontHeight() + getFontHeight();
+			float height = 0f;
+			for (int i = 0; i < getLines().size(); i++) {
+				float lineHeight = getLineHeight(i);
+				height += (i == 0) ? lineHeight : lineHeight * getLineSpacing();
+			}
+			return height;
 		}
 	}
 
@@ -624,9 +804,24 @@ public class Paragraph {
         if (getLines().size() <= lineStart) {
             return 0;
         } else {
-            return (getLines().size() - lineStart - 1) * getLineSpacing() * getFontHeight() + getFontHeight();
+			float height = 0f;
+			for (int i = lineStart; i < getLines().size(); i++) {
+				float lineHeight = getLineHeight(i);
+				height += (i == lineStart) ? lineHeight : lineHeight * getLineSpacing();
+			}
+			return height;
         }
     }
+
+	public float getLineHeight(int lineIndex) {
+		Float height = lineHeights.get(lineIndex);
+		return height == null ? getFontHeight() : height;
+	}
+
+	public float getLineFontSize(int lineIndex) {
+		Float size = lineFontSizes.get(lineIndex);
+		return size == null ? fontSize : size;
+	}
 
 	public float getFontHeight() {
 		return FontUtils.getHeight(font, fontSize);

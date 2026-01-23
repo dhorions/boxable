@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -32,16 +33,16 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
 public abstract class Table<T extends PDPage> {
 
     public final PDDocument document;
-    private float margin;
+    protected float margin;
 
-    private T currentPage;
-    private PageContentStreamOptimized tableContentStream;
+    protected T currentPage;
+    protected PageContentStreamOptimized tableContentStream;
     private List<PDOutlineItem> bookmarks;
     private List<Row<T>> header = new ArrayList<>();
     private List<Row<T>> rows = new ArrayList<>();
 
     private final float yStartNewPage;
-    private float yStart;
+    protected float yStart;
     private final float width;
     private final boolean drawLines;
     private final boolean drawContent;
@@ -61,8 +62,8 @@ public abstract class Table<T extends PDPage> {
     private RowWrappingFunction rowWrappingFunction = new DefaultRowWrappingFunction();
 
     // page margins
-    private final float pageTopMargin;
-    private final float pageBottomMargin;
+    protected final float pageTopMargin;
+    protected final float pageBottomMargin;
 
     private boolean drawDebug;
 
@@ -106,25 +107,25 @@ public abstract class Table<T extends PDPage> {
         this(yStartNewPage, 0, pageBottomMargin, width, margin, document, drawLines, drawContent, null);
     }
 
-        /**
-         * <p>
-         * Creates a table with explicit starting positions and a {@link PageProvider}.
-         * </p>
-         *
-         * @param yStart Y position where {@link Table} starts on the current page
-         * @param yStartNewPage Y position where new pages will start
-         * @param pageTopMargin top margin for new pages
-         * @param pageBottomMargin bottom margin for new pages
-         * @param width {@link Table} width in points
-         * @param margin left/right margin in points
-         * @param document {@link PDDocument} for drawing
-         * @param currentPage current page to draw on
-         * @param drawLines {@code true} to draw borders
-         * @param drawContent {@code true} to draw text and images
-         * @param pageProvider page provider for new pages
-         * @throws IOException if fonts cannot be loaded
-         */
-        public Table(float yStart, float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width,
+    /**
+     * <p>
+     * Creates a table with explicit starting positions and a {@link PageProvider}.
+     * </p>
+     *
+     * @param yStart Y position where {@link Table} starts on the current page
+     * @param yStartNewPage Y position where new pages will start
+     * @param pageTopMargin top margin for new pages
+     * @param pageBottomMargin bottom margin for new pages
+     * @param width {@link Table} width in points
+     * @param margin left/right margin in points
+     * @param document {@link PDDocument} for drawing
+     * @param currentPage current page to draw on
+     * @param drawLines {@code true} to draw borders
+     * @param drawContent {@code true} to draw text and images
+     * @param pageProvider page provider for new pages
+     * @throws IOException if fonts cannot be loaded
+     */
+    public Table(float yStart, float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width,
             float margin, PDDocument document, T currentPage, boolean drawLines, boolean drawContent,
             PageProvider<T> pageProvider) throws IOException {
         this.pageTopMargin = pageTopMargin;
@@ -142,23 +143,23 @@ public abstract class Table<T extends PDPage> {
         loadFonts();
     }
   
-        /**
-         * <p>
-         * Creates a table that starts on a new page provided by the {@link PageProvider}.
-         * </p>
-         *
-         * @param yStartNewPage Y position where new pages will start
-         * @param pageTopMargin top margin for new pages
-         * @param pageBottomMargin bottom margin for new pages
-         * @param width {@link Table} width in points
-         * @param margin left/right margin in points
-         * @param document {@link PDDocument} for drawing
-         * @param drawLines {@code true} to draw borders
-         * @param drawContent {@code true} to draw text and images
-         * @param pageProvider page provider for new pages
-         * @throws IOException if fonts cannot be loaded
-         */
-        public Table(float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width, float margin,
+    /**
+     * <p>
+     * Creates a table that starts on a new page provided by the {@link PageProvider}.
+     * </p>
+     *
+     * @param yStartNewPage Y position where new pages will start
+     * @param pageTopMargin top margin for new pages
+     * @param pageBottomMargin bottom margin for new pages
+     * @param width {@link Table} width in points
+     * @param margin left/right margin in points
+     * @param document {@link PDDocument} for drawing
+     * @param drawLines {@code true} to draw borders
+     * @param drawContent {@code true} to draw text and images
+     * @param pageProvider page provider for new pages
+     * @throws IOException if fonts cannot be loaded
+     */
+    public Table(float yStartNewPage, float pageTopMargin, float pageBottomMargin, float width, float margin,
             PDDocument document, boolean drawLines, boolean drawContent, PageProvider<T> pageProvider)
             throws IOException {
         this.pageTopMargin = pageTopMargin;
@@ -187,69 +188,69 @@ public abstract class Table<T extends PDPage> {
         return document;
     }
 
-        /**
-         * <p>
-         * Draws a title above the table using default color (black) and no wrapping.
-         * </p>
-         *
-         * @param title title text, or {@code null} to reserve height only
-         * @param font font used for the title
-         * @param fontSize font size in points
-         * @param tableWidth available width for the title
-         * @param height reserved title height
-         * @param alignment horizontal alignment string
-         * @param freeSpaceForPageBreak minimum free space required before drawing
-         * @param drawHeaderMargin whether to draw header margin below title
-         * @throws IOException if drawing fails
-         */
-        public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
+    /**
+     * <p>
+     * Draws a title above the table using default color (black) and no wrapping.
+     * </p>
+     *
+     * @param title title text, or {@code null} to reserve height only
+     * @param font font used for the title
+     * @param fontSize font size in points
+     * @param tableWidth available width for the title
+     * @param height reserved title height
+     * @param alignment horizontal alignment string
+     * @param freeSpaceForPageBreak minimum free space required before drawing
+     * @param drawHeaderMargin whether to draw header margin below title
+     * @throws IOException if drawing fails
+     */
+    public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
             float freeSpaceForPageBreak, boolean drawHeaderMargin) throws IOException {
         drawTitle(title, font, fontSize, tableWidth, height, alignment, freeSpaceForPageBreak, null, drawHeaderMargin,
             Color.BLACK, null);
-        }
+    }
 
-        /**
-         * <p>
-         * Draws a title above the table using a wrapping function and default color (black).
-         * </p>
-         *
-         * @param title title text, or {@code null} to reserve height only
-         * @param font font used for the title
-         * @param fontSize font size in points
-         * @param tableWidth available width for the title
-         * @param height reserved title height
-         * @param alignment horizontal alignment string
-         * @param freeSpaceForPageBreak minimum free space required before drawing
-         * @param wrappingFunction wrapping function for line breaks
-         * @param drawHeaderMargin whether to draw header margin below title
-         * @throws IOException if drawing fails
-         */
-        public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
+    /**
+     * <p>
+     * Draws a title above the table using a wrapping function and default color (black).
+     * </p>
+     *
+     * @param title title text, or {@code null} to reserve height only
+     * @param font font used for the title
+     * @param fontSize font size in points
+     * @param tableWidth available width for the title
+     * @param height reserved title height
+     * @param alignment horizontal alignment string
+     * @param freeSpaceForPageBreak minimum free space required before drawing
+     * @param wrappingFunction wrapping function for line breaks
+     * @param drawHeaderMargin whether to draw header margin below title
+     * @throws IOException if drawing fails
+     */
+    public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
             float freeSpaceForPageBreak, WrappingFunction wrappingFunction, boolean drawHeaderMargin)
             throws IOException {
         drawTitle(title, font, fontSize, tableWidth, height, alignment, freeSpaceForPageBreak, wrappingFunction,
-            drawHeaderMargin, Color.BLACK, null);
-        }
+                drawHeaderMargin, Color.BLACK, null);
+    }
 
-        /**
-         * <p>
-         * Draws a title above the table with explicit color and text type styling.
-         * </p>
-         *
-         * @param title title text, or {@code null} to reserve height only
-         * @param font font used for the title
-         * @param fontSize font size in points
-         * @param tableWidth available width for the title
-         * @param height reserved title height
-         * @param alignment horizontal alignment string
-         * @param freeSpaceForPageBreak minimum free space required before drawing
-         * @param wrappingFunction wrapping function for line breaks
-         * @param drawHeaderMargin whether to draw header margin below title
-         * @param color title text color
-         * @param textType optional text decoration
-         * @throws IOException if drawing fails
-         */
-        public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
+    /**
+     * <p>
+     * Draws a title above the table with explicit color and text type styling.
+     * </p>
+     *
+     * @param title title text, or {@code null} to reserve height only
+     * @param font font used for the title
+     * @param fontSize font size in points
+     * @param tableWidth available width for the title
+     * @param height reserved title height
+     * @param alignment horizontal alignment string
+     * @param freeSpaceForPageBreak minimum free space required before drawing
+     * @param wrappingFunction wrapping function for line breaks
+     * @param drawHeaderMargin whether to draw header margin below title
+     * @param color title text color
+     * @param textType optional text decoration
+     * @throws IOException if drawing fails
+     */
+    public void drawTitle(String title, PDFont font, int fontSize, float tableWidth, float height, String alignment,
             float freeSpaceForPageBreak, WrappingFunction wrappingFunction, boolean drawHeaderMargin, Color color,
             TextType textType) throws IOException {
 
@@ -267,7 +268,7 @@ public abstract class Table<T extends PDPage> {
             yStart -= height;
         } else {
             PageContentStreamOptimized articleTitle = createPdPageContentStream();
-                Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment),
+            Paragraph paragraph = new Paragraph(title, font, fontSize, tableWidth, HorizontalAlignment.get(alignment),
                     color, textType, wrappingFunction);
             paragraph.setDrawDebug(drawDebug);
             yStart = paragraph.write(articleTitle, margin, yStart);
@@ -416,7 +417,7 @@ public abstract class Table<T extends PDPage> {
         }
     }
 
-    private void drawRow(Row<T> row) throws IOException {
+    protected void drawRow(Row<T> row) throws IOException {
         // If it's a header row, we ensure it's fresh
         if (header.contains(row)) {
              for(Cell<T> cell : row.getCells()) {
@@ -485,6 +486,8 @@ public abstract class Table<T extends PDPage> {
                 row.removeTopBorders();
             }
 
+            fillRowCellColors(row, heightToDraw);
+
             if (drawLines) {
                 drawVerticalLines(row, heightToDraw);
             }
@@ -527,7 +530,7 @@ public abstract class Table<T extends PDPage> {
      *
      * @return
      */
-    private T createNewPage() {
+    protected T createNewPage() {
         if (pageProvider != null) {
             return pageProvider.nextPage();
         }
@@ -546,13 +549,13 @@ public abstract class Table<T extends PDPage> {
                 "You either have to provide a " + PageProvider.class.getCanonicalName() + " or override this method");
     }
 
-    private PageContentStreamOptimized createPdPageContentStream() throws IOException {
+    protected PageContentStreamOptimized createPdPageContentStream() throws IOException {
         return new PageContentStreamOptimized(
                 new PDPageContentStream(getDocument(), getCurrentPage(),
                         PDPageContentStream.AppendMode.APPEND, true));
     }
 
-    private void drawCellContent(Row<T> row, float rowHeight) throws IOException {
+    protected void drawCellContent(Row<T> row, float rowHeight) throws IOException {
 
         // position into first cell (horizontal)
         float cursorX = margin;
@@ -791,6 +794,9 @@ public abstract class Table<T extends PDPage> {
                 int boldCounter = 0;
                 int strikeThroughCounter = 0;
                 int underlineCounter = 0;
+                float baseFontSize = cell.getFontSize();
+                float currentFontSize = baseFontSize;
+                Stack<Float> headingFontSizeStack = new Stack<>();
 
                 this.tableContentStream.setRotated(cell.isTextRotated());
 
@@ -805,19 +811,18 @@ public abstract class Table<T extends PDPage> {
                          continue;
                      }
                      // check if we have space for this line
-                     if (!cell.isTextRotated()) {
-                        float fontHeight = cell.getParagraph().getFontHeight();
+                    if (!cell.isTextRotated()) {
+                        float fontHeight = cell.getParagraph().getLineHeight(lineIndex);
                         if (cursorY <= (yStart - rowHeight)) {
                             cell.setLineStart(lineIndex);
                             cellFinished = false;
                             break;
                         }
-                     }
+                    }
 
                     // calculate the width of this line
                     float freeSpaceWithinLine = cell.getParagraph().getMaxLineWidth()
                             - cell.getParagraph().getLineWidth(entry.getKey());
-                    // TODO: need to implemented rotated text yo!
                     if (cell.isTextRotated()) {
                         cursorY = lineStartY;
                         switch (cell.getAlign()) {
@@ -852,7 +857,10 @@ public abstract class Table<T extends PDPage> {
                     for (Token token : entry.getValue()) {
                         switch (token.getType()) {
                             case OPEN_TAG:
-                                if ("b".equals(token.getData())) {
+                                if (Paragraph.isHeadingTag(token.getData())) {
+                                    headingFontSizeStack.push(currentFontSize);
+                                    currentFontSize = baseFontSize * Paragraph.getHeadingScale(token.getData());
+                                } else if ("b".equals(token.getData())) {
                                     boldCounter++;
                                 } else if ("i".equals(token.getData())) {
                                     italicCounter++;
@@ -863,7 +871,9 @@ public abstract class Table<T extends PDPage> {
                                 }
                                 break;
                             case CLOSE_TAG:
-                                if ("b".equals(token.getData())) {
+                                if (Paragraph.isHeadingTag(token.getData())) {
+                                    currentFontSize = headingFontSizeStack.isEmpty() ? baseFontSize : headingFontSizeStack.pop();
+                                } else if ("b".equals(token.getData())) {
                                     boldCounter = Math.max(boldCounter - 1, 0);
                                 } else if ("i".equals(token.getData())) {
                                     italicCounter = Math.max(italicCounter - 1, 0);
@@ -878,62 +888,62 @@ public abstract class Table<T extends PDPage> {
                                 break;
                             case ORDERING:
                                 currentFont = cell.getParagraph().getFont(boldCounter > 0, italicCounter > 0);
-                                this.tableContentStream.setFont(currentFont, cell.getFontSize());
+                                this.tableContentStream.setFont(currentFont, currentFontSize);
                                 if (cell.isTextRotated()) {
                                     tableContentStream.newLineAt(cursorX, cursorY);
                                     this.tableContentStream.showText(token.getData());
-                                    cursorY += token.getWidth(currentFont) / 1000 * cell.getFontSize();
+                                    cursorY += token.getWidth(currentFont) / 1000 * currentFontSize;
                                 } else {
                                     this.tableContentStream.newLineAt(cursorX, cursorY);
                                     this.tableContentStream.showText(token.getData());
-                                    cursorX += token.getWidth(currentFont) / 1000 * cell.getFontSize();
+                                    cursorX += token.getWidth(currentFont) / 1000 * currentFontSize;
                                 }
                                 break;
                             case BULLET:
                                 float widthOfSpace = currentFont.getSpaceWidth();
-                                float halfHeight = FontUtils.getHeight(currentFont, cell.getFontSize()) / 2;
+                                float halfHeight = FontUtils.getHeight(currentFont, currentFontSize) / 2;
                                 if (cell.isTextRotated()) {
                                     PDStreamUtils.rect(tableContentStream, cursorX + halfHeight, cursorY,
-                                            token.getWidth(currentFont) / 1000 * cell.getFontSize(),
-                                            widthOfSpace / 1000 * cell.getFontSize(),
+                                            token.getWidth(currentFont) / 1000 * currentFontSize,
+                                            widthOfSpace / 1000 * currentFontSize,
                                             cell.getTextColor());
                                     // move cursorY for two characters (one for
                                     // bullet, one for space after bullet)
-                                    cursorY += 2 * widthOfSpace / 1000 * cell.getFontSize();
+                                    cursorY += 2 * widthOfSpace / 1000 * currentFontSize;
                                 } else {
                                     PDStreamUtils.rect(tableContentStream, cursorX, cursorY + halfHeight,
-                                            token.getWidth(currentFont) / 1000 * cell.getFontSize(),
-                                            widthOfSpace / 1000 * cell.getFontSize(),
+                                            token.getWidth(currentFont) / 1000 * currentFontSize,
+                                            widthOfSpace / 1000 * currentFontSize,
                                             cell.getTextColor());
                                     // move cursorX for two characters (one for
                                     // bullet, one for space after bullet)
-                                    cursorX += 2 * widthOfSpace / 1000 * cell.getFontSize();
+                                    cursorX += 2 * widthOfSpace / 1000 * currentFontSize;
                                 }
                                 break;
                             case TEXT:
                                 currentFont = cell.getParagraph().getFont(boldCounter > 0, italicCounter > 0);
-                                this.tableContentStream.setFont(currentFont, cell.getFontSize());
+                                this.tableContentStream.setFont(currentFont, currentFontSize);
                                 if (cell.isTextRotated()) {
                                     tableContentStream.newLineAt(cursorX, cursorY);
                                     this.tableContentStream.showText(token.getData());
-                                    cursorY += token.getWidth(currentFont) / 1000 * cell.getFontSize();
+                                    cursorY += token.getWidth(currentFont) / 1000 * currentFontSize;
                                 } else {
                                     try {
                                         this.tableContentStream.newLineAt(cursorX, cursorY);
                                         this.tableContentStream.showText(token.getData());
                                         if (strikeThroughCounter > 0) {
-                                            float textWidth = token.getWidth(currentFont) / 1000 * cell.getFontSize();
-                                            float fontHeight = FontUtils.getHeight(currentFont, cell.getFontSize());
+                                            float textWidth = token.getWidth(currentFont) / 1000 * currentFontSize;
+                                            float fontHeight = FontUtils.getHeight(currentFont, currentFontSize);
                                             float strikethroughY = cursorY + fontHeight / 3;
                                             PDStreamUtils.rect(tableContentStream, cursorX, strikethroughY, textWidth, fontHeight / 15, cell.getTextColor());
                                         }
                                         if (underlineCounter > 0) {
-                                            float textWidth = token.getWidth(currentFont) / 1000 * cell.getFontSize();
-                                            float fontHeight = FontUtils.getHeight(currentFont, cell.getFontSize());
+                                            float textWidth = token.getWidth(currentFont) / 1000 * currentFontSize;
+                                            float fontHeight = FontUtils.getHeight(currentFont, currentFontSize);
                                             float underlineY = cursorY - fontHeight / 10;
                                             PDStreamUtils.rect(tableContentStream, cursorX, underlineY, textWidth, fontHeight / 15, cell.getTextColor());
                                         }
-                                        cursorX += token.getWidth(currentFont) / 1000 * cell.getFontSize();
+                                        cursorX += token.getWidth(currentFont) / 1000 * currentFontSize;
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
@@ -942,9 +952,9 @@ public abstract class Table<T extends PDPage> {
                         }
                     }
                     if (cell.isTextRotated()) {
-                        cursorX = cursorX + cell.getParagraph().getFontHeight() * cell.getLineSpacing();
+                        cursorX = cursorX + cell.getParagraph().getLineHeight(lineIndex) * cell.getLineSpacing();
                     } else {
-                        cursorY = cursorY - cell.getParagraph().getFontHeight() * cell.getLineSpacing();
+                        cursorY = cursorY - cell.getParagraph().getLineHeight(lineIndex) * cell.getLineSpacing();
                     }
                 }
                 
@@ -965,26 +975,44 @@ public abstract class Table<T extends PDPage> {
 
     }
 
-    private void drawVerticalLines(Row<T> row, float rowHeight) throws IOException {
+    protected void drawVerticalLines(Row<T> row, float rowHeight) throws IOException {
         float xStart = margin;
 
         Iterator<Cell<T>> cellIterator = row.getCells().iterator();
+        Cell<T> previousCell = null;
         while (cellIterator.hasNext()) {
             Cell<T> cell = cellIterator.next();
 
             float cellWidth = cellIterator.hasNext()
                     ? cell.getWidth()
                     : this.width - (xStart - margin);
-            fillCellColor(cell, yStart, xStart, rowHeight, cellWidth);
-
-            drawCellBorders(rowHeight, cell, xStart);
+            boolean drawLeftBorder = previousCell == null || previousCell.getRightBorder() == null;
+            drawCellBorders(rowHeight, cell, xStart, drawLeftBorder);
 
             xStart += cellWidth;
+            previousCell = cell;
         }
 
     }
 
-    private void drawCellBorders(float rowHeight, Cell<T> cell, float xStart) throws IOException {
+    protected void fillRowCellColors(Row<T> row, float rowHeight) throws IOException {
+        float xStart = margin;
+
+        Iterator<Cell<T>> cellIterator = row.getCells().iterator();
+        while (cellIterator.hasNext()) {
+            Cell<T> cell = cellIterator.next();
+
+            float layoutWidth = cellIterator.hasNext()
+                ? cell.getWidth()
+                : this.width - (xStart - margin);
+            float fillWidth = Math.min(cell.getWidth(), layoutWidth);
+            fillCellColor(cell, yStart, xStart, rowHeight, fillWidth);
+
+            xStart += layoutWidth;
+        }
+    }
+
+    protected void drawCellBorders(float rowHeight, Cell<T> cell, float xStart, boolean drawLeftBorder) throws IOException {
 
         float yEnd = yStart - rowHeight;
 
@@ -1011,22 +1039,24 @@ public abstract class Table<T extends PDPage> {
         }
 
         // left
-        LineStyle leftBorder = cell.getLeftBorder();
-        if (leftBorder != null) {
-            float x = xStart + leftBorder.getWidth() / 2;
-            drawLine(x, yStart, x, yEnd + (bottomBorder == null ? 0 : bottomBorder.getWidth()), leftBorder);
+        if (drawLeftBorder) {
+            LineStyle leftBorder = cell.getLeftBorder();
+            if (leftBorder != null) {
+                float x = xStart + leftBorder.getWidth() / 2;
+                drawLine(x, yStart, x, yEnd + (bottomBorder == null ? 0 : bottomBorder.getWidth()), leftBorder);
+            }
         }
 
     }
 
-    private void startOuterBorderSegment() {
+    protected void startOuterBorderSegment() {
         if (outerBorderStyle != null) {
             outerBorderStartY = yStart;
             outerBorderHasContent = false;
         }
     }
 
-    private void finishOuterBorderSegment() throws IOException {
+    protected void finishOuterBorderSegment() throws IOException {
         if (outerBorderStyle == null || outerBorderStartY == null || !outerBorderHasContent) {
             return;
         }
@@ -1048,7 +1078,7 @@ public abstract class Table<T extends PDPage> {
         outerBorderHasContent = false;
     }
 
-    private void drawLine(float xStart, float yStart, float xEnd, float yEnd, LineStyle border) throws IOException {
+    protected void drawLine(float xStart, float yStart, float xEnd, float yEnd, LineStyle border) throws IOException {
         if (border.getWidth() > 0) {
             PDStreamUtils.setLineStyles(tableContentStream, border);
             tableContentStream.moveTo(xStart, yStart);
@@ -1057,7 +1087,7 @@ public abstract class Table<T extends PDPage> {
         }
     }
 
-    private void fillCellColor(Cell<T> cell, float yStart, float xStart, float rowHeight, float cellWidth)
+    protected void fillCellColor(Cell<T> cell, float yStart, float xStart, float rowHeight, float cellWidth)
             throws IOException {
 
         if (cell.getFillColor() != null) {
@@ -1072,13 +1102,13 @@ public abstract class Table<T extends PDPage> {
         }
     }
 
-    private void ensureStreamIsOpen() throws IOException {
+    protected void ensureStreamIsOpen() throws IOException {
         if (tableContentStream == null) {
             tableContentStream = createPdPageContentStream();
         }
     }
 
-    private void endTable() throws IOException {
+    protected void endTable() throws IOException {
         this.tableContentStream.close();
     }
 
@@ -1096,7 +1126,7 @@ public abstract class Table<T extends PDPage> {
         return this.currentPage;
     }
 
-    private boolean isEndOfPage(float freeSpaceForPageBreak) {
+    protected boolean isEndOfPage(float freeSpaceForPageBreak) {
         float currentY = yStart - freeSpaceForPageBreak;
         boolean isEndOfPage = currentY <= pageBottomMargin;
         if (isEndOfPage) {
@@ -1105,7 +1135,7 @@ public abstract class Table<T extends PDPage> {
         return isEndOfPage;
     }
 
-    private void pageBreak() throws IOException {
+    protected void pageBreak() throws IOException {
         tableContentStream.close();
         this.yStart = yStartNewPage - pageTopMargin;
         this.currentPage = createNewPage();
@@ -1113,7 +1143,7 @@ public abstract class Table<T extends PDPage> {
         startOuterBorderSegment();
     }
 
-    private void addBookmark(PDOutlineItem bookmark) {
+    protected void addBookmark(PDOutlineItem bookmark) {
         if (bookmarks == null) {
             bookmarks = new ArrayList<>();
         }
