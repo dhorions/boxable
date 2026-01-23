@@ -222,13 +222,12 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 				int startCol = colPosition;
 				int endCol = Math.min(columnsSize - 1, colPosition + colSpan - 1);
 				if (colSpan > 1) {
-					Cell<T> cell = (Cell<T>) row.createCell(
+					Cell<PDPage> cell = row.createCell(
 							tableWidth / columnsSize * colSpan / row.getWidth() * 100,
 							cellHtml);
 					applyInnerTableBorderOptions(cell, rowIndex, startCol, endCol, rows.size(), columnsSize);
 				} else {
-					Cell<T> cell = (Cell<T>) row.createCell(tableWidth / columnsSize / row.getWidth() * 100,
-							cellHtml);
+					Cell<PDPage> cell = row.createCell(tableWidth / columnsSize / row.getWidth() * 100, cellHtml);
 					applyInnerTableBorderOptions(cell, rowIndex, startCol, endCol, rows.size(), columnsSize);
 				}
 				
@@ -593,7 +592,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		this.yStart = yStart;
 	}
 
-	private void applyInnerTableBorderOptions(Cell<T> cell, int rowIndex, int startCol, int endCol,
+	private void applyInnerTableBorderOptions(Cell<?> cell, int rowIndex, int startCol, int endCol,
 			int rowCount, int columnCount) {
 		if (innerTableBorderStyle != null) {
 			cell.setBorderStyle(innerTableBorderStyle);
