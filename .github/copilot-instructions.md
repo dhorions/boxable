@@ -23,6 +23,7 @@ File file = new File("target/CSVexampleAdvanced.pdf");
 - After the user confirms the test case reproduces the issue, proceed to fix the issue in the code.
 - If the issue is not legitimate, politely explain to the user why the issue is not valid, referencing relevant parts of the codebase or documentation.  
   - Ask the user if a unit test should be created to demonstrate the correct behavior.
+- Always give the test case and produiced file a clear and descriptive name that indicates what the issue is about.
 ## New Features
  -  Always ensure that any new featres are covered by unit tests that verify the correct behavior and include a visual pdf output when applicable.
  -  Follow the same guidelines as for issue reproduction when creating unit tests for new features.
