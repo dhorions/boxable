@@ -570,7 +570,7 @@ public class Paragraph {
 								e.printStackTrace();
 							}
 							if(alreadyTextInLine){
-								if (width < this.width - textInLine.trimmedWidth()) {
+								if (width < this.width - textInLine.width()) {
 									firstPartOfWord.append(c);
 									firstPartWordWidth = Math.max(width, firstPartWordWidth);
 								} else {
