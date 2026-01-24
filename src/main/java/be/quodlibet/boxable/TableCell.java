@@ -3,12 +3,15 @@ package be.quodlibet.boxable;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.awt.Color;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.text.Token;
 import be.quodlibet.boxable.utils.FontUtils;
+import be.quodlibet.boxable.utils.ColorUtils;
 import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import be.quodlibet.boxable.utils.PDStreamUtils;
 
@@ -66,8 +70,8 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 					"colgroup", "col", "p", "br", "b", "strong", "i", "em", "u", "ul", "ol", "li",
 					"h1", "h2", "h3", "h4", "h5", "h6",
 					"span", "sub", "sup")
-			.addAttributes("td", "colspan", "rowspan")
-			.addAttributes("th", "colspan", "rowspan")
+			.addAttributes("td", "colspan", "rowspan", "style", "bgcolor")
+			.addAttributes("th", "colspan", "rowspan", "style", "bgcolor")
 			.addAttributes("col", "span")
 			.addAttributes("colgroup", "span")
 			.addAttributes("table", "border");
@@ -219,15 +223,25 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 				}
 				int startCol = colPosition;
 				int endCol = Math.min(columnsSize - 1, colPosition + colSpan - 1);
+				Cell<PDPage> cell;
 				if (colSpan > 1) {
-					Cell<PDPage> cell = row.createCell(
+					cell = row.createCell(
 							tableWidth / columnsSize * colSpan / row.getWidth() * 100,
 							cellHtml);
-					applyInnerTableBorderOptions(cell, rowIndex, startCol, endCol, rows.size(), columnsSize);
 				} else {
-					Cell<PDPage> cell = row.createCell(tableWidth / columnsSize / row.getWidth() * 100, cellHtml);
-					applyInnerTableBorderOptions(cell, rowIndex, startCol, endCol, rows.size(), columnsSize);
+					cell = row.createCell(tableWidth / columnsSize / row.getWidth() * 100, cellHtml);
 				}
+				// inherit styles from the parent TableCell
+				cell.setFont(getFont());
+				cell.setFontBold(getFontBold());
+				cell.setFontSize(getFontSize());
+				cell.setTextColor(getTextColor());
+				
+
+				applyInnerTableBorderOptions(cell, rowIndex, startCol, endCol, rows.size(), columnsSize);
+
+				// Apply HTML attributes (style, bgcolor) overrides
+				applyHtmlAttributes(cell, col);
 				
 				colPosition += colSpan;
 			}
@@ -714,6 +728,110 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 	@Override
 	public float getVerticalFreeSpace() {
 		return getInnerHeight() - width;
+	}
+
+	private void applyHtmlAttributes(Cell<PDPage> cell, Element col) {
+		// 1. Attributes
+		String bgcolor = col.attr("bgcolor");
+		if (hasValue(bgcolor)) {
+			Color color = ColorUtils.parseColor(bgcolor);
+			if (color != null) {
+				cell.setFillColor(color);
+			}
+		}
+
+		// 2. Style
+		String style = col.attr("style");
+		if (hasValue(style)) {
+			String[] props = style.split(";");
+			for (String prop : props) {
+				String[] keyVal = prop.split(":");
+				if (keyVal.length == 2) {
+					String key = keyVal[0].trim().toLowerCase();
+					String val = keyVal[1].trim();
+					switch (key) {
+					case "color":
+						Color textColor = ColorUtils.parseColor(val);
+						if (textColor != null) {
+							cell.setTextColor(textColor);
+						}
+						break;
+					case "background-color":
+						Color fillColor = ColorUtils.parseColor(val);
+						if (fillColor != null) {
+							cell.setFillColor(fillColor);
+						}
+						break;
+					case "border-color":
+						Color borderColor = ColorUtils.parseColor(val);
+						if (borderColor != null) {
+							if (cell.getTopBorder() != null)
+								cell.setTopBorderStyle(new LineStyle(borderColor, cell.getTopBorder().getWidth()));
+							if (cell.getBottomBorder() != null)
+								cell.setBottomBorderStyle(new LineStyle(borderColor, cell.getBottomBorder().getWidth()));
+							if (cell.getLeftBorder() != null)
+								cell.setLeftBorderStyle(new LineStyle(borderColor, cell.getLeftBorder().getWidth()));
+							if (cell.getRightBorder() != null)
+								cell.setRightBorderStyle(new LineStyle(borderColor, cell.getRightBorder().getWidth()));
+						}
+						break;
+					case "font-family":
+						PDFont font = getStandardFont(val);
+						if (font != null) {
+							cell.setFont(font);
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	private boolean hasValue(String s) {
+		return s != null && !s.isEmpty();
+	}
+
+
+
+	private PDFont getStandardFont(String fontName) {
+		// Map common names to Standard14Fonts
+		try {
+			// Simplest is manual map or switch
+			switch (fontName) {
+			case "Helvetica":
+				return new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+			case "Helvetica-Bold":
+				return new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+			case "Helvetica-Oblique":
+				return new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE);
+			case "Helvetica-BoldOblique":
+				return new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD_OBLIQUE);
+			case "Times-Roman":
+				return new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN);
+			case "Times-Bold":
+				return new PDType1Font(Standard14Fonts.FontName.TIMES_BOLD);
+			case "Times-Italic":
+				return new PDType1Font(Standard14Fonts.FontName.TIMES_ITALIC);
+			case "Times-BoldItalic":
+				return new PDType1Font(Standard14Fonts.FontName.TIMES_BOLD_ITALIC);
+			case "Courier":
+				return new PDType1Font(Standard14Fonts.FontName.COURIER);
+			case "Courier-Bold":
+				return new PDType1Font(Standard14Fonts.FontName.COURIER_BOLD);
+			case "Courier-Oblique":
+				return new PDType1Font(Standard14Fonts.FontName.COURIER_OBLIQUE);
+			case "Courier-BoldOblique":
+				return new PDType1Font(Standard14Fonts.FontName.COURIER_BOLD_OBLIQUE);
+			case "Symbol":
+				return new PDType1Font(Standard14Fonts.FontName.SYMBOL);
+			case "ZapfDingbats":
+				return new PDType1Font(Standard14Fonts.FontName.ZAPF_DINGBATS);
+			default:
+				return null;
+			}
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 }

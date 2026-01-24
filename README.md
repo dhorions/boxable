@@ -116,6 +116,65 @@ flexibleRow.createCell(70, "Some value that should keep its font size and expand
 table.draw();
 ```
 
+## Inner Tables
+
+Boxable supports rendering nested tables within a cell using standard HTML `<table>` syntax.
+
+### Basic Usage
+Pass an HTML string containing a `<table>` to a `TableCell`.  
+*Note: You must use `createTableCell` (not `createCell`) and provide the document context.*
+
+```java
+String html = "<table>" +
+              "<tr><td>Left</td><td>Right</td></tr>" +
+              "</table>";
+// Create a cell that renders the inner table
+row.createTableCell(100, html, doc, page, yStart, 10, 10);
+```
+
+### Style Inheritance
+Inner tables automatically inherit font and color settings from their parent container cell:
+```java
+Cell<PDPage> cell = row.createTableCell(100, htmlTable, doc, page, yStart, pageTopMargin, pageBottomMargin);
+cell.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD)); // Inner table text will be bold
+cell.setTextColor(Color.BLUE); // Inner table text will be blue
+```
+
+### Global Configuration
+You can configure borders and padding for the entire inner table via `TableCell` methods:
+```java
+TableCell<PDPage> tableCell = (TableCell<PDPage>) cell;
+tableCell.setInnerTableDrawLines(true); // Draw borders (default true)
+tableCell.setInnerTableBorders(true, true, true, true); // Outer borders
+tableCell.setInnerTableInnerBorders(true, true); // Inner grid lines
+tableCell.setInnerTableBorderStyle(new LineStyle(Color.GRAY, 0.5f)); // Custom border style
+```
+
+### HTML Attribute Styling
+Individual cells within the inner table can be styled using standard HTML attributes.
+Supported attributes:
+- `style="color: #RRGGBB|name"` sets text color.
+- `style="background-color: #RRGGBB|name"` sets background color.
+- `style="border-color: #RRGGBB|name"` sets border color for that cell.
+- `style="font-family: FontName"` sets font (e.g., 'Courier-Bold', 'Times-Italic').
+- `bgcolor="#RRGGBB|name"` sets background color (legacy attribute).
+
+**Example:**
+```html
+<table>
+  <tr>
+    <td style="color: red; background-color: yellow;">Red on Yellow</td>
+    <td style="border-color: blue;">Blue Border</td>
+  </tr>
+  <tr>
+    <td style="font-family: Courier-Bold;">Courier Bold Text</td>
+    <td bgcolor="lightgray">Light Gray Bg</td>
+  </tr>
+</table>
+```
+
+For a comprehensive list of supported named colors and syntax (hex, rgb, rgba), see the implementation in `ColorUtils` and tests in [InnerTableHTMLStylingTest.java](src/test/java/be/quodlibet/boxable/InnerTableHTMLStylingTest.java).
+
 Special Thanks to these awesome contributers : 
 - [@joaemel](https://github.com/joaemel)
 - [@johnmanko](https://github.com/johnmanko)
