@@ -40,6 +40,32 @@ public class Row<T extends PDPage> {
 	/**
 	 * <p>
 	 * Creates a cell with provided width, cell value and default left top
+	 * alignment.
+	 * </p>
+	 * 
+	 * @param width
+	 *            Absolute width in points or in % of table width (depending on
+	 *            {@code isPercent})
+	 * @param value
+	 *            Cell's value (content)
+	 * @param isPercent
+	 *            If true, width is percentage of table width; otherwise absolute points
+	 * @return New {@link Cell}
+	 */
+	public Cell<T> createCell(float width, String value, boolean isPercent) {
+		Cell<T> cell = new Cell<T>(this, width, value, isPercent);
+		if (headerRow) {
+			cell.setHeaderCell(true);
+		}
+		setBorders(cell, cells.isEmpty());
+		cell.setLineSpacing(lineSpacing);
+		cells.add(cell);
+		return cell;
+	}
+
+	/**
+	 * <p>
+	 * Creates a cell with provided width, cell value and default left top
 	 * alignment
 	 * </p>
 	 * 
@@ -50,13 +76,25 @@ public class Row<T extends PDPage> {
 	 * @return New {@link Cell}
 	 */
 	public Cell<T> createCell(float width, String value) {
-		Cell<T> cell = new Cell<T>(this, width, value, true);
-		if (headerRow) {
-			// set all cell as header cell
-			cell.setHeaderCell(true);
-		}
+		return createCell(width, value, true);
+	}
+
+	/**
+	 * <p>
+	 * Creates an image cell with provided width and {@link Image}.
+	 * </p>
+	 * 
+	 * @param width
+	 *            Cell's width
+	 * @param img
+	 *            {@link Image} in the cell
+	 * @param isPercent
+	 *            If true, width is percentage of table width; otherwise absolute points
+	 * @return {@link ImageCell}
+	 */
+	public ImageCell<T> createImageCell(float width, Image img, boolean isPercent) {
+		ImageCell<T> cell = new ImageCell<>(this, width, img, isPercent);
 		setBorders(cell, cells.isEmpty());
-		cell.setLineSpacing(lineSpacing);
 		cells.add(cell);
 		return cell;
 	}
@@ -73,7 +111,28 @@ public class Row<T extends PDPage> {
 	 * @return {@link ImageCell}
 	 */
 	public ImageCell<T> createImageCell(float width, Image img) {
-		ImageCell<T> cell = new ImageCell<>(this, width, img, true);
+		return createImageCell(width, img, true);
+	}
+
+	/**
+	 * <p>
+	 * Creates an image cell with provided width, image, and alignments.
+	 * </p>
+	 *
+	 * @param width
+	 *            Cell's width
+	 * @param img
+	 *            {@link Image} in the cell
+	 * @param align
+	 *            Cell's {@link HorizontalAlignment}
+	 * @param valign
+	 *            Cell's {@link VerticalAlignment}
+	 * @param isPercent
+	 *            If true, width is percentage of table width; otherwise absolute points
+	 * @return {@link ImageCell}
+	 */
+	public Cell<T> createImageCell(float width, Image img, HorizontalAlignment align, VerticalAlignment valign, boolean isPercent) {
+		Cell<T> cell = new ImageCell<T>(this, width, img, isPercent, align, valign);
 		setBorders(cell, cells.isEmpty());
 		cells.add(cell);
 		return cell;
@@ -95,7 +154,36 @@ public class Row<T extends PDPage> {
 	 * @return {@link ImageCell}
 	 */
 	public Cell<T> createImageCell(float width, Image img, HorizontalAlignment align, VerticalAlignment valign) {
-		Cell<T> cell = new ImageCell<T>(this, width, img, true, align, valign);
+		return createImageCell(width, img, align, valign, true);
+	}
+
+	/**
+	 * <p>
+	 * Creates a table cell with provided width and table data.
+	 * </p>
+	 * 
+	 * @param width
+	 *            Table width
+	 * @param tableData
+	 *            Table's data (HTML table tags)
+	 * @param doc
+	 *            {@link PDDocument} where this table will be drawn
+	 * @param page
+	 *            {@link PDPage} where this table cell will be drawn
+	 * @param yStart
+	 *            Y position from which table will be drawn
+	 * @param pageTopMargin
+	 *            {@link TableCell}'s top margin
+	 * @param pageBottomMargin
+	 *            {@link TableCell}'s bottom margin
+	 * @param isPercent
+	 *            If true, width is percentage of table width; otherwise absolute points
+	 * @return {@link TableCell} with provided width and table data
+	 */
+	public TableCell<T> createTableCell(float width, String tableData, PDDocument doc, PDPage page, float yStart,
+			float pageTopMargin, float pageBottomMargin, boolean isPercent) {
+		TableCell<T> cell = new TableCell<T>(this, width, tableData, isPercent, doc, page, yStart, pageTopMargin,
+				pageBottomMargin);
 		setBorders(cell, cells.isEmpty());
 		cells.add(cell);
 		return cell;
@@ -124,9 +212,35 @@ public class Row<T extends PDPage> {
 	 */
 	public TableCell<T> createTableCell(float width, String tableData, PDDocument doc, PDPage page, float yStart,
 			float pageTopMargin, float pageBottomMargin) {
-		TableCell<T> cell = new TableCell<T>(this, width, tableData, true, doc, page, yStart, pageTopMargin,
-				pageBottomMargin);
+		return createTableCell(width, tableData, doc, page, yStart, pageTopMargin, pageBottomMargin, true);
+	}
+
+	/**
+	 * <p>
+	 * Creates a cell with provided width, cell value, horizontal and vertical
+	 * alignment.
+	 * </p>
+	 * 
+	 * @param width
+	 *            Absolute width in points or in % of table width (depending on
+	 *            {@code isPercent})
+	 * @param value
+	 *            Cell's value (content)
+	 * @param align
+	 *            Cell's {@link HorizontalAlignment}
+	 * @param valign
+	 *            Cell's {@link VerticalAlignment}
+	 * @param isPercent
+	 *            If true, width is percentage of table width; otherwise absolute points
+	 * @return New {@link Cell}
+	 */
+	public Cell<T> createCell(float width, String value, HorizontalAlignment align, VerticalAlignment valign, boolean isPercent) {
+		Cell<T> cell = new Cell<T>(this, width, value, isPercent, align, valign);
+		if (headerRow) {
+			cell.setHeaderCell(true);
+		}
 		setBorders(cell, cells.isEmpty());
+		cell.setLineSpacing(lineSpacing);
 		cells.add(cell);
 		return cell;
 	}
@@ -148,15 +262,7 @@ public class Row<T extends PDPage> {
 	 * @return New {@link Cell}
 	 */
 	public Cell<T> createCell(float width, String value, HorizontalAlignment align, VerticalAlignment valign) {
-		Cell<T> cell = new Cell<T>(this, width, value, true, align, valign);
-		if (headerRow) {
-			// set all cell as header cell
-			cell.setHeaderCell(true);
-		}
-		setBorders(cell, cells.isEmpty());
-		cell.setLineSpacing(lineSpacing);
-		cells.add(cell);
-		return cell;
+		return createCell(width, value, align, valign, true);
 	}
 
 	/**

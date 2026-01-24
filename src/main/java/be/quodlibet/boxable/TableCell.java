@@ -87,7 +87,11 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			final VerticalAlignment valign) {
 		super(row, width, tableData, isCalculated);
 		this.tableData = sanitizeTableData(tableData);
-		this.width = width * row.getWidth() / 100;
+		if (isCalculated) {
+			this.width = width * row.getWidth() / 100;
+		} else {
+			this.width = width;
+		}
 		this.doc = document;
 		this.page = page;
 		this.yStart = yStart;
