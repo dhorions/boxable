@@ -5,18 +5,18 @@ plugins {
 	id 'idea'
 }
 
-version '0.0.1-SNAPSHOT'
-group = 'com.github.dgautier'
+version '1.7.1-SNAPSHOT'
+group = 'com.github.dhorions'
 sourceCompatibility = 1.8
 
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
-			artifactId = 'boxable-lib'
+			artifactId = 'boxable'
 
 			from components.java
 			pom {
-				name = 'boxable-lib'
+				name = 'boxable'
 				description = 'Utility library for PDF'
 			}
 		}
