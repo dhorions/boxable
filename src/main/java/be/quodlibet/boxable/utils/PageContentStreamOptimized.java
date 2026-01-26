@@ -3,6 +3,7 @@ package be.quodlibet.boxable.utils;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
 import org.apache.pdfbox.util.Matrix;
 
 import java.awt.Color;
@@ -94,6 +95,16 @@ public class PageContentStreamOptimized {
     public void setStrokingColor(Color color) throws IOException {
         if (color != currentStrokingColor) {
             pageContentStream.setStrokingColor(color);
+
+            int alpha = color.getAlpha();
+            int currentAlpha = currentStrokingColor == null ? 255 : currentStrokingColor.getAlpha();
+
+            if (alpha != currentAlpha) {
+                PDExtendedGraphicsState graphicsState = new PDExtendedGraphicsState();
+                graphicsState.setStrokingAlphaConstant(alpha / 255f);
+                pageContentStream.setGraphicsStateParameters(graphicsState);
+            }
+
             currentStrokingColor = color;
         }
     }
@@ -103,6 +114,16 @@ public class PageContentStreamOptimized {
     public void setNonStrokingColor(Color color) throws IOException {
         if (color != currentNonStrokingColor) {
             pageContentStream.setNonStrokingColor(color);
+
+            int alpha = color.getAlpha();
+            int currentAlpha = currentNonStrokingColor == null ? 255 : currentNonStrokingColor.getAlpha();
+
+            if (alpha != currentAlpha) {
+                PDExtendedGraphicsState graphicsState = new PDExtendedGraphicsState();
+                graphicsState.setNonStrokingAlphaConstant(alpha / 255f);
+                pageContentStream.setGraphicsStateParameters(graphicsState);
+            }
+
             currentNonStrokingColor = color;
         }
     }

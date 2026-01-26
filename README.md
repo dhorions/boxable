@@ -1,8 +1,8 @@
 [Boxable](http://dhorions.github.io/boxable/) - A java library to build tables in PDF documents.
 =======
 
-[![Join the chat at https://gitter.im/dhorions/boxable](https://badges.gitter.im/dhorions/boxable.svg)](https://gitter.im/dhorions/boxable?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.org/dhorions/boxable.svg?branch=master)](https://travis-ci.org/dhorions/boxable)
+
+[![Java CI with Maven](https://github.com/dhorions/boxable/actions/workflows/maven.yml/badge.svg?branch=master)](https://github.com/dhorions/boxable/actions/workflows/maven.yml)
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5UL3NVLA852MN&source=url)
 
 Boxable is a library that can be used to easily create tables in pdf documents.  It uses the [PDFBox](https://pdfbox.apache.org/) PDF library under the hood.
@@ -14,19 +14,20 @@ Boxable is a library that can be used to easily create tables in pdf documents. 
 - Convert Lists into tables in pdf documents
 
 #### Boxable supports next tables features
-- HTML tags in cell content (not all! `<p>,<i>,<b>,<br>,<ul>,<ol>,<li>`)
+- HTML tags in cell content (not all! `<p>,<i>,<b>,<br>,<ul>,<ol>,<li>,<u>,<s>,<h1>-<h6>`)
 - Horizontal & Vertical Alignment of the text
 - Images inside cells and outside table (image scale is also supported)
 - basic set of rendering attributes for lines (borders)
 - rotated text (by 90 degrees)
 - writing text outside tables
+- Inner tables using html `<table>`
 
 # Maven
 ```xml
 <dependency>
     <groupId>com.github.dhorions</groupId>
     <artifactId>boxable</artifactId>
-    <version>1.7.0</version>
+    <version>1.8.1</version>
 </dependency>
 ```
 For other build systems, check the [Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22boxable%22).
@@ -89,7 +90,34 @@ for (String[] fact : facts) {
 table.draw();
 ```
 
+## Fixed height rows (auto-fit text)
+
+```java
+BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, true);
+
+// Fixed-height header row (text shrinks to fit)
+Row<PDPage> headerRow = table.createRow(12f);
+headerRow.setFixedHeight(true);
+Cell<PDPage> headerCell = headerRow.createCell(100, "Fixed header with longer text");
+headerCell.setFontSize(14f);
+table.addHeaderRow(headerRow);
+
+// Fixed-height data row (text shrinks to fit)
+Row<PDPage> fixedRow = table.createRow(12f);
+fixedRow.setFixedHeight(true);
+fixedRow.createCell(30, "Fixed row");
+fixedRow.createCell(70, "Some value that should be reduced to fit in 12pt height");
+
+// Flexible row (height grows to fit)
+Row<PDPage> flexibleRow = table.createRow(12f);
+flexibleRow.createCell(30, "Flexible row");
+flexibleRow.createCell(70, "Some value that should keep its font size and expand the row height");
+
+table.draw();
+```
+
 Special Thanks to these awesome contributers : 
+- [@joaemel](https://github.com/joaemel)
 - [@johnmanko](https://github.com/johnmanko)
 - [@Vobarian](https://github.com/vobarian)
 - [@Giboow](https://github.com/giboow)
@@ -103,7 +131,7 @@ Special Thanks to these awesome contributers :
 
 =======
 
-Copyright [2022](Quodlibet.be)
+Copyright [2026](Quodlibet.be)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

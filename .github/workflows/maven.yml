@@ -1,0 +1,43 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    - name: Test with Maven
+      run: mvn -B test --file pom.xml
+    
+    - name: Upload Test PDFs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-generated-pdfs
+        path: target/*.pdf
+
+    - name: List Generated PDFs
+      if: always()
+      run: |
+        echo "### PDF files generated from automated tests" >> $GITHUB_STEP_SUMMARY
+        echo "The following PDF files were generated during the test run:" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        find target -maxdepth 1 -name "*.pdf" -printf "- %f\n" | sort >> $GITHUB_STEP_SUMMARY || echo "No PDFs found" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Check the **Artifacts** section of this run to download and view them." >> $GITHUB_STEP_SUMMARY
+
+    - name: Build with Maven
+      run: mvn -B package -DskipTests --file pom.xml

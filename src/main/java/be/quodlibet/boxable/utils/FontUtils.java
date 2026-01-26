@@ -44,7 +44,7 @@ public final class FontUtils {
 	 */
 	private static final Map<String, FontMetrics> fontMetrics = new HashMap<>();
 
-	private static final Map<String, PDFont> defaultFonts = new HashMap<>();
+	private static final ThreadLocal<Map<String, PDFont>> defaultFonts = ThreadLocal.withInitial(HashMap::new);
 
 	private FontUtils() {
 	}
@@ -173,20 +173,20 @@ public final class FontUtils {
 
 	public static void addDefaultFonts(final PDFont font, final PDFont fontBold, final PDFont fontItalic,
 			final PDFont fontBoldItalic) {
-		defaultFonts.put("font", font);
-		defaultFonts.put("fontBold", fontBold);
-		defaultFonts.put("fontItalic", fontItalic);
-		defaultFonts.put("fontBoldItalic", fontBoldItalic);
+		defaultFonts.get().put("font", font);
+		defaultFonts.get().put("fontBold", fontBold);
+		defaultFonts.get().put("fontItalic", fontItalic);
+		defaultFonts.get().put("fontBoldItalic", fontBoldItalic);
 	}
 
 	public static Map<String, PDFont> getDefaultfonts() {
-		return defaultFonts;
+		return defaultFonts.get();
 	}
 
 	public static void setSansFontsAsDefault(PDDocument document) {
-		defaultFonts.put("font", loadFont(document, "fonts/FreeSans.ttf"));
-		defaultFonts.put("fontBold", loadFont(document, "fonts/FreeSansBold.ttf"));
-		defaultFonts.put("fontItalic", loadFont(document, "fonts/FreeSansOblique.ttf"));
-		defaultFonts.put("fontBoldItalic", loadFont(document, "fonts/FreeSansBoldOblique.ttf"));
+		defaultFonts.get().put("font", loadFont(document, "fonts/FreeSans.ttf"));
+		defaultFonts.get().put("fontBold", loadFont(document, "fonts/FreeSansBold.ttf"));
+		defaultFonts.get().put("fontItalic", loadFont(document, "fonts/FreeSansOblique.ttf"));
+		defaultFonts.get().put("fontBoldItalic", loadFont(document, "fonts/FreeSansBoldOblique.ttf"));
 	}
 }

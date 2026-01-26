@@ -8,17 +8,39 @@ import java.util.Stack;
 public final class Tokenizer {
 
 	private static final Token OPEN_TAG_I = new Token(TokenType.OPEN_TAG, "i");
+	private static final Token OPEN_TAG_S = new Token(TokenType.OPEN_TAG, "s");
 	private static final Token OPEN_TAG_B = new Token(TokenType.OPEN_TAG, "b");
+	private static final Token OPEN_TAG_U = new Token(TokenType.OPEN_TAG, "u");
+	private static final Token OPEN_TAG_H1 = new Token(TokenType.OPEN_TAG, "h1");
+	private static final Token OPEN_TAG_H2 = new Token(TokenType.OPEN_TAG, "h2");
+	private static final Token OPEN_TAG_H3 = new Token(TokenType.OPEN_TAG, "h3");
+	private static final Token OPEN_TAG_H4 = new Token(TokenType.OPEN_TAG, "h4");
+	private static final Token OPEN_TAG_H5 = new Token(TokenType.OPEN_TAG, "h5");
+	private static final Token OPEN_TAG_H6 = new Token(TokenType.OPEN_TAG, "h6");
 	private static final Token OPEN_TAG_OL = new Token(TokenType.OPEN_TAG, "ol");
 	private static final Token OPEN_TAG_UL = new Token(TokenType.OPEN_TAG, "ul");
 	private static final Token CLOSE_TAG_I = new Token(TokenType.CLOSE_TAG, "i");
+	private static final Token CLOSE_TAG_S = new Token(TokenType.CLOSE_TAG, "s");
 	private static final Token CLOSE_TAG_B = new Token(TokenType.CLOSE_TAG, "b");
+	private static final Token CLOSE_TAG_U = new Token(TokenType.CLOSE_TAG, "u");
+	private static final Token CLOSE_TAG_H1 = new Token(TokenType.CLOSE_TAG, "h1");
+	private static final Token CLOSE_TAG_H2 = new Token(TokenType.CLOSE_TAG, "h2");
+	private static final Token CLOSE_TAG_H3 = new Token(TokenType.CLOSE_TAG, "h3");
+	private static final Token CLOSE_TAG_H4 = new Token(TokenType.CLOSE_TAG, "h4");
+	private static final Token CLOSE_TAG_H5 = new Token(TokenType.CLOSE_TAG, "h5");
+	private static final Token CLOSE_TAG_H6 = new Token(TokenType.CLOSE_TAG, "h6");
 	private static final Token CLOSE_TAG_OL = new Token(TokenType.CLOSE_TAG, "ol");
 	private static final Token CLOSE_TAG_UL = new Token(TokenType.CLOSE_TAG, "ul");
 	private static final Token CLOSE_TAG_P = new Token(TokenType.CLOSE_TAG, "p");
 	private static final Token CLOSE_TAG_LI = new Token(TokenType.CLOSE_TAG, "li");
 	private static final Token POSSIBLE_WRAP_POINT = new Token(TokenType.POSSIBLE_WRAP_POINT, "");
 	private static final Token WRAP_POINT_P = new Token(TokenType.WRAP_POINT, "p");
+	private static final Token WRAP_POINT_H1 = new Token(TokenType.WRAP_POINT, "h1");
+	private static final Token WRAP_POINT_H2 = new Token(TokenType.WRAP_POINT, "h2");
+	private static final Token WRAP_POINT_H3 = new Token(TokenType.WRAP_POINT, "h3");
+	private static final Token WRAP_POINT_H4 = new Token(TokenType.WRAP_POINT, "h4");
+	private static final Token WRAP_POINT_H5 = new Token(TokenType.WRAP_POINT, "h5");
+	private static final Token WRAP_POINT_H6 = new Token(TokenType.WRAP_POINT, "h6");
 	private static final Token WRAP_POINT_LI = new Token(TokenType.WRAP_POINT, "li");
 	private static final Token WRAP_POINT_BR = new Token(TokenType.WRAP_POINT, "br");
 
@@ -101,6 +123,16 @@ public final class Tokenizer {
 							tokens.add(OPEN_TAG_I);
 							textIndex += 2;
 							consumed = true;
+						} else if ('s' == lookahead1 && '>' == lookahead2) {
+							// <s>
+							if (sb.length() > 0) {
+								tokens.add(Token.text(TokenType.TEXT, sb.toString()));
+								// clean string builder
+								sb.delete(0, sb.length());
+							}
+							tokens.add(OPEN_TAG_S);
+							textIndex += 2;
+							consumed = true;
 						} else if ('b' == lookahead1 && '>' == lookahead2) {
 							// <b>
 							if (sb.length() > 0) {
@@ -111,6 +143,51 @@ public final class Tokenizer {
 							tokens.add(OPEN_TAG_B);
 							textIndex += 2;
 							consumed = true;
+						} else if ('h' == lookahead1 && Character.isDigit(lookahead2)) {
+							if (textIndex < text.length() - 3) {
+								final char lookahead3 = text.charAt(textIndex + 3);
+								if ('>' == lookahead3) {
+									if (sb.length() > 0) {
+										tokens.add(Token.text(TokenType.TEXT, sb.toString()));
+										// clean string builder
+										sb.delete(0, sb.length());
+									}
+									boolean headingConsumed = true;
+									switch (lookahead2) {
+									case '1':
+										tokens.add(WRAP_POINT_H1);
+										tokens.add(OPEN_TAG_H1);
+										break;
+									case '2':
+										tokens.add(WRAP_POINT_H2);
+										tokens.add(OPEN_TAG_H2);
+										break;
+									case '3':
+										tokens.add(WRAP_POINT_H3);
+										tokens.add(OPEN_TAG_H3);
+										break;
+									case '4':
+										tokens.add(WRAP_POINT_H4);
+										tokens.add(OPEN_TAG_H4);
+										break;
+									case '5':
+										tokens.add(WRAP_POINT_H5);
+										tokens.add(OPEN_TAG_H5);
+										break;
+									case '6':
+										tokens.add(WRAP_POINT_H6);
+										tokens.add(OPEN_TAG_H6);
+										break;
+									default:
+										headingConsumed = false;
+										break;
+									}
+									if (headingConsumed) {
+										textIndex += 3;
+										consumed = true;
+									}
+								}
+							}
 						} else if ('b' == lookahead1 && 'r' == lookahead2) {
 							if (textIndex < text.length() - 3) {
 								// <br>
@@ -162,6 +239,16 @@ public final class Tokenizer {
 								sb.delete(0, sb.length());
 							}
 							tokens.add(WRAP_POINT_P);
+							textIndex += 2;
+							consumed = true;
+						} else if ('u' == lookahead1 && '>' == lookahead2) {
+							// <u>
+							if (sb.length() > 0) {
+								tokens.add(Token.text(TokenType.TEXT, sb.toString()));
+								// clean string builder
+								sb.delete(0, sb.length());
+							}
+							tokens.add(OPEN_TAG_U);
 							textIndex += 2;
 							consumed = true;
 						} else if ('o' == lookahead1 && 'l' == lookahead2) {
@@ -223,6 +310,15 @@ public final class Tokenizer {
 										tokens.add(CLOSE_TAG_I);
 										textIndex += 3;
 										consumed = true;
+									} else if ('s' == lookahead2) {
+										// </s>
+										if (sb.length() > 0) {
+											tokens.add(Token.text(TokenType.TEXT, sb.toString()));
+											sb.delete(0, sb.length());
+										}
+										tokens.add(CLOSE_TAG_S);
+										textIndex += 3;
+										consumed = true;
 									} else if ('b' == lookahead2) {
 										// </b>
 										if (sb.length() > 0) {
@@ -230,6 +326,15 @@ public final class Tokenizer {
 											sb.delete(0, sb.length());
 										}
 										tokens.add(CLOSE_TAG_B);
+										textIndex += 3;
+										consumed = true;
+									} else if ('u' == lookahead2) {
+										// </u>
+										if (sb.length() > 0) {
+											tokens.add(Token.text(TokenType.TEXT, sb.toString()));
+											sb.delete(0, sb.length());
+										}
+										tokens.add(CLOSE_TAG_U);
 										textIndex += 3;
 										consumed = true;
 									} else if ('p' == lookahead2) {
@@ -240,6 +345,45 @@ public final class Tokenizer {
 										}
 										tokens.add(CLOSE_TAG_P);
 										textIndex += 3;
+										consumed = true;
+									}
+								}
+							}
+							if (textIndex < text.length() - 4) {
+								// headings
+								final char lookahead3 = text.charAt(textIndex + 3);
+								final char lookahead4 = text.charAt(textIndex + 4);
+								if ('h' == lookahead2 && '>' == lookahead4) {
+									if (sb.length() > 0) {
+										tokens.add(Token.text(TokenType.TEXT, sb.toString()));
+										sb.delete(0, sb.length());
+									}
+									boolean headingConsumed = true;
+									switch (lookahead3) {
+									case '1':
+										tokens.add(CLOSE_TAG_H1);
+										break;
+									case '2':
+										tokens.add(CLOSE_TAG_H2);
+										break;
+									case '3':
+										tokens.add(CLOSE_TAG_H3);
+										break;
+									case '4':
+										tokens.add(CLOSE_TAG_H4);
+										break;
+									case '5':
+										tokens.add(CLOSE_TAG_H5);
+										break;
+									case '6':
+										tokens.add(CLOSE_TAG_H6);
+										break;
+									default:
+										headingConsumed = false;
+										break;
+									}
+									if (headingConsumed) {
+										textIndex += 4;
 										consumed = true;
 									}
 								}

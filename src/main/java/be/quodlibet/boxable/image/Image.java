@@ -90,6 +90,7 @@ public class Image {
 	 *            Maximal height where {@link Image} needs to be scaled
 	 * @return Scaled {@link Image}
 	 */
+	@Deprecated
 	public Image scale(float width) {
 		return scaleByWidth(width);
 	}
@@ -158,6 +159,14 @@ public class Image {
 
 	public float getWidth() {
 		return width;
+	}
+
+	public void setWidth(float width) {
+		this.width = width;
+	}
+
+	public void setHeight(float height) {
+		this.height = height;
 	}
 
 	public void setQuality(float quality) throws IllegalArgumentException {

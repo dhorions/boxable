@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -1254,6 +1255,174 @@ public class TableTest {
 		doc.save(file);
 		doc.close();
 		assertTrue(callbackCalled[0]);
+	}
+
+	/**
+	 * <p>
+	 * Test for a table using the following features :
+	 * <ul>
+	 * <li> outer border only </li>
+	 * <li> multi-page table </li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @throws IOException
+	 */
+	@Test
+	public void SampleTest14() throws IOException {
+		// Set margins
+		float margin = 10;
+
+		// Initialize Document
+		PDDocument doc = new PDDocument();
+		PDPage page = new PDPage();
+		doc.addPage(page);
+
+		// Initialize table
+		float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
+		float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+		boolean drawContent = true;
+		boolean drawLines = true;
+		float yStart = yStartNewPage;
+		float bottomMargin = 70;
+
+		BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, drawLines,
+				drawContent);
+		table.setOuterBorderStyle(new LineStyle(Color.BLACK, 1));
+
+		for (int i = 0; i < 120; i++) {
+			Row<PDPage> row = table.createRow(12f);
+			Cell<PDPage> cell1 = row.createCell(30f, "Row " + i + " A");
+			Cell<PDPage> cell2 = row.createCell(40f, "Row " + i + " B");
+			Cell<PDPage> cell3 = row.createCell(30f, "Row " + i + " C");
+			cell1.setBorderStyle(null);
+			cell2.setBorderStyle(null);
+			cell3.setBorderStyle(null);
+		}
+
+		table.draw();
+
+		// Save the document
+		File file = new File("target/BoxableSample14.pdf");
+		System.out.println("Sample file saved at : " + file.getAbsolutePath());
+		file.getParentFile().mkdirs();
+		doc.save(file);
+		assertTrue(doc.getNumberOfPages() > 1);
+		doc.close();
+	}
+
+	/**
+	 * <p>
+	 * Test for a  table using the following features :
+	 * <ul>
+	 * <li> default row wrapping</li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @throws IOException
+	 */
+	@Test
+	public void SampleTest13() throws IOException {
+		// Set margins
+		float margin = 10;
+
+		// Initialize Document
+		PDDocument doc = new PDDocument();
+		PDPage page = addNewPage(doc);
+
+		// Initialize table
+		float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
+		float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+		boolean drawContent = true;
+		boolean drawLines = true;
+		float yStart = yStartNewPage;
+		float pageBottomMargin = 70;
+		float pageTopMargin = 2*margin;
+		BaseTable table = new BaseTable(yStart, yStartNewPage, pageBottomMargin, tableWidth, margin, doc, page, drawLines,
+				drawContent);
+
+		// set default line spacing for entire table
+		table.setLineSpacing(1.5f);
+
+		//ten unwrappable blocks
+		for (int i = 0; i < 10; i++) {
+			// first row in unwrappabe block
+			Row<PDPage> row = table.createRow(10f);
+			row.createCell(40,"first test");
+			row.createCell(30,"first test");
+			Cell<PDPage> lastCell = row.createCell(30, "first test");
+			lastCell.setBottomBorderStyle(null);
+
+			// 13 more rows
+			for (int j = 0; j < 13; j++) {
+				row = table.createRow(10f);
+				row.createCell(40,"test");
+				row.createCell(30,"test");
+				lastCell = row.createCell(30, "test");
+				lastCell.setBottomBorderStyle(null);
+				lastCell.setTopBorderStyle(null);
+			}
+			// last row in unwrappabe block
+			row = table.createRow(10f);
+			row.createCell(40,"test");
+			row.createCell(30,"test");
+			lastCell = row.createCell(30, "test");
+			lastCell.setTopBorderStyle(null);
+		}
+		table.draw();
+
+		// Save the document
+		File file = new File("target/BoxableSample13.pdf");
+		System.out.println("Sample file saved at : " + file.getAbsolutePath());
+		file.getParentFile().mkdirs();
+		doc.save(file);
+		doc.close();
+
+
+	}
+
+	/**
+	 * <p>
+	 * Test for a table using the following features :
+	 * <ul>
+	 * <li> colored title </li>
+	 * <li> underlined title </li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @throws IOException
+	 */
+	@Test
+	public void TitleColorUnderlineTest() throws IOException {
+		float margin = 10;
+
+		PDDocument doc = new PDDocument();
+		PDPage page = addNewPage(doc);
+
+		float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
+		float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+		boolean drawContent = true;
+		boolean drawLines = true;
+		float yStart = yStartNewPage;
+		float bottomMargin = 70;
+
+		BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, drawLines,
+				drawContent);
+
+		table.drawTitle("Colored and underlined title", new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 14,
+				tableWidth, 20, "center", 20, null, true, new Color(0, 102, 204), TextType.UNDERLINE);
+
+		Row<PDPage> row = table.createRow(15f);
+		row.createCell(100, "Content below the title");
+		table.draw();
+
+		File file = new File("target/BoxableTitleColorUnderlineTest.pdf");
+		System.out.println("Sample file saved at : " + file.getAbsolutePath());
+		file.getParentFile().mkdirs();
+		doc.save(file);
+		doc.close();
+		assertTrue(file.exists());
+		assertTrue(Files.size(file.toPath()) > 0);
 	}
 
 	private static PDPage addNewPage(PDDocument doc) {

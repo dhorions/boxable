@@ -73,6 +73,44 @@ public class TokenizerTest {
 			Assert.assertEquals("Italic text is parsed wrong", "123 123456", italicText.toString());
 		}
 	}
+
+	@Test
+	public void testSimpleUnderline() throws Exception {
+		{
+			final String text = "1 <u>123 123456</u> 12";
+			final StringBuilder underlineText = new StringBuilder();
+			final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
+			boolean underline = false;
+			for (final Token token : tokens) {
+				if (TokenType.OPEN_TAG.equals(token.getType()) && token.getData().equals("u")) {
+					underline = true;
+				} else if(TokenType.CLOSE_TAG.equals(token.getType()) && token.getData().equals("u")){
+					underline = false;
+				}
+				if(TokenType.TEXT.equals(token.getType()) && underline){
+					underlineText.append(token.getData());
+				}
+			}
+			Assert.assertEquals("Underline text is parsed wrong", "123 123456", underlineText.toString());
+		}
+		{
+			final String text = "1 <u>123</u> <u> 123456</u> 12";
+			final List<Token> tokens = Tokenizer.tokenize(text, wrappingFunction);
+			final StringBuilder underlineText = new StringBuilder();
+			boolean underline = false;
+			for (final Token token : tokens) {
+				if (TokenType.OPEN_TAG.equals(token.getType()) && token.getData().equals("u")) {
+					underline = true;
+				} else if(TokenType.CLOSE_TAG.equals(token.getType()) && token.getData().equals("u")){
+					underline = false;
+				}
+				if(TokenType.TEXT.equals(token.getType()) && underline){
+					underlineText.append(token.getData());
+				}
+			}
+			Assert.assertEquals("Underline text is parsed wrong", "123 123456", underlineText.toString());
+		}
+	}
 	
 	@Test
 	public void testBoldAndItalic() throws Exception {

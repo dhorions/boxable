@@ -3,7 +3,6 @@ package be.quodlibet.boxable.text;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.apache.pdfbox.pdmodel.font.PDFont;
 
