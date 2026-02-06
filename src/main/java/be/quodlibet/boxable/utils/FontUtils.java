@@ -97,6 +97,40 @@ public final class FontUtils {
 
 	/**
 	 * <p>
+	 * Retrieving {@link String} width in millimeters depending on current font size.
+	 * </p>
+	 *
+	 * @param font
+	 *            The font of text whose width will be retrieved
+	 * @param text
+	 *            The text whose width will be retrieved
+	 * @param fontSize
+	 *            The font size of text whose width will be retrieved (in points)
+	 * @return text width in millimeters
+	 */
+	public static float getStringWidthMm(final PDFont font, final String text, final float fontSize) {
+		return UnitConverter.pointsToMm(getStringWidth(font, text, fontSize));
+	}
+
+	/**
+	 * <p>
+	 * Retrieving {@link String} width in centimeters depending on current font size.
+	 * </p>
+	 *
+	 * @param font
+	 *            The font of text whose width will be retrieved
+	 * @param text
+	 *            The text whose width will be retrieved
+	 * @param fontSize
+	 *            The font size of text whose width will be retrieved (in points)
+	 * @return text width in centimeters
+	 */
+	public static float getStringWidthCm(final PDFont font, final String text, final float fontSize) {
+		return UnitConverter.pointsToCm(getStringWidth(font, text, fontSize));
+	}
+
+	/**
+	 * <p>
 	 * Calculate the font ascent distance.
 	 * </p>
 	 * 
