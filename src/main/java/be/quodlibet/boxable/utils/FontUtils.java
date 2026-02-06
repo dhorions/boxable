@@ -7,6 +7,8 @@ import java.util.Map;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,9 +186,26 @@ public final class FontUtils {
 	}
 
 	public static void setSansFontsAsDefault(PDDocument document) {
-		defaultFonts.get().put("font", loadFont(document, "fonts/FreeSans.ttf"));
-		defaultFonts.get().put("fontBold", loadFont(document, "fonts/FreeSansBold.ttf"));
-		defaultFonts.get().put("fontItalic", loadFont(document, "fonts/FreeSansOblique.ttf"));
-		defaultFonts.get().put("fontBoldItalic", loadFont(document, "fonts/FreeSansBoldOblique.ttf"));
+		defaultFonts.get().put("font", loadFont(document, "fonts/LiberationSans-Regular.ttf"));
+		defaultFonts.get().put("fontBold", loadFont(document, "fonts/LiberationSans-Bold.ttf"));
+		defaultFonts.get().put("fontItalic", loadFont(document, "fonts/LiberationSans-Italic.ttf"));
+		defaultFonts.get().put("fontBoldItalic", loadFont(document, "fonts/LiberationSans-BoldItalic.ttf"));
 	}
+	public static void setMonoSpaceFontsAsDefault(PDDocument document) {
+		
+		defaultFonts.get().put("font",new PDType1Font(Standard14Fonts.FontName.COURIER));
+		defaultFonts.get().put("fontBold", new PDType1Font(Standard14Fonts.FontName.COURIER_BOLD));
+		defaultFonts.get().put("fontItalic", new PDType1Font(Standard14Fonts.FontName.COURIER_OBLIQUE));
+		defaultFonts.get().put("fontBoldItalic", new PDType1Font(Standard14Fonts.FontName.COURIER_BOLD_OBLIQUE));
+
+	}
+	public static void setSerifFontsAsDefault(PDDocument document) {
+		
+		defaultFonts.get().put("font",new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN));
+		defaultFonts.get().put("fontBold", new PDType1Font(Standard14Fonts.FontName.TIMES_BOLD));
+		defaultFonts.get().put("fontItalic", new PDType1Font(Standard14Fonts.FontName.TIMES_ITALIC));
+		defaultFonts.get().put("fontBoldItalic", new PDType1Font(Standard14Fonts.FontName.TIMES_BOLD_ITALIC));
+
+	}
+
 }

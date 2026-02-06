@@ -24,6 +24,6 @@ File file = new File("target/CSVexampleAdvanced.pdf");
 - If the issue is not legitimate, politely explain to the user why the issue is not valid, referencing relevant parts of the codebase or documentation.  
   - Ask the user if a unit test should be created to demonstrate the correct behavior.
 ## New Features
- -  Always ensure that any new featres are covered by unit tests that verify the correct behavior and include a visual pdf output when applicable.
+ -  Always ensure that any new features are covered by unit tests that verify the correct behavior and include a visual pdf output when applicable.
  -  Follow the same guidelines as for issue reproduction when creating unit tests for new features.
  
