@@ -454,6 +454,32 @@ public class Row<T extends PDPage> {
 
 	/**
 	 * <p>
+	 * Computes the layout width of the last cell in this row.
+	 * For LEFT-aligned rows, the last cell is stretched to fill the remaining
+	 * table width. For RIGHT/CENTER, the natural cell width is used.
+	 * </p>
+	 *
+	 * @param tableWidth The total table width in points
+	 * @return Layout width of the last cell in points
+	 */
+	float getLastCellLayoutWidth(float tableWidth) {
+		if (cells.isEmpty()) {
+			return 0;
+		}
+		Cell<T> lastCell = cells.get(cells.size() - 1);
+		if (rowAlignment == HorizontalAlignment.LEFT) {
+			// Stretch to fill remaining width
+			float usedWidth = getAlignmentOffset();
+			for (int i = 0; i < cells.size() - 1; i++) {
+				usedWidth += cells.get(i).getWidth();
+			}
+			return tableWidth - usedWidth;
+		}
+		return lastCell.getWidth();
+	}
+
+	/**
+	 * <p>
 	 * Returns whether this row is a header row.
 	 * </p>
 	 *
