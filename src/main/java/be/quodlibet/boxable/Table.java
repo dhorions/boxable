@@ -86,6 +86,7 @@ public abstract class Table<T extends PDPage> {
     protected final float pageBottomMargin;
 
     private boolean drawDebug;
+    private boolean startNewPageIfTableDoesNotFit = false;
 
     /**
      * @deprecated Use one of the constructors that pass a {@link PageProvider}
@@ -364,6 +365,18 @@ public abstract class Table<T extends PDPage> {
         ensureStreamIsOpen();
 
         calcWrapHeightsAndRowHeights();
+
+        if (startNewPageIfTableDoesNotFit) {
+            float totalHeight = getHeaderAndDataHeight();
+            float availableSpace = yStart - pageBottomMargin;
+            if (totalHeight > availableSpace) {
+                boolean isFreshPage = yStart >= (yStartNewPage - pageTopMargin - 10f);
+                if (!isFreshPage) {
+                    pageBreak();
+                    tableStartedAtNewPage = true;
+                }
+            }
+        }
 
         startOuterBorderSegment();
 
@@ -1438,6 +1451,19 @@ public abstract class Table<T extends PDPage> {
      */
     public boolean isDrawDebug() {
         return drawDebug;
+    }
+
+    /**
+     * <p>
+     * Sets whether the table should start on a new page if the content doesn't fit
+     * on the current page.
+     * </p>
+     *
+     * @param startNewPageIfTableDoesNotFit
+     *            {@code true} to start on a new page if insufficient space
+     */
+    public void setStartNewPageIfTableDoesNotFit(boolean startNewPageIfTableDoesNotFit) {
+        this.startNewPageIfTableDoesNotFit = startNewPageIfTableDoesNotFit;
     }
 
     /**
