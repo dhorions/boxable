@@ -11,6 +11,8 @@ public final class Tokenizer {
 	private static final Token OPEN_TAG_S = new Token(TokenType.OPEN_TAG, "s");
 	private static final Token OPEN_TAG_B = new Token(TokenType.OPEN_TAG, "b");
 	private static final Token OPEN_TAG_U = new Token(TokenType.OPEN_TAG, "u");
+	private static final Token OPEN_TAG_SUP = new Token(TokenType.OPEN_TAG, "sup");
+	private static final Token OPEN_TAG_SUB = new Token(TokenType.OPEN_TAG, "sub");
 	private static final Token OPEN_TAG_H1 = new Token(TokenType.OPEN_TAG, "h1");
 	private static final Token OPEN_TAG_H2 = new Token(TokenType.OPEN_TAG, "h2");
 	private static final Token OPEN_TAG_H3 = new Token(TokenType.OPEN_TAG, "h3");
@@ -23,6 +25,8 @@ public final class Tokenizer {
 	private static final Token CLOSE_TAG_S = new Token(TokenType.CLOSE_TAG, "s");
 	private static final Token CLOSE_TAG_B = new Token(TokenType.CLOSE_TAG, "b");
 	private static final Token CLOSE_TAG_U = new Token(TokenType.CLOSE_TAG, "u");
+	private static final Token CLOSE_TAG_SUP = new Token(TokenType.CLOSE_TAG, "sup");
+	private static final Token CLOSE_TAG_SUB = new Token(TokenType.CLOSE_TAG, "sub");
 	private static final Token CLOSE_TAG_H1 = new Token(TokenType.CLOSE_TAG, "h1");
 	private static final Token CLOSE_TAG_H2 = new Token(TokenType.CLOSE_TAG, "h2");
 	private static final Token CLOSE_TAG_H3 = new Token(TokenType.CLOSE_TAG, "h3");
@@ -251,6 +255,29 @@ public final class Tokenizer {
 							tokens.add(OPEN_TAG_U);
 							textIndex += 2;
 							consumed = true;
+						} else if ('s' == lookahead1 && 'u' == lookahead2) {
+							// <sup> or <sub>
+							if (textIndex < text.length() - 4) {
+								final char lookahead3 = text.charAt(textIndex + 3);
+								final char lookahead4 = text.charAt(textIndex + 4);
+								if ('p' == lookahead3 && '>' == lookahead4) {
+									if (sb.length() > 0) {
+										tokens.add(Token.text(TokenType.TEXT, sb.toString()));
+										sb.delete(0, sb.length());
+									}
+									tokens.add(OPEN_TAG_SUP);
+									textIndex += 4;
+									consumed = true;
+								} else if ('b' == lookahead3 && '>' == lookahead4) {
+									if (sb.length() > 0) {
+										tokens.add(Token.text(TokenType.TEXT, sb.toString()));
+										sb.delete(0, sb.length());
+									}
+									tokens.add(OPEN_TAG_SUB);
+									textIndex += 4;
+									consumed = true;
+								}
+							}
 						} else if ('o' == lookahead1 && 'l' == lookahead2) {
 							// <ol>
 							if (textIndex < text.length() - 3) {
@@ -347,6 +374,28 @@ public final class Tokenizer {
 										textIndex += 3;
 										consumed = true;
 									}
+								}
+							}
+							if (textIndex < text.length() - 5) {
+								final char lookahead3 = text.charAt(textIndex + 3);
+								final char lookahead4 = text.charAt(textIndex + 4);
+								final char lookahead5 = text.charAt(textIndex + 5);
+								if ('s' == lookahead2 && 'u' == lookahead3 && 'p' == lookahead4 && '>' == lookahead5) {
+									if (sb.length() > 0) {
+										tokens.add(Token.text(TokenType.TEXT, sb.toString()));
+										sb.delete(0, sb.length());
+									}
+									tokens.add(CLOSE_TAG_SUP);
+									textIndex += 5;
+									consumed = true;
+								} else if ('s' == lookahead2 && 'u' == lookahead3 && 'b' == lookahead4 && '>' == lookahead5) {
+									if (sb.length() > 0) {
+										tokens.add(Token.text(TokenType.TEXT, sb.toString()));
+										sb.delete(0, sb.length());
+									}
+									tokens.add(CLOSE_TAG_SUB);
+									textIndex += 5;
+									consumed = true;
 								}
 							}
 							if (textIndex < text.length() - 4) {

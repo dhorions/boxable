@@ -32,6 +32,25 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
 
 public abstract class Table<T extends PDPage> {
 
+    private static float applyScriptScale(float baseFontSize, int superscriptDepth, int subscriptDepth) {
+        int depth = Math.max(superscriptDepth, subscriptDepth);
+        float scaled = baseFontSize;
+        for (int i = 0; i < depth; i++) {
+            scaled *= Paragraph.SCRIPT_SCALE;
+        }
+        return scaled;
+    }
+
+    private static float getBaselineOffset(float baseFontSize, int superscriptDepth, int subscriptDepth) {
+        if (superscriptDepth > 0 && subscriptDepth == 0) {
+            return baseFontSize * Paragraph.SUPERSCRIPT_RISE;
+        }
+        if (subscriptDepth > 0 && superscriptDepth == 0) {
+            return -baseFontSize * Paragraph.SUBSCRIPT_DROP;
+        }
+        return 0f;
+    }
+
     public final PDDocument document;
     protected float margin;
 
@@ -799,8 +818,11 @@ public abstract class Table<T extends PDPage> {
                 int strikeThroughCounter = 0;
                 int underlineCounter = 0;
                 float baseFontSize = cell.getFontSize();
+                float currentBaseFontSize = baseFontSize;
                 float currentFontSize = baseFontSize;
                 Stack<Float> headingFontSizeStack = new Stack<>();
+                int superscriptDepth = 0;
+                int subscriptDepth = 0;
 
                 this.tableContentStream.setRotated(cell.isTextRotated());
 
@@ -862,8 +884,9 @@ public abstract class Table<T extends PDPage> {
                         switch (token.getType()) {
                             case OPEN_TAG:
                                 if (Paragraph.isHeadingTag(token.getData())) {
-                                    headingFontSizeStack.push(currentFontSize);
-                                    currentFontSize = baseFontSize * Paragraph.getHeadingScale(token.getData());
+                                    headingFontSizeStack.push(currentBaseFontSize);
+                                    currentBaseFontSize = baseFontSize * Paragraph.getHeadingScale(token.getData());
+                                    currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
                                 } else if ("b".equals(token.getData())) {
                                     boldCounter++;
                                 } else if ("i".equals(token.getData())) {
@@ -872,11 +895,18 @@ public abstract class Table<T extends PDPage> {
                                     strikeThroughCounter++;
                                 } else if ("u".equals(token.getData())) {
                                     underlineCounter++;
+                                } else if ("sup".equals(token.getData())) {
+                                    superscriptDepth++;
+                                    currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
+                                } else if ("sub".equals(token.getData())) {
+                                    subscriptDepth++;
+                                    currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
                                 }
                                 break;
                             case CLOSE_TAG:
                                 if (Paragraph.isHeadingTag(token.getData())) {
-                                    currentFontSize = headingFontSizeStack.isEmpty() ? baseFontSize : headingFontSizeStack.pop();
+                                    currentBaseFontSize = headingFontSizeStack.isEmpty() ? baseFontSize : headingFontSizeStack.pop();
+                                    currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
                                 } else if ("b".equals(token.getData())) {
                                     boldCounter = Math.max(boldCounter - 1, 0);
                                 } else if ("i".equals(token.getData())) {
@@ -885,6 +915,16 @@ public abstract class Table<T extends PDPage> {
                                     strikeThroughCounter = Math.max(strikeThroughCounter - 1, 0);
                                 } else if ("u".equals(token.getData())) {
                                     underlineCounter = Math.max(underlineCounter - 1, 0);
+                                } else if ("sup".equals(token.getData())) {
+                                    if (superscriptDepth > 0) {
+                                        superscriptDepth--;
+                                        currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
+                                    }
+                                } else if ("sub".equals(token.getData())) {
+                                    if (subscriptDepth > 0) {
+                                        subscriptDepth--;
+                                        currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
+                                    }
                                 }
                                 break;
                             case PADDING:
@@ -898,7 +938,8 @@ public abstract class Table<T extends PDPage> {
                                     this.tableContentStream.showText(token.getData());
                                     cursorY += token.getWidth(currentFont) / 1000 * currentFontSize;
                                 } else {
-                                    this.tableContentStream.newLineAt(cursorX, cursorY);
+                                    float baselineOffset = getBaselineOffset(currentBaseFontSize, superscriptDepth, subscriptDepth);
+                                    this.tableContentStream.newLineAt(cursorX, cursorY + baselineOffset);
                                     this.tableContentStream.showText(token.getData());
                                     cursorX += token.getWidth(currentFont) / 1000 * currentFontSize;
                                 }
@@ -915,7 +956,8 @@ public abstract class Table<T extends PDPage> {
                                     // bullet, one for space after bullet)
                                     cursorY += 2 * widthOfSpace / 1000 * currentFontSize;
                                 } else {
-                                    PDStreamUtils.rect(tableContentStream, cursorX, cursorY + halfHeight,
+                                    float baselineOffset = getBaselineOffset(currentBaseFontSize, superscriptDepth, subscriptDepth);
+                                    PDStreamUtils.rect(tableContentStream, cursorX, cursorY + baselineOffset + halfHeight,
                                             token.getWidth(currentFont) / 1000 * currentFontSize,
                                             widthOfSpace / 1000 * currentFontSize,
                                             cell.getTextColor());
@@ -933,18 +975,19 @@ public abstract class Table<T extends PDPage> {
                                     cursorY += token.getWidth(currentFont) / 1000 * currentFontSize;
                                 } else {
                                     try {
-                                        this.tableContentStream.newLineAt(cursorX, cursorY);
+                                        float baselineOffset = getBaselineOffset(currentBaseFontSize, superscriptDepth, subscriptDepth);
+                                        this.tableContentStream.newLineAt(cursorX, cursorY + baselineOffset);
                                         this.tableContentStream.showText(token.getData());
                                         if (strikeThroughCounter > 0) {
                                             float textWidth = token.getWidth(currentFont) / 1000 * currentFontSize;
                                             float fontHeight = FontUtils.getHeight(currentFont, currentFontSize);
-                                            float strikethroughY = cursorY + fontHeight / 3;
+                                            float strikethroughY = cursorY + baselineOffset + fontHeight / 3;
                                             PDStreamUtils.rect(tableContentStream, cursorX, strikethroughY, textWidth, fontHeight / 15, cell.getTextColor());
                                         }
                                         if (underlineCounter > 0) {
                                             float textWidth = token.getWidth(currentFont) / 1000 * currentFontSize;
                                             float fontHeight = FontUtils.getHeight(currentFont, currentFontSize);
-                                            float underlineY = cursorY - fontHeight / 10;
+                                            float underlineY = cursorY + baselineOffset - fontHeight / 10;
                                             PDStreamUtils.rect(tableContentStream, cursorX, underlineY, textWidth, fontHeight / 15, cell.getTextColor());
                                         }
                                         cursorX += token.getWidth(currentFont) / 1000 * currentFontSize;
