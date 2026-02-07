@@ -133,11 +133,16 @@ Special Thanks to these awesome contributers :
 
 Copyright [2026](Quodlibet.be)
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+## License 
+**Source Code** : 
+Licensed under the Apache License, Version 2.0 (the "License");you may not use this file except in compliance with the License.You may obtain a copy of the License at  http://www.apache.org/licenses/LICENSE-2.0
 
-    http://www.apache.org/licenses/LICENSE-2.0
+**Bundled Fonts** : 
+Liberation Sans fonts are licensed under the SIL Open Font License 1.1. See `src/main/resources/fonts/LICENSE` for full details.
+
+By using this library, you agree to comply with both licenses.
+
+
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
