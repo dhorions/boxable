@@ -33,7 +33,51 @@ For other build systems, check the [Maven Central Repository](http://search.mave
 
 # Tutorial
 
-A tutorial is being created and will be accessible at https://github.com/dhorions/boxable/wiki.
+Comprehensive tutorials are now available in the test package! Each tutorial demonstrates specific features with well-documented, runnable examples:
+
+## Running the Tutorials
+
+You can run all tutorials at once using the Tutorial Runner:
+
+```bash
+mvn test -Dtest=TutorialRunner
+```
+
+Or run individual tutorials:
+
+```bash
+mvn test -Dtest=Tutorial01_BasicTable
+```
+
+All generated PDFs will be saved in the `target/tutorials/` directory.
+
+## Available Tutorials
+
+1. **Tutorial01_BasicTable** - Simple table creation, headers, and cell styling
+2. **Tutorial02_HtmlFormatting** - All supported HTML tags including `<sup>` and `<sub>`
+3. **Tutorial03_ColorsAndTransparency** - Cell colors, text colors, and alpha channel
+4. **Tutorial04_Alignment** - Horizontal and vertical text alignment
+5. **Tutorial05_Images** - Images in cells with scaling and padding control
+6. **Tutorial06_BordersAndStyling** - Border styles, colors, widths, and selective borders
+7. **Tutorial07_HeaderRows** - Single and multiple header rows with page repetition
+8. **Tutorial08_DataImport** - Import data from CSV and Java Lists
+9. **Tutorial09_MultiPageTables** - Large tables spanning multiple pages
+10. **Tutorial10_NestedTables** - Tables within cells using HTML `<table>` tags
+11. **Tutorial11_FixedHeightRows** - Fixed-height rows with auto-fit text
+12. **Tutorial12_AdvancedFeatures** - Rotated text, line spacing, and colspan
+
+## Tutorial Source Code
+
+All tutorial source code is available in `src/test/java/be/quodlibet/boxable/tutorial/`.
+
+Each tutorial is self-contained and includes:
+- Detailed JavaDoc comments explaining the demonstrated features
+- Well-structured, readable code
+- Generated PDF output for visual reference
+
+## Wiki Documentation
+
+Detailed documentation is being created and will be accessible at https://github.com/dhorions/boxable/wiki.
 If you want to help, please let us know  [here](https://github.com/dhorions/boxable/issues/41).
 
 # Usage examples
