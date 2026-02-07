@@ -128,6 +128,7 @@ Special Thanks to these awesome contributers :
 - [ZeerDonker](https://github.com/ZeerDonker)
 - [dobluth](https://github.com/dobluth)
 - [schmitzhermes](https://github.com/schmitzhermes)
+- [lambart](https://github.com/lambart)
 
 =======
 
