@@ -32,6 +32,25 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
 
 public abstract class Table<T extends PDPage> {
 
+    private static float applyScriptScale(float baseFontSize, int superscriptDepth, int subscriptDepth) {
+        int depth = Math.max(superscriptDepth, subscriptDepth);
+        float scaled = baseFontSize;
+        for (int i = 0; i < depth; i++) {
+            scaled *= Paragraph.SCRIPT_SCALE;
+        }
+        return scaled;
+    }
+
+    private static float getBaselineOffset(float baseFontSize, int superscriptDepth, int subscriptDepth) {
+        if (superscriptDepth > 0 && subscriptDepth == 0) {
+            return baseFontSize * Paragraph.SUPERSCRIPT_RISE;
+        }
+        if (subscriptDepth > 0 && superscriptDepth == 0) {
+            return -baseFontSize * Paragraph.SUBSCRIPT_DROP;
+        }
+        return 0f;
+    }
+
     public final PDDocument document;
     protected float margin;
 
@@ -53,6 +72,7 @@ public abstract class Table<T extends PDPage> {
     private boolean tableStartedAtNewPage = false;
     private boolean removeTopBorders = false;
     private boolean removeAllBorders = false;
+    private Row<T> previousDrawnRow = null;
     private LineStyle outerBorderStyle = null;
     private Float outerBorderStartY = null;
     private boolean outerBorderHasContent = false;
@@ -66,6 +86,7 @@ public abstract class Table<T extends PDPage> {
     protected final float pageBottomMargin;
 
     private boolean drawDebug;
+    private boolean startNewPageIfTableDoesNotFit = false;
 
     /**
      * @deprecated Use one of the constructors that pass a {@link PageProvider}
@@ -345,10 +366,23 @@ public abstract class Table<T extends PDPage> {
 
         calcWrapHeightsAndRowHeights();
 
+        if (startNewPageIfTableDoesNotFit) {
+            float totalHeight = getHeaderAndDataHeight();
+            float availableSpace = yStart - pageBottomMargin;
+            if (totalHeight > availableSpace) {
+                boolean isFreshPage = yStart >= (yStartNewPage - pageTopMargin - 10f);
+                if (!isFreshPage) {
+                    pageBreak();
+                    tableStartedAtNewPage = true;
+                }
+            }
+        }
+
         startOuterBorderSegment();
 
         // for the first row in the table, we have to draw the top border
         removeTopBorders = false;
+        previousDrawnRow = null;
 
         for (Row<T> row : rows) {
             if (header.contains(row)) {
@@ -497,6 +531,7 @@ public abstract class Table<T extends PDPage> {
             }
 
               outerBorderHasContent = true;
+            previousDrawnRow = row;
             yStart -= heightToDraw;
             
             if (splitRow) {
@@ -505,6 +540,7 @@ public abstract class Table<T extends PDPage> {
                  pageBreak();
                  tableStartedAtNewPage = true;
                  removeTopBorders = true;
+                 previousDrawnRow = null;
                  if (!header.isEmpty()) {
                      for (Row<T> headerRow : header) {
                          drawRow(headerRow); 
@@ -557,8 +593,8 @@ public abstract class Table<T extends PDPage> {
 
     protected void drawCellContent(Row<T> row, float rowHeight) throws IOException {
 
-        // position into first cell (horizontal)
-        float cursorX = margin;
+        // position into first cell (horizontal), applying row alignment offset
+        float cursorX = margin + row.getAlignmentOffset();
         float cursorY;
 
         for (Cell<T> cell : row.getCells()) {
@@ -795,8 +831,11 @@ public abstract class Table<T extends PDPage> {
                 int strikeThroughCounter = 0;
                 int underlineCounter = 0;
                 float baseFontSize = cell.getFontSize();
+                float currentBaseFontSize = baseFontSize;
                 float currentFontSize = baseFontSize;
                 Stack<Float> headingFontSizeStack = new Stack<>();
+                int superscriptDepth = 0;
+                int subscriptDepth = 0;
 
                 this.tableContentStream.setRotated(cell.isTextRotated());
 
@@ -858,8 +897,9 @@ public abstract class Table<T extends PDPage> {
                         switch (token.getType()) {
                             case OPEN_TAG:
                                 if (Paragraph.isHeadingTag(token.getData())) {
-                                    headingFontSizeStack.push(currentFontSize);
-                                    currentFontSize = baseFontSize * Paragraph.getHeadingScale(token.getData());
+                                    headingFontSizeStack.push(currentBaseFontSize);
+                                    currentBaseFontSize = baseFontSize * Paragraph.getHeadingScale(token.getData());
+                                    currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
                                 } else if ("b".equals(token.getData())) {
                                     boldCounter++;
                                 } else if ("i".equals(token.getData())) {
@@ -868,11 +908,18 @@ public abstract class Table<T extends PDPage> {
                                     strikeThroughCounter++;
                                 } else if ("u".equals(token.getData())) {
                                     underlineCounter++;
+                                } else if ("sup".equals(token.getData())) {
+                                    superscriptDepth++;
+                                    currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
+                                } else if ("sub".equals(token.getData())) {
+                                    subscriptDepth++;
+                                    currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
                                 }
                                 break;
                             case CLOSE_TAG:
                                 if (Paragraph.isHeadingTag(token.getData())) {
-                                    currentFontSize = headingFontSizeStack.isEmpty() ? baseFontSize : headingFontSizeStack.pop();
+                                    currentBaseFontSize = headingFontSizeStack.isEmpty() ? baseFontSize : headingFontSizeStack.pop();
+                                    currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
                                 } else if ("b".equals(token.getData())) {
                                     boldCounter = Math.max(boldCounter - 1, 0);
                                 } else if ("i".equals(token.getData())) {
@@ -881,6 +928,16 @@ public abstract class Table<T extends PDPage> {
                                     strikeThroughCounter = Math.max(strikeThroughCounter - 1, 0);
                                 } else if ("u".equals(token.getData())) {
                                     underlineCounter = Math.max(underlineCounter - 1, 0);
+                                } else if ("sup".equals(token.getData())) {
+                                    if (superscriptDepth > 0) {
+                                        superscriptDepth--;
+                                        currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
+                                    }
+                                } else if ("sub".equals(token.getData())) {
+                                    if (subscriptDepth > 0) {
+                                        subscriptDepth--;
+                                        currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
+                                    }
                                 }
                                 break;
                             case PADDING:
@@ -894,7 +951,8 @@ public abstract class Table<T extends PDPage> {
                                     this.tableContentStream.showText(token.getData());
                                     cursorY += token.getWidth(currentFont) / 1000 * currentFontSize;
                                 } else {
-                                    this.tableContentStream.newLineAt(cursorX, cursorY);
+                                    float baselineOffset = getBaselineOffset(currentBaseFontSize, superscriptDepth, subscriptDepth);
+                                    this.tableContentStream.newLineAt(cursorX, cursorY + baselineOffset);
                                     this.tableContentStream.showText(token.getData());
                                     cursorX += token.getWidth(currentFont) / 1000 * currentFontSize;
                                 }
@@ -911,7 +969,8 @@ public abstract class Table<T extends PDPage> {
                                     // bullet, one for space after bullet)
                                     cursorY += 2 * widthOfSpace / 1000 * currentFontSize;
                                 } else {
-                                    PDStreamUtils.rect(tableContentStream, cursorX, cursorY + halfHeight,
+                                    float baselineOffset = getBaselineOffset(currentBaseFontSize, superscriptDepth, subscriptDepth);
+                                    PDStreamUtils.rect(tableContentStream, cursorX, cursorY + baselineOffset + halfHeight,
                                             token.getWidth(currentFont) / 1000 * currentFontSize,
                                             widthOfSpace / 1000 * currentFontSize,
                                             cell.getTextColor());
@@ -929,18 +988,19 @@ public abstract class Table<T extends PDPage> {
                                     cursorY += token.getWidth(currentFont) / 1000 * currentFontSize;
                                 } else {
                                     try {
-                                        this.tableContentStream.newLineAt(cursorX, cursorY);
+                                        float baselineOffset = getBaselineOffset(currentBaseFontSize, superscriptDepth, subscriptDepth);
+                                        this.tableContentStream.newLineAt(cursorX, cursorY + baselineOffset);
                                         this.tableContentStream.showText(token.getData());
                                         if (strikeThroughCounter > 0) {
                                             float textWidth = token.getWidth(currentFont) / 1000 * currentFontSize;
                                             float fontHeight = FontUtils.getHeight(currentFont, currentFontSize);
-                                            float strikethroughY = cursorY + fontHeight / 3;
+                                            float strikethroughY = cursorY + baselineOffset + fontHeight / 3;
                                             PDStreamUtils.rect(tableContentStream, cursorX, strikethroughY, textWidth, fontHeight / 15, cell.getTextColor());
                                         }
                                         if (underlineCounter > 0) {
                                             float textWidth = token.getWidth(currentFont) / 1000 * currentFontSize;
                                             float fontHeight = FontUtils.getHeight(currentFont, currentFontSize);
-                                            float underlineY = cursorY - fontHeight / 10;
+                                            float underlineY = cursorY + baselineOffset - fontHeight / 10;
                                             PDStreamUtils.rect(tableContentStream, cursorX, underlineY, textWidth, fontHeight / 15, cell.getTextColor());
                                         }
                                         cursorX += token.getWidth(currentFont) / 1000 * currentFontSize;
@@ -976,7 +1036,71 @@ public abstract class Table<T extends PDPage> {
     }
 
     protected void drawVerticalLines(Row<T> row, float rowHeight) throws IOException {
-        float xStart = margin;
+        float alignmentOffset = row.getAlignmentOffset();
+        float xStart = margin + alignmentOffset;
+
+        // Draw top border lines in gap areas for RIGHT/CENTER aligned rows.
+        // LEFT-aligned rows don't need this: the last cell is visually stretched
+        // to fill the table width.
+        if (row.getRowAlignment() != HorizontalAlignment.LEFT && !row.getCells().isEmpty()) {
+            float totalCellsWidth = row.getTotalCellsWidth();
+            float cellsEndX = xStart + totalCellsWidth;
+            float tableEndX = margin + width;
+
+            Cell<T> firstCell = row.getCells().get(0);
+            Cell<T> lastCell = row.getCells().get(row.getCells().size() - 1);
+
+            // Left gap
+            if (xStart > margin) {
+                LineStyle border = firstCell.getTopBorder();
+                if (border != null) {
+                    drawGapLine(margin, xStart, yStart - border.getWidth() / 2, border);
+                } else if (previousDrawnRow != null) {
+                    LineStyle prevBorder = getCellBottomBorderCoveringX(previousDrawnRow, margin);
+                    if (prevBorder != null) {
+                        drawGapLine(margin, xStart, yStart + prevBorder.getWidth() / 2, prevBorder);
+                    }
+                }
+            }
+
+            // Right gap
+            if (cellsEndX < tableEndX) {
+                LineStyle border = lastCell.getTopBorder();
+                if (border != null) {
+                    drawGapLine(cellsEndX, tableEndX, yStart - border.getWidth() / 2, border);
+                } else if (previousDrawnRow != null) {
+                    LineStyle prevBorder = getCellBottomBorderCoveringX(previousDrawnRow, cellsEndX);
+                    if (prevBorder != null) {
+                        drawGapLine(cellsEndX, tableEndX, yStart + prevBorder.getWidth() / 2, prevBorder);
+                    }
+                }
+            }
+        }
+
+        // Draw bottom border lines in gaps from the PREVIOUS row.
+        // When cells don't fill the full width, the bottom borders only cover
+        // the cell area. We extend them here so the next row has a continuous border.
+        if (previousDrawnRow != null && !previousDrawnRow.getCells().isEmpty()) {
+            float prevOffset = previousDrawnRow.getAlignmentOffset();
+            float prevCellsStartX = margin + prevOffset;
+            float prevCellsEndX = prevCellsStartX + previousDrawnRow.getTotalCellsWidth();
+            float tableEndX = margin + width;
+
+            if (prevCellsStartX > margin) {
+                LineStyle border = previousDrawnRow.getCells().get(0).getBottomBorder();
+                if (border != null) {
+                    drawGapLine(margin, prevCellsStartX, yStart + border.getWidth() / 2, border);
+                }
+            }
+
+            if (prevCellsEndX < tableEndX) {
+                LineStyle border = previousDrawnRow.getCells()
+                        .get(previousDrawnRow.getCells().size() - 1).getBottomBorder();
+                if (border != null) {
+                    drawGapLine(prevCellsEndX, tableEndX, yStart + border.getWidth() / 2, border);
+                }
+            }
+        }
 
         Iterator<Cell<T>> cellIterator = row.getCells().iterator();
         Cell<T> previousCell = null;
@@ -985,7 +1109,7 @@ public abstract class Table<T extends PDPage> {
 
             float cellWidth = cellIterator.hasNext()
                     ? cell.getWidth()
-                    : this.width - (xStart - margin);
+                    : row.getLastCellLayoutWidth(this.width);
             boolean drawLeftBorder = previousCell == null || previousCell.getRightBorder() == null;
             drawCellBorders(rowHeight, cell, xStart, drawLeftBorder);
 
@@ -996,20 +1120,42 @@ public abstract class Table<T extends PDPage> {
     }
 
     protected void fillRowCellColors(Row<T> row, float rowHeight) throws IOException {
-        float xStart = margin;
+        float xStart = margin + row.getAlignmentOffset();
 
         Iterator<Cell<T>> cellIterator = row.getCells().iterator();
         while (cellIterator.hasNext()) {
             Cell<T> cell = cellIterator.next();
 
             float layoutWidth = cellIterator.hasNext()
-                ? cell.getWidth()
-                : this.width - (xStart - margin);
+                    ? cell.getWidth()
+                    : row.getLastCellLayoutWidth(this.width);
             float fillWidth = Math.min(cell.getWidth(), layoutWidth);
             fillCellColor(cell, yStart, xStart, rowHeight, fillWidth);
 
             xStart += layoutWidth;
         }
+    }
+
+    /**
+     * Draws a horizontal border line across a gap area (where no cells exist).
+     */
+    private void drawGapLine(float fromX, float toX, float y, LineStyle border) throws IOException {
+        drawLine(fromX, y, toX, y, border);
+    }
+
+    /**
+     * Returns the bottom border style of the cell in the given row that covers
+     * the specified X coordinate, or {@code null} if no cell covers that position.
+     */
+    private LineStyle getCellBottomBorderCoveringX(Row<T> row, float x) {
+        float cellX = margin + row.getAlignmentOffset();
+        for (Cell<T> cell : row.getCells()) {
+            if (x >= cellX && x < cellX + cell.getWidth()) {
+                return cell.getBottomBorder();
+            }
+            cellX += cell.getWidth();
+        }
+        return null;
     }
 
     protected void drawCellBorders(float rowHeight, Cell<T> cell, float xStart, boolean drawLeftBorder) throws IOException {
@@ -1305,6 +1451,19 @@ public abstract class Table<T extends PDPage> {
      */
     public boolean isDrawDebug() {
         return drawDebug;
+    }
+
+    /**
+     * <p>
+     * Sets whether the table should start on a new page if the content doesn't fit
+     * on the current page.
+     * </p>
+     *
+     * @param startNewPageIfTableDoesNotFit
+     *            {@code true} to start on a new page if insufficient space
+     */
+    public void setStartNewPageIfTableDoesNotFit(boolean startNewPageIfTableDoesNotFit) {
+        this.startNewPageIfTableDoesNotFit = startNewPageIfTableDoesNotFit;
     }
 
     /**

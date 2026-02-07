@@ -260,8 +260,11 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 		int boldCounter = 0;
 		int italicCounter = 0;
 		float baseFontSize = getFontSize();
+		float currentBaseFontSize = baseFontSize;
 		float currentFontSize = baseFontSize;
 		java.util.Stack<Float> headingFontSizeStack = new java.util.Stack<>();
+		int superscriptDepth = 0;
+		int subscriptDepth = 0;
 
 		if (!onlyCalculateHeight) {
 			tableCellContentStream.setRotated(isTextRotated());
@@ -311,21 +314,39 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 				switch (token.getType()) {
 				case OPEN_TAG:
 					if (Paragraph.isHeadingTag(token.getData())) {
-						headingFontSizeStack.push(currentFontSize);
-						currentFontSize = baseFontSize * Paragraph.getHeadingScale(token.getData());
+						headingFontSizeStack.push(currentBaseFontSize);
+						currentBaseFontSize = baseFontSize * Paragraph.getHeadingScale(token.getData());
+						currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
 					} else if ("b".equals(token.getData())) {
 						boldCounter++;
 					} else if ("i".equals(token.getData())) {
 						italicCounter++;
+					} else if ("sup".equals(token.getData())) {
+						superscriptDepth++;
+						currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
+					} else if ("sub".equals(token.getData())) {
+						subscriptDepth++;
+						currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
 					}
 					break;
 				case CLOSE_TAG:
 					if (Paragraph.isHeadingTag(token.getData())) {
-						currentFontSize = headingFontSizeStack.isEmpty() ? baseFontSize : headingFontSizeStack.pop();
+						currentBaseFontSize = headingFontSizeStack.isEmpty() ? baseFontSize : headingFontSizeStack.pop();
+						currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
 					} else if ("b".equals(token.getData())) {
 						boldCounter = Math.max(boldCounter - 1, 0);
 					} else if ("i".equals(token.getData())) {
 						italicCounter = Math.max(italicCounter - 1, 0);
+					} else if ("sup".equals(token.getData())) {
+						if (superscriptDepth > 0) {
+							superscriptDepth--;
+							currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
+						}
+					} else if ("sub".equals(token.getData())) {
+						if (subscriptDepth > 0) {
+							subscriptDepth--;
+							currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
+						}
 					}
 					break;
 				case PADDING:
@@ -344,7 +365,8 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 					} else {
 						// if it is not calculation then draw it
 						if (!onlyCalculateHeight) {
-							tableCellContentStream.newLineAt(cursorX, cursorY);
+							float baselineOffset = getBaselineOffset(currentBaseFontSize, superscriptDepth, subscriptDepth);
+							tableCellContentStream.newLineAt(cursorX, cursorY + baselineOffset);
 							tableCellContentStream.showText(token.getData());
 						}
 						cursorX += token.getWidth(currentFont) / 1000 * currentFontSize;
@@ -364,7 +386,8 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 						cursorY += 2 * widthOfSpace / 1000 * currentFontSize;
 					} else {
 						if (!onlyCalculateHeight) {
-							PDStreamUtils.rect(tableCellContentStream, cursorX, cursorY + halfHeight,
+							float baselineOffset = getBaselineOffset(currentBaseFontSize, superscriptDepth, subscriptDepth);
+							PDStreamUtils.rect(tableCellContentStream, cursorX, cursorY + baselineOffset + halfHeight,
 									token.getWidth(currentFont) / 1000 * currentFontSize,
 									widthOfSpace / 1000 * currentFontSize, getTextColor());
 						}
@@ -384,7 +407,8 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 						cursorY += token.getWidth(currentFont) / 1000 * currentFontSize;
 					} else {
 						if (!onlyCalculateHeight) {
-							tableCellContentStream.newLineAt(cursorX, cursorY);
+							float baselineOffset = getBaselineOffset(currentBaseFontSize, superscriptDepth, subscriptDepth);
+							tableCellContentStream.newLineAt(cursorX, cursorY + baselineOffset);
 							tableCellContentStream.showText(token.getData());
 						}
 						cursorX += token.getWidth(currentFont) / 1000 * currentFontSize;
@@ -397,6 +421,25 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			cursorY -= paragraph.getLineHeight(entry.getKey()) * paragraph.getLineSpacing();
 		}
 		return cursorY;
+	}
+
+	private static float applyScriptScale(float baseFontSize, int superscriptDepth, int subscriptDepth) {
+		int depth = Math.max(superscriptDepth, subscriptDepth);
+		float scaled = baseFontSize;
+		for (int i = 0; i < depth; i++) {
+			scaled *= Paragraph.SCRIPT_SCALE;
+		}
+		return scaled;
+	}
+
+	private static float getBaselineOffset(float baseFontSize, int superscriptDepth, int subscriptDepth) {
+		if (superscriptDepth > 0 && subscriptDepth == 0) {
+			return baseFontSize * Paragraph.SUPERSCRIPT_RISE;
+		}
+		if (subscriptDepth > 0 && superscriptDepth == 0) {
+			return -baseFontSize * Paragraph.SUBSCRIPT_DROP;
+		}
+		return 0f;
 	}
 
 	/**

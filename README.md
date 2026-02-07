@@ -1,33 +1,31 @@
-[Boxable](http://dhorions.github.io/boxable/) - A java library to build tables in PDF documents.
-=======
-
+[Boxable](http://dhorions.github.io/boxable/) - A Java library to build tables in PDF documents.
 
 [![Java CI with Maven](https://github.com/dhorions/boxable/actions/workflows/maven.yml/badge.svg?branch=master)](https://github.com/dhorions/boxable/actions/workflows/maven.yml)
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5UL3NVLA852MN&source=url)
 
-Boxable is a library that can be used to easily create tables in pdf documents.  It uses the [PDFBox](https://pdfbox.apache.org/) PDF library under the hood.
+Boxable is a library that can be used to easily create tables in PDF documents. It uses the [PDFBox](https://pdfbox.apache.org/) PDF library under the hood.
 
 # Features
 
-- Build tables in pdf documents
-- Convert csv data into tables in pdf documents
-- Convert Lists into tables in pdf documents
+- Build tables in PDF documents
+- Convert CSV data into tables in PDF documents
+- Convert Lists into tables in PDF documents
 
-#### Boxable supports next tables features
-- HTML tags in cell content (not all! `<p>,<i>,<b>,<br>,<ul>,<ol>,<li>,<u>,<s>,<h1>-<h6>`)
+#### Boxable supports the following table features
+- HTML tags in cell content (not all! `<p>,<i>,<b>,<br>,<ul>,<ol>,<li>,<u>,<s>,<h1>-<h6>,<sup>,<sub>`)
 - Horizontal & Vertical Alignment of the text
 - Images inside cells and outside table (image scale is also supported)
-- basic set of rendering attributes for lines (borders)
-- rotated text (by 90 degrees)
-- writing text outside tables
-- Inner tables using html `<table>`
+- Basic set of rendering attributes for lines (borders)
+- Rotated text (by 90 degrees)
+- Writing text outside tables
+- Inner tables using HTML `<table>`
 
 # Maven
 ```xml
 <dependency>
     <groupId>com.github.dhorions</groupId>
     <artifactId>boxable</artifactId>
-    <version>1.8.1</version>
+    <version>1.8.2-RC1</version>
 </dependency>
 ```
 For other build systems, check the [Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22boxable%22).
@@ -40,7 +38,7 @@ If you want to help, please let us know  [here](https://github.com/dhorions/boxa
 
 # Usage examples
 
-## Create a pdf from a csv file 
+## Create a PDF from a CSV file 
 
 ```java
 String data = readData("https://s3.amazonaws.com/misc.quodlibet.be/Boxable/Eurostat_Immigration_Applications.csv");
@@ -51,7 +49,7 @@ pdfTable.draw();
 ```
 Output : [CSVExamplePortrait.pdf](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/CSVexamplePortrait.pdf)
 
-## Create a pdf from a List
+## Create a PDF from a List
 
 ```java
 List<List> data = new ArrayList();
@@ -68,7 +66,7 @@ dataTable.draw();
 ```
 Output : [ListExampleLandscape.pdf](https://s3.amazonaws.com/misc.quodlibet.be/Boxable/ListExampleLandscape.pdf)
 
-## Build tables in pdf documents
+## Build tables in PDF documents
 
 ```java
 BaseTable table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true,
@@ -116,7 +114,7 @@ flexibleRow.createCell(70, "Some value that should keep its font size and expand
 table.draw();
 ```
 
-Special Thanks to these awesome contributers : 
+Special Thanks to these awesome contributors : 
 - [@joaemel](https://github.com/joaemel)
 - [@johnmanko](https://github.com/johnmanko)
 - [@Vobarian](https://github.com/vobarian)
@@ -128,16 +126,21 @@ Special Thanks to these awesome contributers :
 - [ZeerDonker](https://github.com/ZeerDonker)
 - [dobluth](https://github.com/dobluth)
 - [schmitzhermes](https://github.com/schmitzhermes)
+- [lambart](https://github.com/lambart)
 
-=======
+## License 
 
-Copyright [2026](Quodlibet.be)
+Copyright 2026 [Quodlibet.be](https://www.quodlibet.be)
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+**Source Code** : 
+Licensed under the Apache License, Version 2.0 (the "License");you may not use this file except in compliance with the License.You may obtain a copy of the License at  http://www.apache.org/licenses/LICENSE-2.0
 
-    http://www.apache.org/licenses/LICENSE-2.0
+**Bundled Fonts** : 
+Liberation Sans fonts are licensed under the SIL Open Font License 1.1. See `src/main/resources/fonts/LICENSE` for full details.
+
+By using this library, you agree to comply with both licenses.
+
+
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,

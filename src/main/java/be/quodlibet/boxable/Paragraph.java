@@ -27,6 +27,9 @@ import be.quodlibet.boxable.utils.PDStreamUtils;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
 public class Paragraph {
+	public static final float SCRIPT_SCALE = 0.6f;
+	public static final float SUPERSCRIPT_RISE = 0.35f;
+	public static final float SUBSCRIPT_DROP = 0.2f;
 
 	private float width;
 	private final String text;
@@ -130,11 +133,14 @@ public class Paragraph {
 		boolean listElement = false;
 		PDFont currentFont = font;
 		float currentFontSize = fontSize;
+		float currentBaseFontSize = fontSize;
 		int orderListElement = 1;
 		int numberOfOrderedLists = 0;
 		int listLevel = 0;
 		Stack<HTMLListNode> stack= new Stack<>();
 		Stack<Float> headingFontSizeStack = new Stack<>();
+		int superscriptDepth = 0;
+		int subscriptDepth = 0;
 
 		final PipelineLayer textInLine = new PipelineLayer();
 		final PipelineLayer sinceLastWrapPoint = new PipelineLayer();
@@ -147,14 +153,21 @@ public class Paragraph {
 			switch (token.getType()) {
 			case OPEN_TAG:
 				if (isHeading(token)) {
-					headingFontSizeStack.push(currentFontSize);
-					currentFontSize = fontSize * getHeadingScale(token.getData());
+					headingFontSizeStack.push(currentBaseFontSize);
+					currentBaseFontSize = fontSize * getHeadingScale(token.getData());
+					currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
 				} else if (isBold(token)) {
 					bold = true;
 					currentFont = getFont(bold, italic);
 				} else if (isItalic(token)) {
 					italic = true;
 					currentFont = getFont(bold, italic);
+				} else if (isSuperscript(token)) {
+					superscriptDepth++;
+					currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
+				} else if (isSubscript(token)) {
+					subscriptDepth++;
+					currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
 				} else if (isList(token)) {
 					listLevel++;
 					if (token.getData().equals("ol")) {
@@ -221,7 +234,20 @@ public class Paragraph {
 					currentFont = getFont(bold, italic);
 					sinceLastWrapPoint.push(token);
 				} else if (isHeading(token)) {
-					currentFontSize = headingFontSizeStack.isEmpty() ? fontSize : headingFontSizeStack.pop();
+					currentBaseFontSize = headingFontSizeStack.isEmpty() ? fontSize : headingFontSizeStack.pop();
+					currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
+					sinceLastWrapPoint.push(token);
+				} else if (isSuperscript(token)) {
+					if (superscriptDepth > 0) {
+						superscriptDepth--;
+						currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
+					}
+					sinceLastWrapPoint.push(token);
+				} else if (isSubscript(token)) {
+					if (subscriptDepth > 0) {
+						subscriptDepth--;
+						currentFontSize = applyScriptScale(currentBaseFontSize, superscriptDepth, subscriptDepth);
+					}
 					sinceLastWrapPoint.push(token);
 				} else if (isList(token)) {
 					listLevel--;
@@ -485,14 +511,16 @@ public class Paragraph {
 							}
 							textInLine.push(currentFont, currentFontSize, Token.text(TokenType.ORDERING, orderingNumber));
 							textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight,
-									FontUtils.getHeight(currentFont, currentFontSize));
+									getScriptAdjustedHeight(currentFont, currentFontSize, currentBaseFontSize,
+											superscriptDepth, subscriptDepth));
 							textInLineMaxFontSize = Math.max(textInLineMaxFontSize, currentFontSize);
 							orderListElement++;
 						} else {
 							// if it's unordered list then just move by bullet character (take care of alignment!)
 							textInLine.push(currentFont, currentFontSize, Token.text(TokenType.BULLET, " "));
 							textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight,
-									FontUtils.getHeight(currentFont, currentFontSize));
+									getScriptAdjustedHeight(currentFont, currentFontSize, currentBaseFontSize,
+											superscriptDepth, subscriptDepth));
 							textInLineMaxFontSize = Math.max(textInLineMaxFontSize, currentFontSize);
 						}
 					} catch (IOException e) {
@@ -601,7 +629,8 @@ public class Paragraph {
 						sinceLastWrapPoint.push(currentFont, currentFontSize,
 								Token.text(TokenType.TEXT, firstPartOfWord.toString()));
 						sinceLastWrapPointMaxFontHeight = Math.max(sinceLastWrapPointMaxFontHeight,
-								FontUtils.getHeight(currentFont, currentFontSize));
+								getScriptAdjustedHeight(currentFont, currentFontSize, currentBaseFontSize,
+										superscriptDepth, subscriptDepth));
 						sinceLastWrapPointMaxFontSize = Math.max(sinceLastWrapPointMaxFontSize, currentFontSize);
 						textInLine.push(sinceLastWrapPoint);
 						textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight, sinceLastWrapPointMaxFontHeight);
@@ -626,12 +655,14 @@ public class Paragraph {
 						}
 						sinceLastWrapPoint.push(currentFont, currentFontSize, Token.text(TokenType.TEXT, word));
 						sinceLastWrapPointMaxFontHeight = Math.max(sinceLastWrapPointMaxFontHeight,
-								FontUtils.getHeight(currentFont, currentFontSize));
+								getScriptAdjustedHeight(currentFont, currentFontSize, currentBaseFontSize,
+										superscriptDepth, subscriptDepth));
 						sinceLastWrapPointMaxFontSize = Math.max(sinceLastWrapPointMaxFontSize, currentFontSize);
 					} else {
 						sinceLastWrapPoint.push(currentFont, currentFontSize, token);
 						sinceLastWrapPointMaxFontHeight = Math.max(sinceLastWrapPointMaxFontHeight,
-								FontUtils.getHeight(currentFont, currentFontSize));
+								getScriptAdjustedHeight(currentFont, currentFontSize, currentBaseFontSize,
+										superscriptDepth, subscriptDepth));
 						sinceLastWrapPointMaxFontSize = Math.max(sinceLastWrapPointMaxFontSize, currentFontSize);
 					}
 
@@ -668,6 +699,14 @@ public class Paragraph {
 
 	private static boolean isBold(final Token token) {
 		return "b".equals(token.getData());
+	}
+
+	private static boolean isSuperscript(final Token token) {
+		return "sup".equals(token.getData());
+	}
+
+	private static boolean isSubscript(final Token token) {
+		return "sub".equals(token.getData());
 	}
 
 	static boolean isHeadingTag(final String tag) {
@@ -708,6 +747,28 @@ public class Paragraph {
 
 	private static boolean isList(final Token token) {
 		return "ul".equals(token.getData()) || "ol".equals(token.getData());
+	}
+
+	private static float applyScriptScale(float baseFontSize, int superscriptDepth, int subscriptDepth) {
+		int depth = Math.max(superscriptDepth, subscriptDepth);
+		float scaled = baseFontSize;
+		for (int i = 0; i < depth; i++) {
+			scaled *= SCRIPT_SCALE;
+		}
+		return scaled;
+	}
+
+	private static float getScriptAdjustedHeight(PDFont font, float fontSize, float baseFontSize,
+			int superscriptDepth, int subscriptDepth) {
+		float height = FontUtils.getHeight(font, fontSize);
+		if (superscriptDepth > 0 && subscriptDepth == 0) {
+			height += baseFontSize * SUPERSCRIPT_RISE;
+		} else if (subscriptDepth > 0 && superscriptDepth == 0) {
+			height += baseFontSize * SUBSCRIPT_DROP;
+		} else if (superscriptDepth > 0) {
+			height += baseFontSize * (SUPERSCRIPT_RISE + SUBSCRIPT_DROP);
+		}
+		return height;
 	}
 
 	private float indentLevel(int numberOfSpaces) throws IOException {

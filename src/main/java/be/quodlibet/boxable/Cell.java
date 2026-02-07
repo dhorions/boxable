@@ -23,6 +23,7 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
+import be.quodlibet.boxable.utils.UnitConverter;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
 public class Cell<T extends PDPage> {
@@ -313,6 +314,58 @@ public class Cell<T extends PDPage> {
 	 */
 	public void setFontSize(float fontSize) {
 		this.fontSize = fontSize;
+
+		// paragraph invalidated
+		paragraph = null;
+	}
+
+	/**
+	 * <p>
+	 * Gets {@link PDFont} size for current cell in millimeters.
+	 * </p>
+	 *
+	 * @return {@link PDFont} size for current cell in millimeters.
+	 */
+	public float getFontSizeMm() {
+		return UnitConverter.pointsToMm(fontSize);
+	}
+
+	/**
+	 * <p>
+	 * Sets {@link PDFont} size for current cell in millimeters.
+	 * </p>
+	 *
+	 * @param fontSizeMm
+	 *            {@link PDFont} size for current cell in millimeters.
+	 */
+	public void setFontSizeMm(float fontSizeMm) {
+		this.fontSize = UnitConverter.mmToPoints(fontSizeMm);
+
+		// paragraph invalidated
+		paragraph = null;
+	}
+
+	/**
+	 * <p>
+	 * Gets {@link PDFont} size for current cell in centimeters.
+	 * </p>
+	 *
+	 * @return {@link PDFont} size for current cell in centimeters.
+	 */
+	public float getFontSizeCm() {
+		return UnitConverter.pointsToCm(fontSize);
+	}
+
+	/**
+	 * <p>
+	 * Sets {@link PDFont} size for current cell in centimeters.
+	 * </p>
+	 *
+	 * @param fontSizeCm
+	 *            {@link PDFont} size for current cell in centimeters.
+	 */
+	public void setFontSizeCm(float fontSizeCm) {
+		this.fontSize = UnitConverter.cmToPoints(fontSizeCm);
 
 		// paragraph invalidated
 		paragraph = null;
