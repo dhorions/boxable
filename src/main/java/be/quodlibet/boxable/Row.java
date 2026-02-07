@@ -24,6 +24,7 @@ public class Row<T extends PDPage> {
 	float height;
 	private float lineSpacing = 1;
 	private float wrapHeight = -1;
+	private HorizontalAlignment rowAlignment = HorizontalAlignment.LEFT;
 
 	Row(Table<T> table, List<Cell<T>> cells, float height) {
 		this.table = table;
@@ -377,6 +378,78 @@ public class Row<T extends PDPage> {
 	 */
 	public float xEnd() {
 		return table.getMargin() + getWidth();
+	}
+
+	/**
+	 * <p>
+	 * Returns the horizontal alignment of this row within the table.
+	 * When set to {@link HorizontalAlignment#RIGHT}, the row's cells are
+	 * anchored to the right edge of the table. When set to
+	 * {@link HorizontalAlignment#CENTER}, the row is centered.
+	 * Default is {@link HorizontalAlignment#LEFT}.
+	 * </p>
+	 *
+	 * @return The row's horizontal alignment
+	 */
+	public HorizontalAlignment getRowAlignment() {
+		return rowAlignment;
+	}
+
+	/**
+	 * <p>
+	 * Sets the horizontal alignment of this row within the table.
+	 * Use {@link HorizontalAlignment#RIGHT} to right-anchor the row,
+	 * {@link HorizontalAlignment#CENTER} to center it, or
+	 * {@link HorizontalAlignment#LEFT} for default left alignment.
+	 * </p>
+	 *
+	 * @param rowAlignment
+	 *            The horizontal alignment to apply to this row
+	 */
+	public void setRowAlignment(HorizontalAlignment rowAlignment) {
+		this.rowAlignment = rowAlignment;
+	}
+
+	/**
+	 * <p>
+	 * Computes the total width of all cells in this row.
+	 * This may be less than the table width if cells don't fill the full width.
+	 * </p>
+	 *
+	 * @return Sum of all cell widths in points
+	 */
+	public float getTotalCellsWidth() {
+		float totalWidth = 0;
+		for (Cell<T> cell : cells) {
+			totalWidth += cell.getWidth();
+		}
+		return totalWidth;
+	}
+
+	/**
+	 * <p>
+	 * Computes the X offset for this row based on its alignment.
+	 * For LEFT alignment, offset is 0. For RIGHT, it shifts cells to the right.
+	 * For CENTER, it centers the cells within the table width.
+	 * </p>
+	 *
+	 * @return X offset in points
+	 */
+	float getAlignmentOffset() {
+		float totalCellsWidth = getTotalCellsWidth();
+		float tableWidth = getWidth();
+		float gap = tableWidth - totalCellsWidth;
+		if (gap <= 0) {
+			return 0;
+		}
+		switch (rowAlignment) {
+			case RIGHT:
+				return gap;
+			case CENTER:
+				return gap / 2;
+			default:
+				return 0;
+		}
 	}
 
 	/**

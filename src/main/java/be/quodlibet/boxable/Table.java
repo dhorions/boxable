@@ -53,6 +53,7 @@ public abstract class Table<T extends PDPage> {
     private boolean tableStartedAtNewPage = false;
     private boolean removeTopBorders = false;
     private boolean removeAllBorders = false;
+    private Row<T> previousDrawnRow = null;
     private LineStyle outerBorderStyle = null;
     private Float outerBorderStartY = null;
     private boolean outerBorderHasContent = false;
@@ -349,6 +350,7 @@ public abstract class Table<T extends PDPage> {
 
         // for the first row in the table, we have to draw the top border
         removeTopBorders = false;
+        previousDrawnRow = null;
 
         for (Row<T> row : rows) {
             if (header.contains(row)) {
@@ -497,6 +499,7 @@ public abstract class Table<T extends PDPage> {
             }
 
               outerBorderHasContent = true;
+            previousDrawnRow = row;
             yStart -= heightToDraw;
             
             if (splitRow) {
@@ -505,6 +508,7 @@ public abstract class Table<T extends PDPage> {
                  pageBreak();
                  tableStartedAtNewPage = true;
                  removeTopBorders = true;
+                 previousDrawnRow = null;
                  if (!header.isEmpty()) {
                      for (Row<T> headerRow : header) {
                          drawRow(headerRow); 
@@ -557,8 +561,8 @@ public abstract class Table<T extends PDPage> {
 
     protected void drawCellContent(Row<T> row, float rowHeight) throws IOException {
 
-        // position into first cell (horizontal)
-        float cursorX = margin;
+        // position into first cell (horizontal), applying row alignment offset
+        float cursorX = margin + row.getAlignmentOffset();
         float cursorY;
 
         for (Cell<T> cell : row.getCells()) {
@@ -976,16 +980,103 @@ public abstract class Table<T extends PDPage> {
     }
 
     protected void drawVerticalLines(Row<T> row, float rowHeight) throws IOException {
-        float xStart = margin;
+        float alignmentOffset = row.getAlignmentOffset();
+        float xStart = margin + alignmentOffset;
+
+        // Draw border lines in gap areas for RIGHT/CENTER aligned rows.
+        // LEFT-aligned rows don't need gap borders: the last cell is visually
+        // stretched to fill the table width, and adjacent full-width rows' borders
+        // already cover any gap areas.
+        boolean hasGap = row.getRowAlignment() != HorizontalAlignment.LEFT;
+        if (hasGap && !row.getCells().isEmpty()) {
+            float totalCellsWidth = row.getTotalCellsWidth();
+            float cellsStartX = margin + alignmentOffset;
+            float cellsEndX = cellsStartX + totalCellsWidth;
+            float tableStartX = margin;
+            float tableEndX = margin + width;
+
+            Cell<T> firstCell = row.getCells().get(0);
+            Cell<T> lastCell = row.getCells().get(row.getCells().size() - 1);
+
+            // Left gap (RIGHT or CENTER alignment)
+            if (cellsStartX > tableStartX) {
+                LineStyle border = firstCell.getTopBorder();
+                if (border != null) {
+                    float y = yStart - border.getWidth() / 2;
+                    drawLine(tableStartX, y, cellsStartX, y, border);
+                } else if (previousDrawnRow != null) {
+                    LineStyle prevBorder = getCellBottomBorderCoveringX(previousDrawnRow, tableStartX);
+                    if (prevBorder != null) {
+                        float y = yStart + prevBorder.getWidth() / 2;
+                        drawLine(tableStartX, y, cellsStartX, y, prevBorder);
+                    }
+                }
+            }
+
+            // Right gap (LEFT-with-partial-width or CENTER alignment)
+            if (cellsEndX < tableEndX) {
+                LineStyle border = lastCell.getTopBorder();
+                if (border != null) {
+                    float y = yStart - border.getWidth() / 2;
+                    drawLine(cellsEndX, y, tableEndX, y, border);
+                } else if (previousDrawnRow != null) {
+                    LineStyle prevBorder = getCellBottomBorderCoveringX(previousDrawnRow, cellsEndX);
+                    if (prevBorder != null) {
+                        float y = yStart + prevBorder.getWidth() / 2;
+                        drawLine(cellsEndX, y, tableEndX, y, prevBorder);
+                    }
+                }
+            }
+        }
+
+        // Handle gaps from the PREVIOUS row's alignment.
+        // For RIGHT/CENTER: gaps on sides where no cells exist.
+        // For LEFT: gap on the right when cells don't fill the table width
+        //   (only the bottom border — the previous row's cells' bottom borders
+        //    don't cover the gap, so we extend them here for the next row).
+        if (previousDrawnRow != null) {
+            float prevTotalCellsWidth = previousDrawnRow.getTotalCellsWidth();
+            float prevOffset = previousDrawnRow.getAlignmentOffset();
+            float prevCellsStartX = margin + prevOffset;
+            float prevCellsEndX = prevCellsStartX + prevTotalCellsWidth;
+            float tableStartX = margin;
+            float tableEndX = margin + width;
+
+            // Left gap of previous row
+            if (prevCellsStartX > tableStartX && !previousDrawnRow.getCells().isEmpty()) {
+                LineStyle border = previousDrawnRow.getCells().get(0).getBottomBorder();
+                if (border != null) {
+                    float y = yStart + border.getWidth() / 2;
+                    drawLine(tableStartX, y, prevCellsStartX, y, border);
+                }
+            }
+
+            // Right gap of previous row
+            if (prevCellsEndX < tableEndX && !previousDrawnRow.getCells().isEmpty()) {
+                LineStyle border = previousDrawnRow.getCells()
+                        .get(previousDrawnRow.getCells().size() - 1).getBottomBorder();
+                if (border != null) {
+                    float y = yStart + border.getWidth() / 2;
+                    drawLine(prevCellsEndX, y, tableEndX, y, border);
+                }
+            }
+        }
 
         Iterator<Cell<T>> cellIterator = row.getCells().iterator();
         Cell<T> previousCell = null;
         while (cellIterator.hasNext()) {
             Cell<T> cell = cellIterator.next();
 
-            float cellWidth = cellIterator.hasNext()
-                    ? cell.getWidth()
-                    : this.width - (xStart - margin);
+            float cellWidth;
+            if (cellIterator.hasNext()) {
+                cellWidth = cell.getWidth();
+            } else if (row.getRowAlignment() == HorizontalAlignment.LEFT) {
+                // For left-aligned rows, stretch last cell to fill remaining table width
+                cellWidth = this.width - (xStart - margin);
+            } else {
+                // For right/center aligned rows, use natural cell width
+                cellWidth = cell.getWidth();
+            }
             boolean drawLeftBorder = previousCell == null || previousCell.getRightBorder() == null;
             drawCellBorders(rowHeight, cell, xStart, drawLeftBorder);
 
@@ -996,20 +1087,42 @@ public abstract class Table<T extends PDPage> {
     }
 
     protected void fillRowCellColors(Row<T> row, float rowHeight) throws IOException {
-        float xStart = margin;
+        float xStart = margin + row.getAlignmentOffset();
 
         Iterator<Cell<T>> cellIterator = row.getCells().iterator();
         while (cellIterator.hasNext()) {
             Cell<T> cell = cellIterator.next();
 
-            float layoutWidth = cellIterator.hasNext()
-                ? cell.getWidth()
-                : this.width - (xStart - margin);
+            float layoutWidth;
+            if (cellIterator.hasNext()) {
+                layoutWidth = cell.getWidth();
+            } else if (row.getRowAlignment() == HorizontalAlignment.LEFT) {
+                // For left-aligned rows, stretch last cell to fill remaining table width
+                layoutWidth = this.width - (xStart - margin);
+            } else {
+                // For right/center aligned rows, use natural cell width
+                layoutWidth = cell.getWidth();
+            }
             float fillWidth = Math.min(cell.getWidth(), layoutWidth);
             fillCellColor(cell, yStart, xStart, rowHeight, fillWidth);
 
             xStart += layoutWidth;
         }
+    }
+
+    /**
+     * Returns the bottom border style of the cell in the given row that covers
+     * the specified X coordinate, or {@code null} if no cell covers that position.
+     */
+    private LineStyle getCellBottomBorderCoveringX(Row<T> row, float x) {
+        float cellX = margin + row.getAlignmentOffset();
+        for (Cell<T> cell : row.getCells()) {
+            if (x >= cellX && x < cellX + cell.getWidth()) {
+                return cell.getBottomBorder();
+            }
+            cellX += cell.getWidth();
+        }
+        return null;
     }
 
     protected void drawCellBorders(float rowHeight, Cell<T> cell, float xStart, boolean drawLeftBorder) throws IOException {
