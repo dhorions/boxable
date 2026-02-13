@@ -64,10 +64,10 @@ public class Tutorial01_BasicTable {
 
         // Step 6: Create header row
         Row<PDPage> headerRow = table.createRow(20f);
-        Cell<PDPage> headerCell1 = headerRow.createCell(25, "Product");
-        Cell<PDPage> headerCell2 = headerRow.createCell(25, "Category");
-        Cell<PDPage> headerCell3 = headerRow.createCell(25, "Price");
-        Cell<PDPage> headerCell4 = headerRow.createCell(25, "Stock");
+        headerRow.createCell(25, "Product");
+        headerRow.createCell(25, "Category");
+        headerRow.createCell(25, "Price");
+        headerRow.createCell(25, "Stock");
 
         // Style header cells
         Color headerColor = new Color(52, 152, 219);  // Blue
@@ -100,8 +100,8 @@ public class Tutorial01_BasicTable {
             // Alternate row colors for better readability
             Color rowColor = (i % 2 == 0) ? white : lightGray;
             
-            Cell<PDPage> cell1 = dataRow.createCell(25, data[i][0]);
-            Cell<PDPage> cell2 = dataRow.createCell(25, data[i][1]);
+            dataRow.createCell(25, data[i][0]);
+            dataRow.createCell(25, data[i][1]);
             Cell<PDPage> cell3 = dataRow.createCell(25, data[i][2]);
             Cell<PDPage> cell4 = dataRow.createCell(25, data[i][3]);
 

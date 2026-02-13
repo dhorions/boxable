@@ -180,10 +180,10 @@ public class Tutorial08_DataImport {
         dt4.getHeaderCellTemplate().setTextColor(Color.WHITE);
         
         // Customize data cell styling for alternating rows
-        for (Cell cell : dt4.getDataCellTemplateEvenList()) {
+        for (Cell<PDPage> cell : dt4.getDataCellTemplateEvenList()) {
             cell.setFillColor(Color.WHITE);
         }
-        for (Cell cell : dt4.getDataCellTemplateOddList()) {
+        for (Cell<PDPage> cell : dt4.getDataCellTemplateOddList()) {
             cell.setFillColor(new Color(236, 240, 241));
         }
         
@@ -221,10 +221,10 @@ public class Tutorial08_DataImport {
         // Style the large table
         dt5.getHeaderCellTemplate().setFillColor(new Color(155, 89, 182));
         dt5.getHeaderCellTemplate().setTextColor(Color.WHITE);
-        for (Cell cell : dt5.getDataCellTemplateEvenList()) {
+        for (Cell<PDPage> cell : dt5.getDataCellTemplateEvenList()) {
             cell.setFillColor(Color.WHITE);
         }
-        for (Cell cell : dt5.getDataCellTemplateOddList()) {
+        for (Cell<PDPage> cell : dt5.getDataCellTemplateOddList()) {
             cell.setFillColor(new Color(250, 242, 255));
         }
         

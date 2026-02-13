@@ -83,8 +83,8 @@ public class Tutorial09_MultiPageTables {
             Color rowColor = (i % 2 == 0) ? white : lightBlue;
             
             Cell<PDPage> numCell = dataRow.createCell(10, String.valueOf(i));
-            Cell<PDPage> nameCell = dataRow.createCell(25, "Product " + i);
-            Cell<PDPage> descCell2 = dataRow.createCell(25, 
+            dataRow.createCell(25, "Product " + i);
+            dataRow.createCell(25, 
                 "Description for product number " + i);
             Cell<PDPage> priceCell = dataRow.createCell(15, 
                 String.format("$%.2f", i * 9.99));

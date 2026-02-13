@@ -76,7 +76,7 @@ public class Tutorial10_NestedTables {
             "<tr><td><b>Price:</b></td><td>$99.99</td></tr>" +
             "<tr><td><b>Stock:</b></td><td>Available</td></tr>" +
             "</table>";
-        Cell<PDPage> nestedCell = simpleRow.createCell(60, nestedTableHtml);
+        Cell<PDPage> nestedCell = simpleRow.createTableCell(60, nestedTableHtml);
         nestedCell.setFillColor(new Color(245, 245, 245));
 
         // Section 2: Multiple Nested Tables
@@ -99,7 +99,7 @@ public class Tutorial10_NestedTables {
             "<tr><td><b>Qty:</b></td><td>10</td></tr>" +
             "<tr><td><b>Total:</b></td><td>$500</td></tr>" +
             "</table>";
-        Cell<PDPage> cell1 = multiRow.createCell(33.33f, table1);
+        Cell<PDPage> cell1 = multiRow.createTableCell(33.33f, table1);
         cell1.setFillColor(new Color(255, 243, 224));
         
         // Second nested table
@@ -108,7 +108,7 @@ public class Tutorial10_NestedTables {
             "<tr><td><b>Qty:</b></td><td>8</td></tr>" +
             "<tr><td><b>Total:</b></td><td>$600</td></tr>" +
             "</table>";
-        Cell<PDPage> cell2 = multiRow.createCell(33.33f, table2);
+        Cell<PDPage> cell2 = multiRow.createTableCell(33.33f, table2);
         cell2.setFillColor(new Color(230, 245, 255));
         
         // Third nested table
@@ -117,7 +117,7 @@ public class Tutorial10_NestedTables {
             "<tr><td><b>Qty:</b></td><td>5</td></tr>" +
             "<tr><td><b>Total:</b></td><td>$500</td></tr>" +
             "</table>";
-        Cell<PDPage> cell3 = multiRow.createCell(33.34f, table3);
+        Cell<PDPage> cell3 = multiRow.createTableCell(33.34f, table3);
         cell3.setFillColor(new Color(255, 235, 238));
 
         // Section 3: Complex Nested Structure
@@ -145,7 +145,7 @@ public class Tutorial10_NestedTables {
             "<tr><td>Widget C</td><td>3</td><td>$149.97</td></tr>" +
             "<tr><td colspan='2'><b>Total:</b></td><td><b>$299.94</b></td></tr>" +
             "</table>";
-        Cell<PDPage> rightCell = complexRow.createCell(60, orderTable);
+        Cell<PDPage> rightCell = complexRow.createTableCell(60, orderTable);
         rightCell.setFillColor(Color.WHITE);
 
         // Section 4: Nested Tables with Lists
@@ -174,10 +174,61 @@ public class Tutorial10_NestedTables {
             "<tr><td><b>Color:</b></td><td>Blue</td></tr>" +
             "<tr><td><b>Warranty:</b></td><td>2 years</td></tr>" +
             "</table>";
-        Cell<PDPage> specsCell = listRow.createCell(50, specsTable);
+        Cell<PDPage> specsCell = listRow.createTableCell(50, specsTable);
         specsCell.setFillColor(new Color(230, 245, 255));
 
-        // Section 5: Practical Invoice Example
+        // Section 5: Full Cell Area usage for Inner Table
+        // Force new page for this example section
+        table.draw();
+        page = new PDPage(PDRectangle.A4);
+        document.addPage(page);
+        table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, document, page, true, true);
+        
+        addSectionHeader(table, "Full Cell Area Inner Table");
+
+        Row<PDPage> fullAreaDesc = table.createRow(15f);
+        fullAreaDesc.createCell(100, "Using the full cell area for the inner table without padding or margins:");
+
+        Row<PDPage> fullAreaRow = table.createRow(12f);
+        fullAreaRow.createCell(30, "Package Info");
+
+        String innerTableHtml = "<table>"
+                + "<tr><th>Property</th><th>Value</th></tr>"
+                + "<tr><td>Tracking ID</td><td>TRK-99887766</td></tr>"
+                + "<tr><td>Carrier</td><td>FastShip Logistics</td></tr>"
+                + "<tr><td>Service</td><td>Priority Overnight</td></tr>"
+                + "<tr><td>Weight</td><td>2.5 kg</td></tr>"
+                + "<tr><td>Dimensions</td><td>30x20x15 cm</td></tr>"
+                + "<tr><td>Insurance</td><td>Full Coverage</td></tr>"
+                + "<tr><td>Signature</td><td>Required</td></tr>"
+                + "</table>";
+        
+        // Use the new convenience method
+        be.quodlibet.boxable.TableCell<PDPage> innerTableCell = fullAreaRow.createTableCell(70, innerTableHtml);
+
+        // Configure cell to use full area
+        innerTableCell.setLeftPadding(0);
+        innerTableCell.setRightPadding(0);
+        innerTableCell.setTopPadding(0);
+        innerTableCell.setBottomPadding(0);
+        innerTableCell.setMarginBetweenElementsY(0);
+        innerTableCell.setLeftBorderStyle(null);
+        innerTableCell.setTopBorderStyle(null);
+
+        // Configure inner table borders and layout
+        innerTableCell.setInnerTableBorders(false, false, false, false);
+        innerTableCell.setInnerTableInnerBorders(true, true);
+        innerTableCell.setInnerTableStartAtTop(true);
+        innerTableCell.setInnerTableBorderStyle(new be.quodlibet.boxable.line.LineStyle(Color.BLACK, 1));
+        innerTableCell.setInnerTableCellPadding(2f, 2f, 2f, 2f);
+
+        // Section 6: Practical Invoice Example
+        // Force new page for this example section
+        table.draw();
+        page = new PDPage(PDRectangle.A4);
+        document.addPage(page);
+        table = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, document, page, true, true);
+        
         addSectionHeader(table, "Practical Example: Invoice");
         
         Row<PDPage> invoiceHeader = table.createRow(60f);
@@ -198,7 +249,7 @@ public class Tutorial10_NestedTables {
             "<tr><td><b>Due Date:</b></td><td>March 7, 2024</td></tr>" +
             "<tr><td><b>Terms:</b></td><td>Net 30</td></tr>" +
             "</table>";
-        Cell<PDPage> invoiceCell = invoiceHeader.createCell(50, invoiceDetails);
+        Cell<PDPage> invoiceCell = invoiceHeader.createTableCell(50, invoiceDetails);
         invoiceCell.setFillColor(Color.WHITE);
         
         // Bill to section

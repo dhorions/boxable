@@ -184,7 +184,7 @@ public class Tutorial04_Alignment {
         addSectionHeader(table, "Practical Example: Invoice Table");
         
         Row<PDPage> invoiceHeader = table.createRow(15f);
-        Cell<PDPage> itemHeader = invoiceHeader.createCell(40, "Item");
+        invoiceHeader.createCell(40, "Item");
         Cell<PDPage> qtyHeader = invoiceHeader.createCell(20, "Qty");
         Cell<PDPage> priceHeader = invoiceHeader.createCell(20, "Price");
         Cell<PDPage> totalHeader = invoiceHeader.createCell(20, "Total");

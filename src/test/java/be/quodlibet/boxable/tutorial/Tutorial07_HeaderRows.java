@@ -66,10 +66,10 @@ public class Tutorial07_HeaderRows {
         addSectionHeader(table, "Single Header Row");
         
         Row<PDPage> singleHeader = table.createRow(20f);
-        Cell<PDPage> col1 = singleHeader.createCell(25, "Name");
-        Cell<PDPage> col2 = singleHeader.createCell(25, "Age");
-        Cell<PDPage> col3 = singleHeader.createCell(25, "City");
-        Cell<PDPage> col4 = singleHeader.createCell(25, "Country");
+        singleHeader.createCell(25, "Name");
+        singleHeader.createCell(25, "Age");
+        singleHeader.createCell(25, "City");
+        singleHeader.createCell(25, "Country");
         styleHeaderRow(singleHeader);
         table.addHeaderRow(singleHeader);
         

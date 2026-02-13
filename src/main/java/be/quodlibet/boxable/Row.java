@@ -104,6 +104,23 @@ public class Row<T extends PDPage> {
 
 	/**
 	 * <p>
+	 * Creates a table cell with provided width and table data, using the table's
+	 * document, page, yStart, and margins.
+	 * </p>
+	 * 
+	 * @param width
+	 *            Table width
+	 * @param tableData
+	 *            Table's data (HTML table tags)
+	 * @return {@link TableCell} with provided width and table data
+	 */
+	public TableCell<T> createTableCell(float width, String tableData) {
+		return createTableCell(width, tableData, table.getDocument(), table.getCurrentPage(), table.yStart,
+				table.pageTopMargin, table.pageBottomMargin);
+	}
+
+	/**
+	 * <p>
 	 * Creates a table cell with provided width and table data
 	 * </p>
 	 * 

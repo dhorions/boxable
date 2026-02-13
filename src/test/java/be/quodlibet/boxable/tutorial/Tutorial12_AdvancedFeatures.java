@@ -95,7 +95,7 @@ public class Tutorial12_AdvancedFeatures {
         
         // Row with colspan
         Row<PDPage> colspanRow1 = table.createRow(20f);
-        Cell<PDPage> spanCell = colspanRow1.createCell(100, 
+        Cell<PDPage> spanCell = colspanRow1.createTableCell(100, 
             "<table>" +
             "<tr><td colspan='3'><b>This cell spans 3 columns</b></td></tr>" +
             "<tr><td>Column 1</td><td>Column 2</td><td>Column 3</td></tr>" +
@@ -174,7 +174,7 @@ public class Tutorial12_AdvancedFeatures {
         // Data row with nested table
         Row<PDPage> complexData = table.createRow(80f);
         
-        Cell<PDPage> q1Data = complexData.createCell(10, 
+        Cell<PDPage> q1Data = complexData.createTableCell(10, 
             "<table>" +
             "<tr><td>Sales:</td></tr>" +
             "<tr><td><b>$100K</b></td></tr>" +
@@ -182,7 +182,7 @@ public class Tutorial12_AdvancedFeatures {
         q1Data.setAlign(HorizontalAlignment.CENTER);
         q1Data.setFillColor(new Color(230, 245, 255));
         
-        Cell<PDPage> q2Data = complexData.createCell(10, 
+        Cell<PDPage> q2Data = complexData.createTableCell(10, 
             "<table>" +
             "<tr><td>Sales:</td></tr>" +
             "<tr><td><b>$120K</b></td></tr>" +
@@ -190,7 +190,7 @@ public class Tutorial12_AdvancedFeatures {
         q2Data.setAlign(HorizontalAlignment.CENTER);
         q2Data.setFillColor(new Color(230, 245, 255));
         
-        Cell<PDPage> q3Data = complexData.createCell(10, 
+        Cell<PDPage> q3Data = complexData.createTableCell(10, 
             "<table>" +
             "<tr><td>Sales:</td></tr>" +
             "<tr><td><b>$135K</b></td></tr>" +
@@ -198,7 +198,7 @@ public class Tutorial12_AdvancedFeatures {
         q3Data.setAlign(HorizontalAlignment.CENTER);
         q3Data.setFillColor(new Color(230, 245, 255));
         
-        Cell<PDPage> q4Data = complexData.createCell(10, 
+        Cell<PDPage> q4Data = complexData.createTableCell(10, 
             "<table>" +
             "<tr><td>Sales:</td></tr>" +
             "<tr><td><b>$150K</b></td></tr>" +
@@ -206,7 +206,7 @@ public class Tutorial12_AdvancedFeatures {
         q4Data.setAlign(HorizontalAlignment.CENTER);
         q4Data.setFillColor(new Color(230, 245, 255));
         
-        Cell<PDPage> summaryData = complexData.createCell(60, 
+        Cell<PDPage> summaryData = complexData.createTableCell(60, 
             "<b>Annual Summary:</b><br/><br/>" +
             "<table>" +
             "<tr><td>Total Sales:</td><td><b>$505,000</b></td></tr>" +
