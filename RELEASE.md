@@ -34,7 +34,7 @@ If you know the exact commit SHA where a historical version was released, use th
 
 This will create the tag at the correct historical point and generate accurate release notes based on the actual commits included in that release.
 
-**Note:** If the exact commit states for historical versions are not available, tags will be created at the current master branch. The actual released code for these versions is available on [Maven Central](https://central.sonatype.com/artifact/com.github.dhorions/boxable).
+**Note:** If the exact commit state for historical versions is not available, tags will be created at the current master branch. The actual released code for these versions is available on [Maven Central](https://central.sonatype.com/artifact/com.github.dhorions/boxable).
 
 ## Automated Release Workflows
 
