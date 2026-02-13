@@ -1,0 +1,237 @@
+name: Create Retroactive Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to create release for (e.g., 1.7.3, 1.8.0, 1.8.1, 1.8.2)'
+        required: true
+        type: string
+      git_ref:
+        description: 'Git reference (commit SHA, branch, or tag) where the tag should be created. Leave empty to use current master.'
+        required: false
+        type: string
+        default: ''
+      previous_version:
+        description: 'Previous version for changelog (e.g., 1.7.0)'
+        required: true
+        type: string
+        default: '1.7.0'
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Determine target reference
+        id: determine_ref
+        run: |
+          GIT_REF="${{ github.event.inputs.git_ref }}"
+          
+          if [ -z "$GIT_REF" ]; then
+            echo "No git reference provided, using master"
+            echo "target_ref=master" >> $GITHUB_OUTPUT
+            echo "ref_type=default" >> $GITHUB_OUTPUT
+          else
+            echo "Using provided git reference: $GIT_REF"
+            
+            # Validate that the reference exists
+            if git rev-parse "$GIT_REF" >/dev/null 2>&1; then
+              echo "target_ref=$GIT_REF" >> $GITHUB_OUTPUT
+              echo "ref_type=custom" >> $GITHUB_OUTPUT
+              echo "Git reference is valid"
+            else
+              echo "Error: Git reference '$GIT_REF' does not exist"
+              exit 1
+            fi
+          fi
+      
+      - name: Validate version format
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Version must be in format X.Y.Z (e.g., 1.8.0)"
+            exit 1
+          fi
+          echo "Version format is valid: $VERSION"
+      
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if git rev-parse "refs/tags/$VERSION" >/dev/null 2>&1; then
+            echo "Tag $VERSION already exists"
+            echo "tag_exists=true" >> $GITHUB_OUTPUT
+            echo "tag_sha=$(git rev-parse refs/tags/$VERSION)" >> $GITHUB_OUTPUT
+          else
+            echo "Tag $VERSION does not exist"
+            echo "tag_exists=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create tag if it doesn't exist
+        if: steps.check_tag.outputs.tag_exists == 'false'
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          TARGET_REF="${{ steps.determine_ref.outputs.target_ref }}"
+          REF_TYPE="${{ steps.determine_ref.outputs.ref_type }}"
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Get the commit SHA for the target reference
+          TARGET_SHA=$(git rev-parse "$TARGET_REF")
+          echo "Creating tag at commit: $TARGET_SHA"
+          
+          # Create tag at the specified reference
+          if [ "$REF_TYPE" = "custom" ]; then
+            git tag -a "$VERSION" "$TARGET_SHA" -m "Release version $VERSION at $TARGET_REF"
+            echo "Created tag $VERSION at git reference $TARGET_REF (commit: $TARGET_SHA)"
+          else
+            git tag -a "$VERSION" "$TARGET_SHA" -m "Release version $VERSION"
+            echo "Created tag $VERSION at master (commit: $TARGET_SHA)"
+          fi
+          
+          git push origin "$VERSION"
+          echo "Pushed tag $VERSION"
+      
+      - name: Get tag SHA
+        id: get_sha
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          TAG_SHA=$(git rev-parse refs/tags/$VERSION)
+          echo "tag_sha=$TAG_SHA" >> $GITHUB_OUTPUT
+          echo "Tag SHA: $TAG_SHA"
+      
+      - name: Get previous tag
+        id: get_previous
+        run: |
+          PREVIOUS_VERSION="${{ github.event.inputs.previous_version }}"
+          
+          # Check if previous version tag exists
+          if git rev-parse "refs/tags/$PREVIOUS_VERSION" >/dev/null 2>&1; then
+            echo "previous_tag=$PREVIOUS_VERSION" >> $GITHUB_OUTPUT
+            echo "Using specified previous version: $PREVIOUS_VERSION"
+          else
+            # Try to find the closest previous tag
+            PREV_TAG=$(git tag -l --sort=-v:refname | grep -v "^${{ github.event.inputs.version }}$" | head -n 1)
+            if [ -n "$PREV_TAG" ]; then
+              echo "previous_tag=$PREV_TAG" >> $GITHUB_OUTPUT
+              echo "Using latest tag as previous: $PREV_TAG"
+            else
+              # Use first commit as fallback
+              FIRST_COMMIT=$(git rev-list --max-parents=0 HEAD)
+              echo "previous_tag=$FIRST_COMMIT" >> $GITHUB_OUTPUT
+              echo "No previous tag found, using first commit: $FIRST_COMMIT"
+            fi
+          fi
+      
+      - name: Build Changelog
+        id: build_changelog
+        run: |
+          CURRENT_VERSION="${{ github.event.inputs.version }}"
+          PREVIOUS_TAG="${{ steps.get_previous.outputs.previous_tag }}"
+          CURRENT_TAG="${{ github.event.inputs.version }}"
+          GIT_REF="${{ github.event.inputs.git_ref }}"
+          REF_TYPE="${{ steps.determine_ref.outputs.ref_type }}"
+          TAG_SHA="${{ steps.get_sha.outputs.tag_sha }}"
+          
+          echo "Generating changelog from $PREVIOUS_TAG to $CURRENT_TAG"
+          
+          # Create changelog file
+          CHANGELOG_FILE=$(mktemp)
+          
+          # Header
+          echo "## What's Changed" > $CHANGELOG_FILE
+          echo "" >> $CHANGELOG_FILE
+          
+          # Add note about git reference if custom reference was provided
+          if [ "$REF_TYPE" = "custom" ]; then
+            echo "_This release was created at git reference \`$GIT_REF\` (commit: \`${TAG_SHA:0:7}\`)._" >> $CHANGELOG_FILE
+            echo "" >> $CHANGELOG_FILE
+          fi
+          
+          # Get commits between tags/versions
+          if git rev-parse "refs/tags/$CURRENT_TAG" >/dev/null 2>&1; then
+            # Tag exists, use it
+            git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"* %s (%h)" --no-merges >> $CHANGELOG_FILE || echo "* Version released to Maven Central" >> $CHANGELOG_FILE
+          else
+            # Tag doesn't exist yet, use HEAD
+            git log ${PREVIOUS_TAG}..HEAD --pretty=format:"* %s (%h)" --no-merges >> $CHANGELOG_FILE || echo "* Version released to Maven Central" >> $CHANGELOG_FILE
+          fi
+          
+          echo "" >> $CHANGELOG_FILE
+          echo "" >> $CHANGELOG_FILE
+          
+          # Add note about Maven Central
+          echo "## Maven Central" >> $CHANGELOG_FILE
+          echo "" >> $CHANGELOG_FILE
+          echo "This version is available on Maven Central:" >> $CHANGELOG_FILE
+          echo "" >> $CHANGELOG_FILE
+          echo '```xml' >> $CHANGELOG_FILE
+          echo '<dependency>' >> $CHANGELOG_FILE
+          echo '    <groupId>com.github.dhorions</groupId>' >> $CHANGELOG_FILE
+          echo '    <artifactId>boxable</artifactId>' >> $CHANGELOG_FILE
+          echo "    <version>${CURRENT_VERSION}</version>" >> $CHANGELOG_FILE
+          echo '</dependency>' >> $CHANGELOG_FILE
+          echo '```' >> $CHANGELOG_FILE
+          
+          echo "" >> $CHANGELOG_FILE
+          echo "" >> $CHANGELOG_FILE
+          
+          # Add dependency information
+          echo "## Dependencies" >> $CHANGELOG_FILE
+          echo "" >> $CHANGELOG_FILE
+          echo "For a complete list of dependencies, see [pom.xml](https://github.com/${{ github.repository }}/blob/${CURRENT_TAG}/pom.xml)" >> $CHANGELOG_FILE
+          
+          echo "" >> $CHANGELOG_FILE
+          echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG}...${CURRENT_TAG}" >> $CHANGELOG_FILE
+          
+          # Output the changelog
+          cat $CHANGELOG_FILE
+          
+          # Set output for next step
+          echo "changelog_file=$CHANGELOG_FILE" >> $GITHUB_OUTPUT
+      
+      - name: Check if release already exists
+        id: check_release
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if gh release view "$VERSION" > /dev/null 2>&1; then
+            echo "Release $VERSION already exists"
+            echo "release_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Release $VERSION does not exist"
+            echo "release_exists=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Create Release
+        if: steps.check_release.outputs.release_exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          name: Boxable ${{ github.event.inputs.version }}
+          body_path: ${{ steps.build_changelog.outputs.changelog_file }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Update existing release
+        if: steps.check_release.outputs.release_exists == 'true'
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          CHANGELOG_FILE="${{ steps.build_changelog.outputs.changelog_file }}"
+          
+          echo "Updating existing release $VERSION with new release notes"
+          gh release edit "$VERSION" --notes-file "$CHANGELOG_FILE"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
