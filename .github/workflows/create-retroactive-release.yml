@@ -7,6 +7,11 @@ on:
         description: 'Version to create release for (e.g., 1.7.3, 1.8.0, 1.8.1, 1.8.2)'
         required: true
         type: string
+      git_ref:
+        description: 'Git reference (commit SHA, branch, or tag) where the tag should be created. Leave empty to use current master.'
+        required: false
+        type: string
+        default: ''
       previous_version:
         description: 'Previous version for changelog (e.g., 1.7.0)'
         required: true
@@ -24,7 +29,29 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: master
+      
+      - name: Determine target reference
+        id: determine_ref
+        run: |
+          GIT_REF="${{ github.event.inputs.git_ref }}"
+          
+          if [ -z "$GIT_REF" ]; then
+            echo "No git reference provided, using master"
+            echo "target_ref=master" >> $GITHUB_OUTPUT
+            echo "ref_type=default" >> $GITHUB_OUTPUT
+          else
+            echo "Using provided git reference: $GIT_REF"
+            
+            # Validate that the reference exists
+            if git rev-parse "$GIT_REF" >/dev/null 2>&1; then
+              echo "target_ref=$GIT_REF" >> $GITHUB_OUTPUT
+              echo "ref_type=custom" >> $GITHUB_OUTPUT
+              echo "Git reference is valid"
+            else
+              echo "Error: Git reference '$GIT_REF' does not exist"
+              exit 1
+            fi
+          fi
       
       - name: Validate version format
         run: |
@@ -52,14 +79,27 @@ jobs:
         if: steps.check_tag.outputs.tag_exists == 'false'
         run: |
           VERSION="${{ github.event.inputs.version }}"
+          TARGET_REF="${{ steps.determine_ref.outputs.target_ref }}"
+          REF_TYPE="${{ steps.determine_ref.outputs.ref_type }}"
+          
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Create tag at current master HEAD
-          git tag -a "$VERSION" -m "Release version $VERSION"
-          git push origin "$VERSION"
+          # Get the commit SHA for the target reference
+          TARGET_SHA=$(git rev-parse "$TARGET_REF")
+          echo "Creating tag at commit: $TARGET_SHA"
           
-          echo "Created and pushed tag $VERSION"
+          # Create tag at the specified reference
+          if [ "$REF_TYPE" = "custom" ]; then
+            git tag -a "$VERSION" "$TARGET_SHA" -m "Release version $VERSION at $TARGET_REF"
+            echo "Created tag $VERSION at git reference $TARGET_REF (commit: $TARGET_SHA)"
+          else
+            git tag -a "$VERSION" "$TARGET_SHA" -m "Release version $VERSION"
+            echo "Created tag $VERSION at master (commit: $TARGET_SHA)"
+          fi
+          
+          git push origin "$VERSION"
+          echo "Pushed tag $VERSION"
       
       - name: Get tag SHA
         id: get_sha
@@ -98,6 +138,9 @@ jobs:
           CURRENT_VERSION="${{ github.event.inputs.version }}"
           PREVIOUS_TAG="${{ steps.get_previous.outputs.previous_tag }}"
           CURRENT_TAG="${{ github.event.inputs.version }}"
+          GIT_REF="${{ github.event.inputs.git_ref }}"
+          REF_TYPE="${{ steps.determine_ref.outputs.ref_type }}"
+          TAG_SHA="${{ steps.get_sha.outputs.tag_sha }}"
           
           echo "Generating changelog from $PREVIOUS_TAG to $CURRENT_TAG"
           
@@ -107,6 +150,12 @@ jobs:
           # Header
           echo "## What's Changed" > $CHANGELOG_FILE
           echo "" >> $CHANGELOG_FILE
+          
+          # Add note about git reference if custom reference was provided
+          if [ "$REF_TYPE" = "custom" ]; then
+            echo "_This release was created at git reference \`$GIT_REF\` (commit: \`${TAG_SHA:0:7}\`)._" >> $CHANGELOG_FILE
+            echo "" >> $CHANGELOG_FILE
+          fi
           
           # Get commits between tags/versions
           if git rev-parse "refs/tags/$CURRENT_TAG" >/dev/null 2>&1; then

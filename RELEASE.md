@@ -21,12 +21,20 @@ For Maven Central deployment, use the existing "Publish to Maven Central" workfl
 
 For versions that were published to Maven Central but don't have GitHub Releases (1.7.3, 1.8.0, 1.8.1, 1.8.2), two workflows are available:
 
-1. **Create All Historical Releases** - Automatically creates releases for all missing historical versions at once
-2. **Create Retroactive Release** - Manually create a release for a specific historical version by providing the version number
+1. **Create All Historical Releases** - Automatically creates releases for all missing historical versions at once (creates tags at current master)
+2. **Create Retroactive Release** - Manually create a release for a specific historical version with the option to specify the exact git reference (commit SHA, branch, or tag)
 
 These workflows can be triggered from the Actions tab in the GitHub repository.
 
-**Note:** Since the exact commit states for these historical versions are not available in this repository, the tags and releases will be created at the current master branch. The actual released code for these versions is available on [Maven Central](https://central.sonatype.com/artifact/com.github.dhorions/boxable).
+**Creating Accurate Historical Releases:**
+If you know the exact commit SHA where a historical version was released, use the "Create Retroactive Release" workflow and provide:
+- The version number (e.g., `1.8.0`)
+- The previous version (e.g., `1.7.3`)
+- The git reference (commit SHA, branch, or tag) where the release was made
+
+This will create the tag at the correct historical point and generate accurate release notes based on the actual commits included in that release.
+
+**Note:** If the exact commit states for historical versions are not available, tags will be created at the current master branch. The actual released code for these versions is available on [Maven Central](https://central.sonatype.com/artifact/com.github.dhorions/boxable).
 
 ## Automated Release Workflows
 
@@ -46,5 +54,14 @@ This workflow can be manually triggered to create releases for all missing histo
 ### For Single Retroactive Releases (`.github/workflows/create-retroactive-release.yml`)
 This workflow can be manually triggered for any specific version:
 - Accepts version number and previous version as inputs
+- **Accepts an optional git reference (commit SHA, branch, or tag)** to create the tag at the correct historical point
+- If no git reference is provided, creates the tag at current master
+- Generates accurate release notes based on commits between the previous version and the specified reference
 - Creates tags and releases if they don't exist
 - Flexible for any future retroactive releases needed
+
+**Example Usage:**
+- To create a release at a specific commit: Provide the commit SHA (e.g., `a1b2c3d`)
+- To create a release at a branch state: Provide the branch name (e.g., `release/1.8.0`)
+- To create a release at an existing tag: Provide the tag name (e.g., `v1.8.0-maven-release`)
+- To create a release at current master: Leave the git reference field empty
