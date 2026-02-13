@@ -46,6 +46,15 @@ To create a new release:
 
 For Maven Central deployment, use the existing "Publish to Maven Central" workflow action.
 
+## Historical Releases
+
+For versions that were published to Maven Central but don't have GitHub Releases (1.7.3, 1.8.0, 1.8.1, 1.8.2), two workflows are available:
+
+1. **Create All Historical Releases** - Automatically creates releases for all missing historical versions at once
+2. **Create Retroactive Release** - Manually create a release for a specific historical version by providing the version number
+
+These workflows can be triggered from the Actions tab in the GitHub repository.
+
 # Tutorial
 
 Comprehensive tutorials are now available in the test package! Each tutorial demonstrates specific features with well-documented, runnable examples:
