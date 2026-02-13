@@ -19,12 +19,9 @@ For Maven Central deployment, use the existing "Publish to Maven Central" workfl
 
 ## Historical Releases
 
-For versions that were published to Maven Central but don't have GitHub Releases (1.7.3, 1.8.0, 1.8.1, 1.8.2), two workflows are available:
+For versions that were published to Maven Central but don't have GitHub Releases (1.7.3, 1.8.0, 1.8.1, 1.8.2), use the **Create Retroactive Release** workflow to manually create a release for a specific historical version with the option to specify the exact git reference (commit SHA, branch, or tag).
 
-1. **Create All Historical Releases** - Automatically creates releases for all missing historical versions at once (creates tags at current master)
-2. **Create Retroactive Release** - Manually create a release for a specific historical version with the option to specify the exact git reference (commit SHA, branch, or tag)
-
-These workflows can be triggered from the Actions tab in the GitHub repository.
+This workflow can be triggered from the Actions tab in the GitHub repository.
 
 **Creating Accurate Historical Releases:**
 If you know the exact commit SHA where a historical version was released, use the "Create Retroactive Release" workflow and provide:
@@ -44,12 +41,6 @@ This workflow automatically triggers when version tags are pushed to the reposit
 - Auto-generates release notes from commit history
 - Includes links to dependencies and full changelog
 - Handles pre-release versions (tags with `-` suffix)
-
-### For Historical Releases (`.github/workflows/create-all-historical-releases.yml`)
-This workflow can be manually triggered to create releases for all missing historical versions:
-- Creates releases for 1.7.3, 1.8.0, 1.8.1, and 1.8.2 in parallel
-- Creates tags at current master HEAD with clear warnings about limitations
-- Generates release notes with Maven Central links
 
 ### For Single Retroactive Releases (`.github/workflows/create-retroactive-release.yml`)
 This workflow can be manually triggered for any specific version:
