@@ -9,28 +9,57 @@ on:
 
 jobs:
   create-release:
-    # Only create releases for versions after 1.7.0
-    if: |
-      !startsWith(github.ref_name, '1.0') &&
-      !startsWith(github.ref_name, '1.1') &&
-      !startsWith(github.ref_name, '1.2') &&
-      !startsWith(github.ref_name, '1.3') &&
-      !startsWith(github.ref_name, '1.4') &&
-      !startsWith(github.ref_name, '1.5') &&
-      !startsWith(github.ref_name, '1.6') &&
-      github.ref_name != '1.7.0'
-    
     runs-on: ubuntu-latest
     permissions:
       contents: write
     
     steps:
+      - name: Check if version is after 1.7.0
+        id: version_check
+        run: |
+          VERSION="${{ github.ref_name }}"
+          echo "Checking version: $VERSION"
+          
+          # Remove any pre-release suffix (e.g., 1.8.0-alpha -> 1.8.0)
+          BASE_VERSION=$(echo "$VERSION" | sed 's/-.*//')
+          
+          # Split version into major, minor, patch
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
+          
+          # Default patch to 0 if not present
+          PATCH=${PATCH:-0}
+          
+          echo "Parsed version: $MAJOR.$MINOR.$PATCH"
+          
+          # Check if version is after 1.7.0
+          # We want to skip 1.0.x through 1.7.0
+          if [ "$MAJOR" -gt 1 ]; then
+            echo "Version is after 1.7.0 (major > 1)"
+            echo "should_create_release=true" >> $GITHUB_OUTPUT
+          elif [ "$MAJOR" -eq 1 ]; then
+            if [ "$MINOR" -gt 7 ]; then
+              echo "Version is after 1.7.0 (1.x where x > 7)"
+              echo "should_create_release=true" >> $GITHUB_OUTPUT
+            elif [ "$MINOR" -eq 7 ] && [ "$PATCH" -gt 0 ]; then
+              echo "Version is after 1.7.0 (1.7.x where x > 0)"
+              echo "should_create_release=true" >> $GITHUB_OUTPUT
+            else
+              echo "Version is 1.7.0 or earlier, skipping"
+              echo "should_create_release=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "Version is before 1.7.0, skipping"
+            echo "should_create_release=false" >> $GITHUB_OUTPUT
+          fi
+      
       - name: Checkout code
+        if: steps.version_check.outputs.should_create_release == 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
       
       - name: Get previous tag
+        if: steps.version_check.outputs.should_create_release == 'true'
         id: previoustag
         run: |
           # Get all tags sorted by version
@@ -50,6 +79,7 @@ jobs:
           echo "previous_tag=$PREVIOUS_TAG" >> $GITHUB_OUTPUT
       
       - name: Build Changelog
+        if: steps.version_check.outputs.should_create_release == 'true'
         id: build_changelog
         run: |
           CURRENT_TAG="${{ github.ref_name }}"
@@ -87,6 +117,7 @@ jobs:
           echo "changelog_file=$CHANGELOG_FILE" >> $GITHUB_OUTPUT
       
       - name: Create Release
+        if: steps.version_check.outputs.should_create_release == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
