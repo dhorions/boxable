@@ -25,7 +25,7 @@ Boxable is a library that can be used to easily create tables in PDF documents. 
 <dependency>
     <groupId>com.github.dhorions</groupId>
     <artifactId>boxable</artifactId>
-    <version>1.8.2-RC1</version>
+    <version>1.8.2</version>
 </dependency>
 ```
 For other build systems, check the [Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22boxable%22).
