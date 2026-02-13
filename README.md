@@ -55,6 +55,8 @@ For versions that were published to Maven Central but don't have GitHub Releases
 
 These workflows can be triggered from the Actions tab in the GitHub repository.
 
+**Note:** Since the exact commit states for these historical versions are not available in this repository, the tags and releases will be created at the current master branch. The actual released code for these versions is available on [Maven Central](https://central.sonatype.com/artifact/com.github.dhorions/boxable).
+
 # Tutorial
 
 Comprehensive tutorials are now available in the test package! Each tutorial demonstrates specific features with well-documented, runnable examples:

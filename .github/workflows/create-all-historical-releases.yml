@@ -49,16 +49,38 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
           # Create tag at current master HEAD
-          # Note: These versions were already released to Maven Central
-          # We're creating the tag retroactively for documentation purposes
-          git tag -a "$VERSION" -m "Release version $VERSION (Maven Central)"
+          # IMPORTANT: These versions were already released to Maven Central but tags were never created.
+          # Since the exact commit states for these releases are not available in the repository,
+          # we're creating the tags at the current master HEAD for documentation purposes.
+          # The actual released code is available on Maven Central.
+          git tag -a "$VERSION" -m "Release version $VERSION (Maven Central) - Retroactive tag creation"
           git push origin "$VERSION"
           
           echo "Created and pushed tag $VERSION"
       
       - name: Wait for tag to propagate
         if: steps.check_tag.outputs.tag_exists == 'false'
-        run: sleep 5
+        run: |
+          VERSION="${{ matrix.version }}"
+          MAX_RETRIES=10
+          RETRY_COUNT=0
+          
+          echo "Waiting for tag $VERSION to be accessible..."
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if git rev-parse "refs/tags/$VERSION" >/dev/null 2>&1; then
+              echo "Tag $VERSION is now accessible"
+              break
+            fi
+            
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            echo "Retry $RETRY_COUNT/$MAX_RETRIES: Tag not yet accessible, waiting 2 seconds..."
+            sleep 2
+          done
+          
+          if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+            echo "Warning: Tag may not be fully propagated, but continuing..."
+          fi
       
       - name: Get previous tag info
         id: get_previous
@@ -90,7 +112,9 @@ jobs:
           # Header with note about retroactive release
           echo "## What's Changed" > $CHANGELOG_FILE
           echo "" >> $CHANGELOG_FILE
-          echo "_This is a retroactive release creation. Version $CURRENT_VERSION was published to Maven Central but did not have a GitHub Release._" >> $CHANGELOG_FILE
+          echo "⚠️ _This is a retroactive release creation. Version $CURRENT_VERSION was published to Maven Central but did not have a GitHub Release._" >> $CHANGELOG_FILE
+          echo "" >> $CHANGELOG_FILE
+          echo "**Note:** The tag for this release was created retroactively at the current master branch state. The actual code for this version as published to Maven Central may differ. For the authoritative release artifacts, please refer to Maven Central." >> $CHANGELOG_FILE
           echo "" >> $CHANGELOG_FILE
           
           # Get commits between tags/versions if available
