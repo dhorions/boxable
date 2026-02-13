@@ -30,32 +30,7 @@ Boxable is a library that can be used to easily create tables in PDF documents. 
 ```
 For other build systems, check the [Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22boxable%22).
 
-# Release Process
-
-Starting from version 1.7.1, all releases are automatically published to GitHub with auto-generated release notes. When a new version tag is pushed to the repository, a GitHub Actions workflow automatically:
-
-1. Creates a GitHub Release with the version tag
-2. Generates release notes from commit history since the previous release
-3. Links to the full changelog and dependency information
-
-To create a new release:
-1. Update the version in `pom.xml`
-2. Commit and push your changes
-3. Create and push a version tag (e.g., `git tag 1.8.3 && git push origin 1.8.3`)
-4. The GitHub Actions workflow will automatically create the release
-
-For Maven Central deployment, use the existing "Publish to Maven Central" workflow action.
-
-## Historical Releases
-
-For versions that were published to Maven Central but don't have GitHub Releases (1.7.3, 1.8.0, 1.8.1, 1.8.2), two workflows are available:
-
-1. **Create All Historical Releases** - Automatically creates releases for all missing historical versions at once
-2. **Create Retroactive Release** - Manually create a release for a specific historical version by providing the version number
-
-These workflows can be triggered from the Actions tab in the GitHub repository.
-
-**Note:** Since the exact commit states for these historical versions are not available in this repository, the tags and releases will be created at the current master branch. The actual released code for these versions is available on [Maven Central](https://central.sonatype.com/artifact/com.github.dhorions/boxable).
+For information about the release process, see [RELEASE.md](RELEASE.md).
 
 # Tutorial
 
