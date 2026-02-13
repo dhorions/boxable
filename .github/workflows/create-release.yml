@@ -1,0 +1,98 @@
+name: Create GitHub Release
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-*'
+
+jobs:
+  create-release:
+    # Only create releases for versions after 1.7.0
+    if: |
+      !startsWith(github.ref_name, '1.0') &&
+      !startsWith(github.ref_name, '1.1') &&
+      !startsWith(github.ref_name, '1.2') &&
+      !startsWith(github.ref_name, '1.3') &&
+      !startsWith(github.ref_name, '1.4') &&
+      !startsWith(github.ref_name, '1.5') &&
+      !startsWith(github.ref_name, '1.6') &&
+      github.ref_name != '1.7.0'
+    
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get previous tag
+        id: previoustag
+        run: |
+          # Get all tags sorted by version
+          git fetch --tags
+          CURRENT_TAG="${{ github.ref_name }}"
+          echo "Current tag: $CURRENT_TAG"
+          
+          # Get the previous tag (excluding the current one)
+          PREVIOUS_TAG=$(git tag -l --sort=-v:refname | grep -v "^${CURRENT_TAG}$" | head -n 1)
+          
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "No previous tag found, using first commit"
+            PREVIOUS_TAG=$(git rev-list --max-parents=0 HEAD)
+          fi
+          
+          echo "Previous tag: $PREVIOUS_TAG"
+          echo "previous_tag=$PREVIOUS_TAG" >> $GITHUB_OUTPUT
+      
+      - name: Build Changelog
+        id: build_changelog
+        run: |
+          CURRENT_TAG="${{ github.ref_name }}"
+          PREVIOUS_TAG="${{ steps.previoustag.outputs.previous_tag }}"
+          
+          echo "Generating changelog from $PREVIOUS_TAG to $CURRENT_TAG"
+          
+          # Create changelog file
+          CHANGELOG_FILE=$(mktemp)
+          
+          # Header
+          echo "## What's Changed" > $CHANGELOG_FILE
+          echo "" >> $CHANGELOG_FILE
+          
+          # Get commits between tags
+          git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"* %s (%h)" --no-merges >> $CHANGELOG_FILE
+          
+          echo "" >> $CHANGELOG_FILE
+          echo "" >> $CHANGELOG_FILE
+          
+          # Add dependency information from pom.xml if available
+          if [ -f "pom.xml" ]; then
+            echo "## Dependencies" >> $CHANGELOG_FILE
+            echo "" >> $CHANGELOG_FILE
+            echo "For a complete list of dependencies, see [pom.xml](https://github.com/${{ github.repository }}/blob/${CURRENT_TAG}/pom.xml)" >> $CHANGELOG_FILE
+          fi
+          
+          echo "" >> $CHANGELOG_FILE
+          echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG}...${CURRENT_TAG}" >> $CHANGELOG_FILE
+          
+          # Output the changelog
+          cat $CHANGELOG_FILE
+          
+          # Set output for next step
+          echo "changelog_file=$CHANGELOG_FILE" >> $GITHUB_OUTPUT
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Boxable ${{ github.ref_name }}
+          body_path: ${{ steps.build_changelog.outputs.changelog_file }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
