@@ -89,7 +89,7 @@ public final class Tokenizer {
 		
 		// Find the actual position of each segment in the original text
 		// Wrap points should be placed AFTER any delimiter characters between segments
-		java.util.List<Integer> wrapPointsList = new java.util.ArrayList<>();
+		final List<Integer> wrapPointsList = new ArrayList<>();
 		int searchStartIndex = 0;
 		for (int i = 0; i < split.length - 1; i++) {
 			final String segment = split[i];

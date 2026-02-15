@@ -1,5 +1,6 @@
 package be.quodlibet.boxable.text;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -232,7 +233,7 @@ public class TokenizerTest {
 		Assert.assertTrue("TEXT tokens should contain '/' characters (not split on '/')", foundSlashInTextToken);
 
 		// Verify the actual content of the TEXT tokens
-		List<String> textSegments = new java.util.ArrayList<>();
+		final List<String> textSegments = new ArrayList<>();
 		for (Token token : tokens) {
 			if (TokenType.TEXT.equals(token.getType())) {
 				textSegments.add(token.getData());
