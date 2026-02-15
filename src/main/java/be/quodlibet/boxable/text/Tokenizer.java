@@ -80,14 +80,44 @@ public final class Tokenizer {
 
 	private static Stack<Integer> findWrapPointsWithFunction(String text, WrappingFunction wrappingFunction) {
 		final String[] split = wrappingFunction.getLines(text);
-		int textIndex = text.length();
 		final Stack<Integer> possibleWrapPoints = new Stack<>();
-		possibleWrapPoints.push(textIndex);
-		for (int i = split.length - 1; i > 0; i--) {
-			final int splitLength = split[i].length();
-			possibleWrapPoints.push(textIndex - splitLength);
-			textIndex -= splitLength;
+		possibleWrapPoints.push(text.length());
+		
+		if (split.length == 0) {
+			return possibleWrapPoints;
 		}
+		
+		// Find the actual position of each segment in the original text
+		// Wrap points should be placed AFTER any delimiter characters between segments
+		java.util.List<Integer> wrapPointsList = new java.util.ArrayList<>();
+		int searchStartIndex = 0;
+		for (int i = 0; i < split.length - 1; i++) {
+			final String segment = split[i];
+			final int segmentIndex = text.indexOf(segment, searchStartIndex);
+			if (segmentIndex >= 0) {
+				// The wrap point is at the start of the next segment
+				// (any characters between this segment and the next are delimiters)
+				final int endOfSegment = segmentIndex + segment.length();
+				// Find the next segment to determine where delimiters end
+				final String nextSegment = split[i + 1];
+				final int nextSegmentIndex = text.indexOf(nextSegment, endOfSegment);
+				if (nextSegmentIndex >= 0) {
+					// Wrap point is at the start of the next segment
+					// This means delimiters between segments will be included in the previous TEXT token
+					wrapPointsList.add(nextSegmentIndex);
+					searchStartIndex = nextSegmentIndex;
+				} else {
+					// Couldn't find next segment, move past current segment
+					searchStartIndex = endOfSegment;
+				}
+			}
+		}
+		
+		// Push wrap points in reverse order onto the stack (required by the tokenizer)
+		for (int i = wrapPointsList.size() - 1; i >= 0; i--) {
+			possibleWrapPoints.push(wrapPointsList.get(i));
+		}
+		
 		return possibleWrapPoints;
 	}
 

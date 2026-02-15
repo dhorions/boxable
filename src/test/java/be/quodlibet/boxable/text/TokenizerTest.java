@@ -184,4 +184,64 @@ public class TokenizerTest {
 		}
 	
 	}
+
+	/**
+	 * Regression test for issue #298: setWrappingFunction not working.
+	 * Tests that a custom WrappingFunction that splits on '#' is respected,
+	 * and the default wrapping behavior (splitting on '/' and other characters) is NOT applied.
+	 */
+	@Test
+	public void testCustomWrappingFunctionWithHashDelimiter() throws Exception {
+		// Create a custom wrapping function that splits AFTER '#' characters
+		// (keeping the '#' in each segment, similar to the default behavior)
+		final WrappingFunction customWrappingFunction = new WrappingFunction() {
+			@Override
+			public String[] getLines(String text) {
+				if (text == null) {
+					return new String[0];
+				}
+				// Use positive lookbehind to split after '#' but keep '#' in segments
+				return text.split("(?<=#)");
+			}
+		};
+
+		// Test text with many '/' characters and '#' separators
+		// If the custom function works correctly, it should only split on '#', not on '/'
+		final String text = "path/to/file/one#path/to/file/two#path/to/file/three";
+		final List<Token> tokens = Tokenizer.tokenize(text, customWrappingFunction);
+
+		// Count TEXT tokens (should be 3 segments split by '#')
+		int textTokenCount = 0;
+		for (Token token : tokens) {
+			if (TokenType.TEXT.equals(token.getType())) {
+				textTokenCount++;
+			}
+		}
+
+		// Should have exactly 3 TEXT tokens (one for each segment between '#')
+		Assert.assertEquals("Custom wrapping function should split text into 3 segments", 3, textTokenCount);
+
+		// Verify that the TEXT segments contain '/' characters (i.e., they were NOT split on '/')
+		boolean foundSlashInTextToken = false;
+		for (Token token : tokens) {
+			if (TokenType.TEXT.equals(token.getType()) && token.getData().contains("/")) {
+				foundSlashInTextToken = true;
+				break;
+			}
+		}
+		Assert.assertTrue("TEXT tokens should contain '/' characters (not split on '/')", foundSlashInTextToken);
+
+		// Verify the actual content of the TEXT tokens
+		List<String> textSegments = new java.util.ArrayList<>();
+		for (Token token : tokens) {
+			if (TokenType.TEXT.equals(token.getType())) {
+				textSegments.add(token.getData());
+			}
+		}
+
+		// Expected segments after splitting on '#' (with '#' included in segments)
+		Assert.assertEquals("First segment should be 'path/to/file/one#'", "path/to/file/one#", textSegments.get(0));
+		Assert.assertEquals("Second segment should be 'path/to/file/two#'", "path/to/file/two#", textSegments.get(1));
+		Assert.assertEquals("Third segment should be 'path/to/file/three'", "path/to/file/three", textSegments.get(2));
+	}
 }
