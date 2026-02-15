@@ -189,12 +189,14 @@ public class TokenizerTest {
 	/**
 	 * Regression test for issue #298: setWrappingFunction not working.
 	 * Tests that a custom WrappingFunction that splits on '#' is respected,
-	 * and the default wrapping behavior (splitting on '/' and other characters) is NOT applied.
+	 * and the default wrapping behavior is NOT applied.
 	 */
 	@Test
 	public void testCustomWrappingFunctionWithHashDelimiter() throws Exception {
 		// Create a custom wrapping function that splits AFTER '#' characters
-		// (keeping the '#' in each segment, similar to the default behavior)
+		// The regex (?<=#) is a positive lookbehind that splits immediately after '#'
+		// This keeps '#' at the end of each segment (matching default wrapping behavior
+		// where delimiters like spaces are kept in segments)
 		final WrappingFunction customWrappingFunction = new WrappingFunction() {
 			@Override
 			public String[] getLines(String text) {

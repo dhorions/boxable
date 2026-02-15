@@ -93,6 +93,8 @@ public final class Tokenizer {
 		int searchStartIndex = 0;
 		for (int i = 0; i < split.length - 1; i++) {
 			final String segment = split[i];
+			// Search for this segment starting from where the previous segment ended
+			// This handles cases where segments might contain repeated substrings
 			final int segmentIndex = text.indexOf(segment, searchStartIndex);
 			if (segmentIndex >= 0) {
 				// The wrap point is at the start of the next segment
@@ -100,6 +102,7 @@ public final class Tokenizer {
 				final int endOfSegment = segmentIndex + segment.length();
 				// Find the next segment to determine where delimiters end
 				final String nextSegment = split[i + 1];
+				// Search for next segment starting after this segment ends
 				final int nextSegmentIndex = text.indexOf(nextSegment, endOfSegment);
 				if (nextSegmentIndex >= 0) {
 					// Wrap point is at the start of the next segment
