@@ -578,10 +578,28 @@ public class Paragraph {
 					String word = token.getData();
 					float wordWidth = token.getWidth(currentFont);
 					if(wordWidth / 1000f * currentFontSize > width && width > font.getAverageFontWidth() / 1000f * currentFontSize) {
-						// you need to check if you have already something in your line
-						boolean alreadyTextInLine = false;
+						// If there's already content in the current line, flush it first
+						// before starting character-by-character splitting.
+						// This prevents mixing text from different wrap point segments
+						// on the same line (e.g. when a custom WrappingFunction is used).
 						if(textInLine.trimmedWidth()>0){
-							alreadyTextInLine = true;
+							textInLine.push(sinceLastWrapPoint);
+							textInLineMaxFontHeight = Math.max(textInLineMaxFontHeight, sinceLastWrapPointMaxFontHeight);
+							textInLineMaxFontSize = Math.max(textInLineMaxFontSize, sinceLastWrapPointMaxFontSize);
+							sinceLastWrapPointMaxFontHeight = 0f;
+							sinceLastWrapPointMaxFontSize = 0f;
+							result.add(textInLine.trimmedText());
+							lineWidths.put(lineCounter, textInLine.trimmedWidth());
+							mapLineTokens.put(lineCounter, textInLine.tokens());
+							lineHeights.put(lineCounter, textInLineMaxFontHeight == 0f
+									? FontUtils.getHeight(font, fontSize)
+									: textInLineMaxFontHeight);
+							lineFontSizes.put(lineCounter, textInLineMaxFontSize == 0f ? fontSize : textInLineMaxFontSize);
+							maxLineWidth = Math.max(maxLineWidth, textInLine.trimmedWidth());
+							textInLine.reset();
+							textInLineMaxFontHeight = 0f;
+							textInLineMaxFontSize = 0f;
+							lineCounter++;
 						}
 						while (wordWidth / 1000f * currentFontSize > width) {
 						float width = 0;
@@ -597,15 +615,6 @@ public class Paragraph {
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
-							if(alreadyTextInLine){
-								if (width < this.width - textInLine.trimmedWidth()) {
-									firstPartOfWord.append(c);
-									firstPartWordWidth = Math.max(width, firstPartWordWidth);
-								} else {
-									restOfTheWord.append(c);
-									restOfTheWordWidth = Math.max(width, restOfTheWordWidth);
-								}
-							} else {
 								if (width < this.width) {
 									firstPartOfWord.append(c);
 									firstPartWordWidth = Math.max(width, firstPartWordWidth);
@@ -622,10 +631,7 @@ public class Paragraph {
 
 									}
 								}
-							}
 						}
-						// reset
-						alreadyTextInLine = false;
 						sinceLastWrapPoint.push(currentFont, currentFontSize,
 								Token.text(TokenType.TEXT, firstPartOfWord.toString()));
 						sinceLastWrapPointMaxFontHeight = Math.max(sinceLastWrapPointMaxFontHeight,
