@@ -26,3 +26,4 @@ nb-configuration.xml
 .project
 .vscode
 private.key
+src/test/resources/fonts/*
