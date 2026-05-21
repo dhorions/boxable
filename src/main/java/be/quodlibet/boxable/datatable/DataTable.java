@@ -108,30 +108,30 @@ public class DataTable {
 		this.colWidths = (colWidths.size() == 0) ? null : colWidths;
 		this.updateCellProperty = updateCellProperty;
 		// Create a dummy pdf document, page and table to create template cells
-		PDDocument ddoc = new PDDocument();
-		PDPage dpage = new PDPage();
-		dpage.setMediaBox(page.getMediaBox());
-		dpage.setRotation(page.getRotation());
-		ddoc.addPage(dpage);
-		BaseTable dummyTable = new BaseTable(10f, 10f, 10f, table.getWidth(), 10f, ddoc, dpage, false, false);
-		Row dr = dummyTable.createRow(0f);
-		headerCellTemplate = dr.createCell(10f, "A", HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE);
-		if (this.colWidths == null) {
-			dataCellTemplateEvenList.add(dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
-			dataCellTemplateOddList.add(dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
-			dataCellTemplateEvenList.add(dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
-			dataCellTemplateOddList.add(dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
-			dataCellTemplateEvenList.add(dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
-			dataCellTemplateOddList.add(dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
-		} else {
-			for (int i = 0 ; i < this.colWidths.size(); i++) {
+		try (PDDocument ddoc = new PDDocument()) {
+			PDPage dpage = new PDPage();
+			dpage.setMediaBox(page.getMediaBox());
+			dpage.setRotation(page.getRotation());
+			ddoc.addPage(dpage);
+			BaseTable dummyTable = new BaseTable(10f, 10f, 10f, table.getWidth(), 10f, ddoc, dpage, false, false);
+			Row dr = dummyTable.createRow(0f);
+			headerCellTemplate = dr.createCell(10f, "A", HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE);
+			if (this.colWidths == null) {
 				dataCellTemplateEvenList.add(dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
 				dataCellTemplateOddList.add(dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
+				dataCellTemplateEvenList.add(dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
+				dataCellTemplateOddList.add(dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
+				dataCellTemplateEvenList.add(dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
+				dataCellTemplateOddList.add(dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
+			} else {
+				for (int i = 0 ; i < this.colWidths.size(); i++) {
+					dataCellTemplateEvenList.add(dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
+					dataCellTemplateOddList.add(dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
+				}
 			}
+			defaultCellTemplate = dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE);
+			setDefaultStyles();
 		}
-		defaultCellTemplate = dr.createCell(10f, "A", HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE);
-		setDefaultStyles();
-		ddoc.close();
 	}
 
 	/**
