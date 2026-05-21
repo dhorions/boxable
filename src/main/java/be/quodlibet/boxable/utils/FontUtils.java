@@ -234,12 +234,46 @@ public final class FontUtils {
 
 	}
 	public static void setSerifFontsAsDefault(PDDocument document) {
-		
+
 		defaultFonts.get().put("font",new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN));
 		defaultFonts.get().put("fontBold", new PDType1Font(Standard14Fonts.FontName.TIMES_BOLD));
 		defaultFonts.get().put("fontItalic", new PDType1Font(Standard14Fonts.FontName.TIMES_ITALIC));
 		defaultFonts.get().put("fontBoldItalic", new PDType1Font(Standard14Fonts.FontName.TIMES_BOLD_ITALIC));
 
+	}
+
+	/**
+	 * Sets Noto Sans fonts as the default fonts with full Unicode support.
+	 * <p>
+	 * Uses {@link FontScript#LATIN} (Latin, Greek, Cyrillic) by default.
+	 * For Arabic or Hebrew scripts, use {@link #setNotoSansFontsAsDefault(PDDocument, FontScript)}.
+	 * </p>
+	 *
+	 * @param document the {@link PDDocument} in which the fonts will be embedded
+	 */
+	public static void setNotoSansFontsAsDefault(PDDocument document) {
+		setNotoSansFontsAsDefault(document, FontScript.LATIN);
+	}
+
+	/**
+	 * Sets Noto Sans fonts as the default fonts for the specified script.
+	 * <p>
+	 * Available scripts:
+	 * <ul>
+	 *   <li>{@link FontScript#LATIN} - Latin, Greek, Cyrillic (Western/Eastern European, Russian)</li>
+	 *   <li>{@link FontScript#ARABIC} - Arabic, Persian, Urdu</li>
+	 *   <li>{@link FontScript#HEBREW} - Hebrew, Yiddish</li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @param document the {@link PDDocument} in which the fonts will be embedded
+	 * @param script the {@link FontScript} to use for font selection
+	 */
+	public static void setNotoSansFontsAsDefault(PDDocument document, FontScript script) {
+		defaultFonts.get().put("font", loadFont(document, script.getRegularPath()));
+		defaultFonts.get().put("fontBold", loadFont(document, script.getBoldPath()));
+		defaultFonts.get().put("fontItalic", loadFont(document, script.getItalicPath()));
+		defaultFonts.get().put("fontBoldItalic", loadFont(document, script.getBoldItalicPath()));
 	}
 
 }

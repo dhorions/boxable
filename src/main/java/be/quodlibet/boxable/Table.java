@@ -5,6 +5,8 @@ package be.quodlibet.boxable;
 
 import be.quodlibet.boxable.line.LineStyle;
 import be.quodlibet.boxable.page.PageProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import be.quodlibet.boxable.text.Token;
 import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
@@ -31,6 +33,8 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPa
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 
 public abstract class Table<T extends PDPage> {
+
+    private static final Logger logger = LoggerFactory.getLogger(Table.class);
 
     private static float applyScriptScale(float baseFontSize, int superscriptDepth, int subscriptDepth) {
         int depth = Math.max(superscriptDepth, subscriptDepth);
@@ -1005,7 +1009,7 @@ public abstract class Table<T extends PDPage> {
                                         }
                                         cursorX += token.getWidth(currentFont) / 1000 * currentFontSize;
                                     } catch (IOException e) {
-                                        e.printStackTrace();
+                                        logger.error("Failed to render text token", e);
                                     }
                                 }
                                 break;
@@ -1385,7 +1389,7 @@ public abstract class Table<T extends PDPage> {
      * @return header row
      */
     public Row<T> getHeader() {
-        if (header == null) {
+        if (header == null || header.isEmpty()) {
             throw new IllegalArgumentException("Header Row not set on table");
         }
 

@@ -161,7 +161,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			}
 			tableCellContentStream.close();
 		} catch (IOException e) {
-			logger.warn("Cannot create table in TableCell. Table data: '{}' " + tableData + e);
+			logger.warn("Cannot create table in TableCell. Table data: '{}'", tableData, e);
 		} finally {
 			yStart = originalYStart;
 		}
@@ -512,7 +512,7 @@ public class TableCell<T extends PDPage> extends Cell<T> {
 			}
 			tableCellContentStream.close();
 		} catch (IOException e) {
-			logger.warn("Cannot draw table for TableCell! Table data: '{}'" + tableData + e);
+			logger.warn("Cannot draw table for TableCell! Table data: '{}'", tableData, e);
 		}
 	}
 

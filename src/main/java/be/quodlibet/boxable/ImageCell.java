@@ -5,6 +5,12 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import be.quodlibet.boxable.image.Image;
 import be.quodlibet.boxable.line.LineStyle;
 
+/**
+ * A table cell that contains an image.
+ * Extends the base Cell class to provide image-specific functionality including scaling.
+ *
+ * @param <T> the page type extending PDPage
+ */
 public class ImageCell<T extends PDPage> extends Cell<T> {
 
 	private Image img;

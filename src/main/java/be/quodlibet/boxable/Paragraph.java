@@ -16,6 +16,8 @@ import java.util.Stack;
 import be.quodlibet.boxable.utils.PageContentStreamOptimized;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import be.quodlibet.boxable.text.PipelineLayer;
 import be.quodlibet.boxable.text.Token;
@@ -27,6 +29,8 @@ import be.quodlibet.boxable.utils.PDStreamUtils;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
 public class Paragraph {
+	private static final Logger logger = LoggerFactory.getLogger(Paragraph.class);
+
 	public static final float SCRIPT_SCALE = 0.6f;
 	public static final float SUPERSCRIPT_RISE = 0.35f;
 	public static final float SUBSCRIPT_DROP = 0.2f;
@@ -295,7 +299,7 @@ public class Paragraph {
 								textInLine.push(currentFont, currentFontSize, new Token(TokenType.PADDING, String
 										.valueOf(orderingNumberAndTab / 1000 * getFontSize())));
 							} catch (IOException e) {
-								e.printStackTrace();
+								logger.warn("Failed to calculate font string width", e);
 							}
 							orderListElement++;
 						} else {
@@ -305,7 +309,7 @@ public class Paragraph {
 								textInLine.push(currentFont, currentFontSize, new Token(TokenType.PADDING,
 										String.valueOf(tabBullet / 1000 * getFontSize())));
 							} catch (IOException e) {
-								e.printStackTrace();
+								logger.warn("Failed to calculate font string width", e);
 							}
 						}
 						textInLine.push(sinceLastWrapPoint);
@@ -406,7 +410,7 @@ public class Paragraph {
 								textInLine.push(currentFont, currentFontSize, new Token(TokenType.PADDING,
 										String.valueOf((tab + font.getStringWidth(orderingNumber)) / 1000 * getFontSize())));
 							} catch (IOException e) {
-								e.printStackTrace();
+								logger.warn("Failed to calculate font string width", e);
 							}
 						} else {
 							try {
@@ -416,7 +420,7 @@ public class Paragraph {
 										String.valueOf(tabBullet / 1000 * getFontSize())));
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
-								e.printStackTrace();
+								logger.warn("Failed to calculate font string width", e);
 							}
 						}
 					}
@@ -463,7 +467,7 @@ public class Paragraph {
 								textInLine.push(currentFont, currentFontSize, new Token(TokenType.PADDING, String
 										.valueOf(orderingNumberAndTab / 1000 * getFontSize())));
 							} catch (IOException e) {
-								e.printStackTrace();
+								logger.warn("Failed to calculate font string width", e);
 							}
 						} else {
 							try {
@@ -472,7 +476,7 @@ public class Paragraph {
 								textInLine.push(currentFont, currentFontSize, new Token(TokenType.PADDING,
 										String.valueOf(tabBullet / 1000 * getFontSize())));
 							} catch (IOException e) {
-								e.printStackTrace();
+								logger.warn("Failed to calculate font string width", e);
 							}
 						}
 					}
@@ -524,7 +528,7 @@ public class Paragraph {
 							textInLineMaxFontSize = Math.max(textInLineMaxFontSize, currentFontSize);
 						}
 					} catch (IOException e) {
-						e.printStackTrace();
+						logger.warn("Failed to calculate font string width", e);
 					}
 				} else {
 					// wrapping at this must-have wrap point
@@ -568,7 +572,7 @@ public class Paragraph {
 								}
 							}
 						} catch (IOException e) {
-							e.printStackTrace();
+							logger.warn("Failed to calculate font string width", e);
 						}
 					}
 				}
@@ -595,7 +599,7 @@ public class Paragraph {
 							try {
 								width += (currentFont.getStringWidth(String.valueOf(c)) / 1000f * currentFontSize);
 							} catch (IOException e) {
-								e.printStackTrace();
+								logger.warn("Failed to calculate font string width", e);
 							}
 							if(alreadyTextInLine){
 								if (width < this.width - textInLine.trimmedWidth()) {
@@ -667,7 +671,7 @@ public class Paragraph {
 					}
 
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.warn("Failed to calculate font string width", e);
 				}
 				break;
 			}

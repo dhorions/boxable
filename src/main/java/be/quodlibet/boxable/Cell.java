@@ -25,7 +25,18 @@ import be.quodlibet.boxable.text.WrappingFunction;
 import be.quodlibet.boxable.utils.FontUtils;
 import be.quodlibet.boxable.utils.UnitConverter;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import java.util.Objects;
 
+/**
+ * Represents a table cell in a PDF document with configurable content, styling, and layout properties.
+ * <p>
+ * A cell contains text content and supports various formatting options including fonts, colors, padding,
+ * borders, alignment, and text rotation. Cells are contained within rows and can be styled individually
+ * or inherit styles from other cells.
+ * </p>
+ *
+ * @param <T> The type of {@link PDPage} that this cell will be rendered on
+ */
 public class Cell<T extends PDPage> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Cell.class);
@@ -1031,25 +1042,25 @@ public class Cell<T extends PDPage> {
 	 * @return boolean if source cell has the same style
 	 */
 	public Boolean hasSameStyle(Cell<?> sourceCell) {
-		if (!sourceCell.getTopBorder().equals(getTopBorder())) {
+		if (!Objects.equals(sourceCell.getTopBorder(), getTopBorder())) {
 			return false;
 		}
-		if (!sourceCell.getFont().equals(getFont())) {
+		if (!Objects.equals(sourceCell.getFont(), getFont())) {
 			return false;
 		}
-		if (!sourceCell.getFontBold().equals(getFontBold())) {
+		if (!Objects.equals(sourceCell.getFontBold(), getFontBold())) {
 			return false;
 		}
-		if (!sourceCell.getFillColor().equals(getFillColor())) {
+		if (!Objects.equals(sourceCell.getFillColor(), getFillColor())) {
 			return false;
 		}
-		if (!sourceCell.getTextColor().equals(getTextColor())) {
+		if (!Objects.equals(sourceCell.getTextColor(), getTextColor())) {
 			return false;
 		}
-		if (!sourceCell.getAlign().equals(getAlign())) {
+		if (!Objects.equals(sourceCell.getAlign(), getAlign())) {
 			return false;
 		}
-		if (!sourceCell.getValign().equals(getValign())) {
+		if (!Objects.equals(sourceCell.getValign(), getValign())) {
 			return false;
 		}
 		return true;
